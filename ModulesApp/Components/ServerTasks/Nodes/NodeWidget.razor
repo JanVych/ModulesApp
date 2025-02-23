@@ -1,0 +1,104 @@
+﻿@using Blazor.Diagrams.Components.Renderers
+@using Blazor.Diagrams.Core.Models
+@using ModulesApp.Components.ServerTasks.Ports
+@using ModulesApp.Interfaces
+@using MudBlazor
+
+<div class="node">
+    <div class="node-header" style="@_headerStyle">
+        @Header
+    </div>
+
+    <div class="node-content">
+        @ChildContent
+    </div>
+
+    @foreach (TaskPort port in Node.Ports)
+    {
+        if (port.Input && port.Order == 0)
+        {
+            <PortRenderer @key="port" Port="port" Class="diagram-port in middle" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+        }
+
+        else if (port.Input && port.Order == 1)
+        {
+            <PortRenderer @key="port" Port="port" Class="diagram-port in first" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+        }
+
+        else if (port.Input && port.Order == 2)
+        {
+            <PortRenderer @key="port" Port="port" Class="diagram-port in second" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+        }
+
+        else if (!port.Input && port.Order == 0)
+        {
+            <PortRenderer @key="port" Port="port" Class="diagram-port out middle" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+        }
+
+        else if (!port.Input && port.Order == 1)
+        {
+            <PortRenderer @key="port" Port="port" Class="diagram-port out first" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+        }
+        else if (!port.Input && port.Order == 2)
+        {
+            <PortRenderer @key="port" Port="port" Class="diagram-port out second" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+        }
+    }
+
+    @if (BoolOutputText)
+    {
+        <div class="output-text true">T</div>
+        <div class="output-text false">F</div>
+    }
+</div>
+
+<style>
+
+</style>
+
+
+@code {
+    [Parameter]
+    public TaskNode Node { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool BoolOutputText { get; set; } = false;
+
+    [Parameter]
+    public string Header { get; set; } = string.Empty;
+
+    private string _headerStyle = string.Empty;
+    private string _dataPortStyle = string.Empty;
+    private string _portStyle = string.Empty;
+
+    protected override void OnInitialized()
+    {
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var mainColor = string.Empty;
+            var secondaryColor = string.Empty;
+
+            (mainColor, secondaryColor) = Node.Type switch
+            {
+                NodeType.DataDisplay => ("var(--data-display-node-background)", "var(--node-color)"),
+                NodeType.FromMessage => ("var(--from-message-node-background)", "var(--node-color)"),
+                NodeType.Value => ("var(--from-message-node-background)", "var(--node-color)"),
+                NodeType.Condition => ("var(--condition-node-background)", "var(--node-color)"),
+                NodeType.SendMessage => ("var(--data-display-node-background)", "var(--node-color)"),
+                _ => ("transparent", "transparent")
+            };
+
+            _headerStyle = $"background-color: {mainColor};";
+            _dataPortStyle = $"background-color: {mainColor}; border-color: {mainColor};";
+            _portStyle = $"background-color: {secondaryColor}; border-color: {mainColor};";
+        }
+    }
+}

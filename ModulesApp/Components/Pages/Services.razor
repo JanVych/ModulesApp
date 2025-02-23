@@ -1,0 +1,71 @@
+﻿@using ModulesApp.Models.BackgroundService
+@using ModulesApp.Services.Background
+
+@page "/services"
+
+@inject BackgroundServiceManager _backgroundServiceManager
+
+<PageTitle>Services</PageTitle>
+
+<MudButton OnClick="Add" Variant="Variant.Outlined">Add</MudButton>
+<MudButton OnClick="Remove" Variant="Variant.Outlined">Remove</MudButton>
+
+<MudButton OnClick="Start" Variant="Variant.Outlined">Start</MudButton>
+<MudButton OnClick="Stop" Variant="Variant.Outlined">Stop</MudButton>
+
+<MudList T="DbBackgroundService"
+         @bind-SelectedValue=_selectedService
+         SelectionMode="SelectionMode.SingleSelection">
+    @foreach (var service in dbServices)
+    {
+        <MudListItem Value="service">
+            @service.Name
+        </MudListItem>
+    }
+</MudList>
+
+
+@code
+{
+    private List<DbBackgroundService> dbServices;
+    private DbBackgroundService? _selectedService;
+
+    protected override void OnInitialized()
+    {
+        dbServices = _backgroundServiceManager.GetAll();
+        _selectedService = dbServices.FirstOrDefault();
+    }
+
+    private async Task Add()
+    {
+        var service = new GoodweBackgroundService()
+            {
+                Name = "Goodwe",
+            };
+        await _backgroundServiceManager.Add(service);
+    }
+
+    private async Task Remove()
+    {
+        if (_selectedService != null)
+        {
+            await _backgroundServiceManager.Remove(_selectedService.Id);
+        }
+    }
+
+    private void Start()
+    {
+        if (_selectedService != null)
+        {
+            _backgroundServiceManager.Start(_selectedService.Id);
+        }
+    }
+
+    private async Task Stop()
+    {
+        if (_selectedService != null)
+        {
+            await _backgroundServiceManager.Stop(_selectedService.Id);
+        }
+    }
+}

@@ -1,0 +1,417 @@
+﻿@using ModulesApp.Components.ServerTasks.Links
+@using ModulesApp.Components.ServerTasks.Nodes
+@using ModulesApp.Components.ServerTasks.Ports
+@using ModulesApp.Models
+@using ModulesApp.Interfaces
+@using ModulesApp.Models.ServerTasks
+@using ModulesApp.Services
+@using ModulesApp.Services.Data
+@using Blazor.Diagrams
+@using Blazor.Diagrams.Components
+@using Blazor.Diagrams.Components.Widgets
+@using Blazor.Diagrams.Core.PathGenerators
+@using Blazor.Diagrams.Core.Routers
+@using Blazor.Diagrams.Options
+@using Blazor.Diagrams.Core.Geometry
+@using Blazor.Diagrams.Core.Models
+@using System.Diagnostics
+
+@inject ServerTaskService _serverTaskService
+@inject ModuleService _moduleService
+@inject ServerContextService _serverContextService
+
+@page "/tasks"
+
+<PageTitle>Tasks</PageTitle>
+
+<MudGrid>
+    <MudItem xs="2">
+        <MudText Typo="Typo.h4" Class="mb-8">Tasks</MudText>
+
+        <MudList T="DbTask" SelectedValue="_selectedTask">
+            @foreach (var task in _tasks)
+            {
+                <MudListItem Value="task" OnClick="@(() => SelectTask(task))">@task.Name</MudListItem>
+            }
+        </MudList>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddNewTask">Add New</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@DeleteTask">Delete</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@SaveTask">Save</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="RunTask">Run</MudButton>
+    </MudItem>
+
+    <MudItem xs="10">
+        @if (_selectedTask != null && _modules != null)
+        {
+            <MudStack Class="mb-5" Row="true">
+                <MudTextField @bind-Value="_selectedTask.Name" Label="Name" Variant="Variant.Text"></MudTextField>
+                <MudSelect Label="Type" @bind-Value="_selectedTask.Type">
+                    @foreach (TaskType type in Enum.GetValues(typeof(TaskType)))
+                    {
+                        <MudSelectItem Value="type"></MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect Label="Module" @bind-Value="_selectedTask.Module">
+                    @foreach (var module in _modules)
+                    {
+                        <MudSelectItem Value="module">@module.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudStack>
+        }
+        <MudStack Class="mb-5" Row="true">
+
+            <MudButton StartIcon="@Icons.Material.Filled.Message"
+                       Variant="Variant.Filled"
+                       Style="background-color: var(--from-message-node-background); color: var(--node-color);"
+                       OnClick="() => AddNode(NodeType.FromMessage)">
+                From Message
+            </MudButton>
+
+            <MudButton StartIcon="@Icons.Material.Filled.Numbers"
+                       Variant="Variant.Filled"
+                       Style="background-color: var(--from-message-node-background); color: var(--node-color);"
+                       OnClick="() => AddNode(NodeType.Value)">
+                Static Data
+            </MudButton>
+
+            <MudButtonGroup Variant="Variant.Filled">
+                <MudButton Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                           OnClick="() => AddNode(NodeType.Condition)">
+                    Condition
+                </MudButton>
+                <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                         Label="@_selectedCondition.ToLongString()"
+                         Class="custom-menu-label custom-menu-icon"
+                         Style="align-self: auto; background-color: var(--condition-node-background);">
+
+
+                    @foreach (NodeConditionType condition in Enum.GetValues(typeof(NodeConditionType)))
+                    {
+                        <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                                     @onclick="() => ChangeConditionType(condition)">
+                            @condition.ToLongString()
+                        </MudMenuItem>
+                    }
+
+                </MudMenu>
+
+                <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                         Label="@_selectedInputType.ToString()"
+                         Class="custom-menu-label custom-menu-icon"
+                         Style="align-self: auto; background-color: var(--condition-node-background);">
+
+                    <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                                 @onclick="() => ChangeInputType(NodeInputType.Double)">
+                        Double
+                    </MudMenuItem>
+                    <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                                 @onclick="() => ChangeInputType(NodeInputType.Single)">
+                        Single
+                    </MudMenuItem>
+
+                </MudMenu>
+            </MudButtonGroup>
+
+            <MudButton StartIcon="@Icons.Material.Filled.DashboardCustomize"
+                       Variant="Variant.Filled"
+                       Style="background-color: var(--data-display-node-background); color: var(--node-color);"
+                       OnClick="() => AddNode(NodeType.DataDisplay)">
+                Data Display
+            </MudButton>
+
+            <MudButton StartIcon="@Icons.Material.Filled.Send"
+                       Variant="Variant.Filled"
+                       Style="background-color: var(--data-display-node-background); color: var(--node-color);"
+                       OnClick="() => AddNode(NodeType.SendMessage)">
+                Send Message
+            </MudButton>
+
+        </MudStack>
+
+        @if (_currentDiagram != null)
+        {
+            <div class="diagram-container">
+                <CascadingValue Value="_currentDiagram" IsFixed="true">
+                    <DiagramCanvas>
+                        <Widgets>
+                            <GridWidget Size="30" Mode="GridMode.Point" BackgroundColor="var(--mud-palette-background)" />
+
+                            <NavigatorWidget Width="200"
+                                             Height="120"
+                                             Class="border border-secondary absolute"
+                                             Style="bottom: 15px; right: 15px; background-color: white;" />
+
+                        </Widgets>
+                        <AdditionalHtml>
+
+                        </AdditionalHtml>
+                        <AdditionalSvg>
+
+                        </AdditionalSvg>
+                    </DiagramCanvas>
+                </CascadingValue>
+            </div>
+        }
+    </MudItem>
+</MudGrid>
+
+<style>
+    .diagram-container {
+        width: 100%;
+        height: 1000px;
+        border: 1px solid grey;
+    }
+
+    .custom-menu-icon .mud-icon-root {
+        color: var(--node-color);
+    }
+
+    .custom-menu-label .mud-button-label {
+        color: var(--node-color);
+    }
+
+</style>
+
+
+@code
+{
+    private List<DbTask> _tasks = [];
+    private DbTask? _selectedTask;
+    private bool _tasksLoading = true;
+
+    private BlazorDiagram? _currentDiagram;
+    private NodeConditionType _selectedCondition = NodeConditionType.Equal;
+    private NodeInputType _selectedInputType = NodeInputType.Single;
+
+    private List<Module>? _modules;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var options = new BlazorDiagramOptions
+                {
+                    AllowMultiSelection = true,
+                    Zoom =
+                {
+                    Enabled = false,
+                },
+                    Links =
+                {
+                    Factory = LinkFactory.CustomLinkFactory,
+                    DefaultRouter = new NormalRouter(),
+                    DefaultPathGenerator = new SmoothPathGenerator(),
+                },
+                };
+
+            _currentDiagram = new BlazorDiagram(options);
+
+            _currentDiagram.RegisterComponent<FromMessageNode, FromMessageWidget>();
+            _currentDiagram.RegisterComponent<ConditionNode, ConditionWidget>();
+            _currentDiagram.RegisterComponent<DataDisplayNode, DataDisplayWidget>();
+            _currentDiagram.RegisterComponent<ValueNode, ValueWidget>();
+            _currentDiagram.RegisterComponent<SendMessageNode, SendMessageWidget>();
+
+            _modules = await _moduleService.GetAllAsync();
+
+            _tasks = await _serverTaskService.GetAllTasks();
+            _selectedTask = _tasks.FirstOrDefault();
+            await LoadDiagram();
+            _tasksLoading = false;
+
+            StateHasChanged();
+        }
+    }
+
+    private void ClearDiagram()
+    {
+        if (_currentDiagram != null)
+        {
+            _currentDiagram.Nodes.Clear();
+            _currentDiagram.Links.Clear();
+        }
+    }
+
+    private async Task SelectTask(DbTask task)
+    {
+        ClearDiagram();
+        _selectedTask = task;
+        await LoadDiagram();
+    }
+
+    private async Task AddNewTask()
+    {
+        ClearDiagram();
+        var newTask = new DbTask
+            {
+                Name = $"New Task {_tasks.Count}",
+            };
+        await _serverTaskService.Add(newTask);
+        _tasks.Add(newTask);
+        _selectedTask = _tasks.LastOrDefault();
+    }
+
+    private async Task DeleteTask()
+    {
+        if (_selectedTask != null)
+        {
+            ClearDiagram();
+            await _serverTaskService.Delete(_selectedTask);
+            _tasks.Remove(_selectedTask);
+            _selectedTask = _tasks.LastOrDefault();
+            await LoadDiagram();
+        }
+    }
+
+    private async Task SaveTask()
+    {
+        if (_selectedTask != null && _currentDiagram != null)
+        {
+            await _serverTaskService.Save(_selectedTask, _currentDiagram);
+        }
+    }
+
+    private async Task RunTask()
+    {
+        var stopwatch = Stopwatch.StartNew();
+        if (_selectedTask != null)
+        {
+            await _serverTaskService.ProcessNodes(_serverContextService, _selectedTask);
+        }
+        stopwatch.Stop();
+        Debug.WriteLine($"Elapsed Time: {stopwatch.ElapsedMilliseconds} ms");
+    }
+
+    private void AddNode(NodeType type)
+    {
+        if (_currentDiagram?.Container != null)
+        {
+            var x = (-_currentDiagram.Pan.X) + 40;
+            var y = (-_currentDiagram.Pan.Y) + 75;
+
+            var set = new HashSet<int>(_currentDiagram.Nodes.Select(item => item.Order));
+            int smallestOrder = 1;
+            while (set.Contains(smallestOrder))
+            {
+                smallestOrder++;
+            }
+
+            Point point = new Point(x, y);
+
+            if (type == NodeType.Condition)
+            {
+                _currentDiagram.Nodes.Add(new ConditionNode(_serverContextService, _selectedCondition, point, input: _selectedInputType) { Order = smallestOrder });
+            }
+            else if (type == NodeType.FromMessage)
+            {
+                _currentDiagram.Nodes.Add(new FromMessageNode(_serverContextService, point) { Order = smallestOrder });
+            }
+            else if (type == NodeType.DataDisplay)
+            {
+                _currentDiagram.Nodes.Add(new DataDisplayNode(_serverContextService, point) { Order = smallestOrder });
+            }
+            else if (type == NodeType.Value)
+            {
+                _currentDiagram.Nodes.Add(new ValueNode(_serverContextService, point) { Order = smallestOrder });
+            }
+            else if (type == NodeType.SendMessage)
+            {
+                _currentDiagram.Nodes.Add(new SendMessageNode(_serverContextService, point) { Order = smallestOrder });
+            }
+        }
+    }
+
+    private void ChangeConditionType(NodeConditionType condition)
+    {
+        _selectedCondition = condition;
+    }
+
+    private void ChangeInputType(NodeInputType type)
+    {
+        _selectedInputType = type;
+    }
+
+    private async Task LoadDiagram()
+    {
+        if (_currentDiagram != null && _selectedTask != null)
+        {
+            var nodes = new List<DbTaskNode>();
+            var links = await _serverTaskService.GetAllTaskLinks(_selectedTask.Id);
+            _selectedTask.Nodes = nodes;
+
+            foreach (var link in links)
+            {
+                if (!nodes.Contains(link.Source))
+                {
+                    nodes.Add(link.Source);
+                }
+                if (!nodes.Contains(link.Target))
+                {
+                    nodes.Add(link.Target);
+                }
+            }
+
+            foreach (var node in nodes)
+            {
+                if (node.Type == NodeType.Condition)
+                {
+                    _currentDiagram.Nodes.Add(new ConditionNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.FromMessage)
+                {
+                    _currentDiagram.Nodes.Add(new FromMessageNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.DataDisplay)
+                {
+                    _currentDiagram.Nodes.Add(new DataDisplayNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.Value)
+                {
+                    _currentDiagram.Nodes.Add(new ValueNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.SendMessage)
+                {
+                    _currentDiagram.Nodes.Add(new SendMessageNode(_serverContextService, node));
+                }
+            }
+
+
+            foreach (var link in links)
+            {
+                var source = _currentDiagram.Nodes.First(n => n.Order == link.Source.Order);
+                var target = _currentDiagram.Nodes.First(n => n.Order == link.Target.Order);
+                LinkModel? linkModel;
+                TaskPort? sourcePort = null;
+                TaskPort? targetPort = null;
+
+                foreach (TaskPort port in source.Ports)
+                {
+                    if (port.Order == link.SourceOrder && port.Input == link.SourceInput)
+                    {
+                        sourcePort = port;
+                        break;
+                    }
+                }
+
+                foreach (TaskPort port in target.Ports)
+                {
+                    if (port.Order == link.TargetOrder && port.Input == link.TargetInput)
+                    {
+                        targetPort = port;
+                        break;
+                    }
+                }
+                if (sourcePort != null && targetPort != null)
+                {
+                    linkModel = new LinkModel(sourcePort, targetPort);
+                    if (!sourcePort.Data || !targetPort.Data)
+                    {
+                        linkModel.Color = "grey";
+                    }
+                    _currentDiagram.Links.Add(linkModel);
+                }
+            }
+        }
+    }
+}

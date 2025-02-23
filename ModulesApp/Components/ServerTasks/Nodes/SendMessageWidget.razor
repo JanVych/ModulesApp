@@ -1,0 +1,62 @@
+﻿@using MudBlazor
+
+
+<NodeWidget Node="Node" Header="Send-Message">
+
+    <MudSelect T="long"
+               @bind-Value="Node.LongVal1"
+               Variant="Variant.Outlined"
+               Label="Module"
+               Margin="Margin.Dense">
+        @foreach (var m in Node.Modules)
+        {
+            <MudSelectItem Value="@m.Id">@m.Name</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudTextField T="string"
+                  @bind-Value="Node.StringVal1"
+                  Label="Key"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense" />
+
+    <MudSelect T="string"
+               @bind-Value="Node.StringVal2"
+               Variant="Variant.Outlined"
+               Label="Type"
+               Margin="Margin.Dense">
+        <MudSelectItem Value="@("String")"/>
+        <MudSelectItem Value="@("Number")" />
+        <MudSelectItem Value="@("Boolean")" />
+    </MudSelect>
+
+    @if (Node.StringVal2 == "String")
+    {
+        <MudTextField T="string"
+                      @bind-Value="Node.StringVal3"
+                      Label="Value"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense"/>
+    }
+    else if(Node.StringVal2 == "Number")
+    {
+        <MudNumericField T="double"
+                         @bind-Value="Node.DoubleVal1"
+                         Label="Value"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense" />
+    }
+    else if(Node.StringVal2 == "Boolean")
+    {
+        <MudCheckBox T="bool"
+                     Label="@Node.BoolVal1.ToString()"
+                     @bind-value="@Node.BoolVal1"
+                     Margin="Margin.Dense" />
+    }
+    
+</NodeWidget>
+
+@code {
+    [Parameter] 
+    public SendMessageNode Node { get; set; } = null!;
+}

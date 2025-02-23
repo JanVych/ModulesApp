@@ -1,0 +1,99 @@
+﻿@using ModulesApp.Models
+@using ModulesApp.Services.Data
+
+@inject ModuleService _moduleService
+@inject IDialogService _dialogService
+
+@implements IDisposable
+
+@page "/modules"
+
+<PageTitle>Modules</PageTitle>
+
+<MudText Typo="Typo.h3" Class="mb-8">Modules</MudText>
+
+<MudTable Items="@_modules" Loading="@_modulesLoading">
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Current program</MudTh>
+        <MudTh>Wifi network</MudTh>
+        <MudTh>Free Memory</MudTh>
+        <MudTh>Last response</MudTh>
+        <MudTh>Firmware Version</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Current program">@context.ProgramName</MudTd>
+        <MudTd DataLabel="Wifi network">@context.WifiCurrent</MudTd>
+        <MudTd DataLabel="Free Memory">@context.FreeHeap</MudTd>
+        <MudTd DataLabel="Last response">@context.LastResponse</MudTd>
+        <MudTd DataLabel="Firmware Version">@context.FirmwareVersion</MudTd>
+        <MudTd DataLabel="Actions">
+            <MudStack Row="true">
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Color="Color.Primary"
+                               OnClick="() => EditModule(context)">
+                </MudIconButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Secondary"
+                               OnClick="() => DeleteModule(context)">
+                </MudIconButton>
+            </MudStack>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudMessageBox @ref="_mudMessageBox" Title="Warning" CancelText="Cancel">
+    <MessageContent>
+        Deleting can <b><i>not</i></b> be undone!
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+    </YesButton>
+</MudMessageBox>
+
+@code
+{
+    private List<Module> _modules = [];
+    private bool _modulesLoading = true;
+
+    private MudMessageBox _mudMessageBox = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateData();
+        _moduleService.ModulesDbChangedEvent += OnModulesChanged;
+    }
+
+    private async void OnModulesChanged()
+    {
+        await UpdateData();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UpdateData()
+    {
+        _modulesLoading = true;
+        _modules = await _moduleService.GetAllAsync();
+        _modulesLoading = false;
+    }
+
+    private void EditModule(Module module)
+    {
+    }
+
+    private async Task DeleteModule(Module module)
+    {
+        bool? result = await _mudMessageBox.ShowAsync();
+        if (result == true)
+        {
+            _moduleService.Delete(module);
+        }
+    }
+
+    public void Dispose()
+    {
+        _moduleService.ModulesDbChangedEvent -= OnModulesChanged;
+    }
+}

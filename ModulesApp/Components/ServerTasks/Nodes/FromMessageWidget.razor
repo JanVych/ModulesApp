@@ -1,0 +1,26 @@
+﻿@using MudBlazor
+
+<NodeWidget Node="Node" Header="From-Message">
+
+    <MudSelect T="string"
+               @bind-Value="Node.StringVal2"
+               Variant="Variant.Outlined"
+               Label="Type"
+               Margin="Margin.Dense">
+        <MudSelectItem Value="@("any")" />
+        <MudSelectItem Value="@("string")" />
+        <MudSelectItem Value="@("number")" />
+        <MudSelectItem Value="@("boolean")" />
+    </MudSelect>
+
+    <MudTextField T="string"
+                  Label="Key"
+                  @bind-Value="Node.StringVal1"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense" />
+
+</NodeWidget>
+
+@code {
+    [Parameter] public FromMessageNode Node { get; set; } = null!;
+}

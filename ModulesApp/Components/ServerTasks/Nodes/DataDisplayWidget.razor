@@ -1,0 +1,28 @@
+﻿@using MudBlazor
+
+<NodeWidget Node="Node" Header="Data-Display">
+
+    <MudSelect
+        T="long"
+        @bind-Value="Node.LongVal1"
+        Variant="Variant.Outlined" 
+        Label="Select card" 
+        Margin="Margin.Dense">
+        @foreach (var c in Node.Cards)
+        {
+            <MudSelectItem Value="@c.Id">@c.Name</MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudTextField 
+        T="string"
+        @bind-Value="Node.StringVal1"
+        Label="Display name"
+        Variant="Variant.Outlined" 
+        Margin="Margin.Dense"/>
+
+</NodeWidget>
+
+@code {
+    [Parameter] public DataDisplayNode Node { get; set; } = null!;
+}

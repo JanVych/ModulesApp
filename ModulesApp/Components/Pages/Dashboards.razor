@@ -1,0 +1,237 @@
+﻿@using ModulesApp.Models
+@using ModulesApp.Services.Data
+
+@inject DashboardService _dashBoardService
+
+@implements IDisposable
+
+@page "/"
+
+<PageTitle>Dashboard</PageTitle>
+
+<MudStack Justify="Justify.FlexStart">
+
+</MudStack>
+
+<MudGrid>
+    @if (_dashboards == null || _selectedDashboard == null)
+    {
+        <MudItem xs="12">
+            <div class="d-flex align-start justify-center mud-width-full">
+                <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+            </div>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="11">
+            <div class="d-flex align-start justify-center mud-width-full">
+                <MudChipSet T="Dashboard"
+                @bind-SelectedValue="_selectedDashboard"
+                Variant="Variant.Text"
+                SelectionMode="SelectionMode.SingleSelection"
+                Size="Size.Large"
+                AllClosable="@_editMode"
+                OnClose="DeleteDashBoard"
+                Color="Color.Primary">
+                    @foreach (var d in _dashboards)
+                    {
+                        <MudChip Value="@d" Style="height: 60px" Icon="@d.IconString">
+                            <MudText>@d.Name</MudText>
+                        </MudChip>
+                    }
+                    @if (_editMode)
+                    {
+                        <MudChip Value="@("Add")"
+                        Style="height: 60px"
+                        Color="Color.Primary"
+                        Variant="Variant.Text"
+                        Size="Size.Large"
+                        Icon="@Icons.Material.Filled.Add"
+                        OnClick="AddDashBoard" />
+                    }
+                </MudChipSet>
+            </div>
+        </MudItem>
+
+        <MudItem xs="1" class="d-flex align-center justify-center mud-width-full">
+            <MudSwitch @bind-Value="@_editMode" Color="Color.Primary">Edit</MudSwitch>
+        </MudItem>
+
+        <MudItem xs="12">
+            <div class="d-flex align-content-start flex-wrap gap-8">
+                @foreach (var c in _selectedDashboard.Cards)
+                {
+                    if (_editMode)
+                    {
+                        <MudCard Style="width: 300px; height: 300px;">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">@c.Name</MudText>
+                                    <MudText Typo="Typo.h6">Id: @c.Id</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => DeleteDashBoardCard(c)" />
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText>@c.Value</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    }
+                    else
+                    {
+                        <MudCard Style="width: 300px; height: 300px;">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">@c.Name</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText>@c.Value</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    }
+                }
+
+                @if (_editMode)
+                {
+                    <MudCard Style="width: 300px; height: 300px;">
+                        <MudCardHeader>
+                            <MudText Typo="Typo.h6">Add</MudText>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudTextField @bind-Value="_newCardName"
+                            Label="Name"
+                            Variant="Variant.Text"
+                            Error="@_showNewCardError"
+                            ErrorText="the field is required!" />
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text"
+                            Color="Color.Primary"
+                            OnClick="AddDashBoardCard">
+                                Confirm
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                }
+            </div>
+        </MudItem>
+    }
+</MudGrid>
+
+@code
+{
+    private bool _editMode = false;
+    private List<Dashboard>? _dashboards;
+
+    private Dashboard? _selectedDashboard;
+
+    private string? _newCardName;
+    private bool _showNewCardError = false;
+
+    protected override void OnInitialized()
+    {
+        _dashBoardService.DashboardCardDataEvent += OnDashBoardCardDataChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dashboards = await _dashBoardService.GetAllDashboardsAync();
+            if(_dashboards.Count == 0)
+            {
+                var home = new Dashboard
+                {
+                    Name = "Home",
+                    IconString = Icons.Material.Filled.Home
+                };
+                _dashBoardService.Add(home);
+                _dashboards.Add(home);
+            }
+            _selectedDashboard = _dashboards.FirstOrDefault();
+            StateHasChanged();
+        }
+    }
+
+    private void AddDashBoard()
+    {
+        if (_dashboards != null)
+        {
+            var newName = "New" + _dashboards.Count;
+            var dashboard = new Dashboard
+                {
+                    Name = newName,
+                    IconString = Icons.Material.Filled.Pageview
+                };
+            _dashBoardService.Add(dashboard);
+            _dashboards.Add(dashboard);
+            _selectedDashboard = dashboard;
+        }
+    }
+
+    private void DeleteDashBoard(MudChip<Dashboard> chip)
+    {
+        if (_dashboards != null && chip.Value != null)
+        {
+            _dashBoardService.Delete(chip.Value);
+            _dashboards.Remove(chip.Value);
+            _selectedDashboard = _dashboards.FirstOrDefault();
+        }
+    }
+
+    private void AddDashBoardCard()
+    {
+        if (_selectedDashboard != null)
+        {
+            if (!string.IsNullOrEmpty(_newCardName))
+            {
+                var card = new DashBoardCard
+                    {
+                        Name = _newCardName,
+                        DashboardId = _selectedDashboard.Id,
+                    };
+
+                _dashBoardService.Add(card);
+                _selectedDashboard.Cards.Add(card);
+
+                _showNewCardError = false;
+                _newCardName = string.Empty;
+            }
+            else
+            {
+                _showNewCardError = true;
+            }
+        }
+    }
+
+    private void DeleteDashBoardCard(DashBoardCard card)
+    {
+        if (_selectedDashboard != null)
+        {
+            _dashBoardService.Delete(card);
+            _selectedDashboard.Cards.Remove(card);
+        }
+    }
+
+    private void  OnDashBoardCardDataChanged(long cardId, string name, string value)
+    {
+        if(_selectedDashboard != null)
+        {
+            var card = _selectedDashboard.Cards.FirstOrDefault(c => c.Id == cardId);
+            if (card != null)
+            {
+                card.Name = name;
+                card.Value = value;
+                InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        _dashBoardService.DashboardCardDataEvent -= OnDashBoardCardDataChanged;
+    }
+}

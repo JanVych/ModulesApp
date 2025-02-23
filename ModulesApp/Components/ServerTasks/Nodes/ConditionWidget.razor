@@ -1,0 +1,40 @@
+﻿@using Blazor.Diagrams.Components.Renderers;
+@using Blazor.Diagrams.Core.Models
+@using ModulesApp.Interfaces
+@using MudBlazor
+
+<NodeWidget Node="Node" BoolOutputText="true" Header="@header">
+
+    @if (Node.InputType == NodeInputType.Single)
+    {
+        <MudNumericField 
+            T="double" 
+            @bind-Value="Node.DoubleVal1" 
+            Variant="Variant.Outlined" 
+            Margin="Margin.Dense" 
+            Immediate="true"/>
+
+        @* <input id="valueInput" type="number" class="form-control" @bind=Node.DoubleVal1 /> *@
+    }
+
+</NodeWidget>
+
+@code {
+    [Parameter] public ConditionNode Node { get; set; } = null!;
+
+    private string header = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            header = Node.ConditionType.ToLongString();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+       
+        base.OnInitialized();
+    }
+}

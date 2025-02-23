@@ -1,0 +1,43 @@
+﻿@using MudBlazor
+
+<NodeWidget Node="Node" Header="Value">
+
+    <MudSelect T="string"
+               @bind-Value="Node.StringVal2"
+               Variant="Variant.Outlined"
+               Label="Type"
+               Margin="Margin.Dense">
+        <MudSelectItem Value="@("String")" />
+        <MudSelectItem Value="@("Number")" />
+        <MudSelectItem Value="@("Boolean")" />
+    </MudSelect>
+
+    @if (Node.StringVal2 == "String")
+    {
+        <MudTextField T="string"
+                      @bind-Value="Node.StringVal1"
+                      Label="Value"
+                      Variant="Variant.Outlined"
+                      Margin="Margin.Dense" />
+    }
+    else if (Node.StringVal2 == "Number")
+    {
+        <MudNumericField T="double"
+                         @bind-Value="Node.DoubleVal1"
+                         Label="Value"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense" />
+    }
+    else if (Node.StringVal2 == "Boolean")
+    {
+        <MudCheckBox T="bool"
+                     Label="@Node.BoolVal1.ToString()"
+                     @bind-value="@Node.BoolVal1"
+                     Margin="Margin.Dense" />
+    }
+
+</NodeWidget>
+
+@code {
+    [Parameter] public ValueNode Node { get; set; } = null!;
+}

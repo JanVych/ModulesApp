@@ -1,0 +1,93 @@
+﻿using Microsoft.EntityFrameworkCore;
+using ModulesApp.Models;
+using ModulesApp.Models.BackgroundService;
+using ModulesApp.Models.ServerTasks;
+using ModulesApp.Models.ServerTasks.Nodes;
+using ModulesApp.Services.Background;
+using System.Text.Json;
+
+namespace ModulesApp.Data;
+
+public class SQLiteDb : DbContext
+{
+    protected readonly IConfiguration _configuration;
+
+    public DbSet<Module> Modules { get; set; }
+    public DbSet<ModuleAction> ModuleActions { get; set; }
+
+    public DbSet<Dashboard> Dashboards { get; set; }
+    public DbSet<DashBoardCard> DashBoardCards { get; set; }
+
+    public DbSet<DbTaskNode> TaskNodes { get; set; }
+    public DbSet<DbTaskLink> TaskLinks { get; set; }
+    public DbSet<DbTask> Tasks { get; set; }
+
+
+    public DbSet<DbBackgroundService> BackgroundServices { get; set; }
+
+    public SQLiteDb(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder
+            //.UseLazyLoadingProxies()
+            .UseSqlite(_configuration.GetConnectionString("SQLiteDb"));
+    }
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        var SerializerOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+        };
+
+        builder.Entity<DbTaskLink>()
+            .HasOne(link => link.Source)
+            .WithMany(node => node.SourceLinks)
+            .HasForeignKey(link => link.SourceNodeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<DbTaskLink>()
+            .HasOne(link => link.Target)
+            .WithMany(node => node.TargetLinks)
+            .HasForeignKey(link => link.TargetNodeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<DbTaskNode>()
+            .HasDiscriminator<string>("NodeType")
+            .HasValue<DbConditionNode>("Condition")
+            .HasValue<DbDataDisplayNode>("DataDisplay")
+            .HasValue<DbFromMessageNode>("FromMessage")
+            .HasValue<DbValueNode>("StaticData")
+            .HasValue<DbSendMessageNode>("SendMessage");
+
+
+        builder.Entity<ModuleAction>()
+            .Property(p => p.Value)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, SerializerOptions),
+                v => JsonSerializer.Deserialize<object>(v, SerializerOptions) ?? string.Empty);
+
+        builder.Entity<Module>()
+            .Property(p => p.JsonData)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, SerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+
+
+        builder.Entity<DbBackgroundService>()
+            .HasDiscriminator<BackgroundServiceType>(nameof(DbBackgroundService.Type))
+            .HasValue<GoodweBackgroundService>(BackgroundServiceType.Goodwe);
+
+        builder.Entity<DbBackgroundService>()
+            .Property(p => p.JsonData)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, SerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+
+
+        base.OnModelCreating(builder);
+    }
+}
