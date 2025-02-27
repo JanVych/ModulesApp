@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace ModulesApp.Models;
 
 [Table("Module")]
-public class Module
+public class DbModule
 {
     [Key]
     public long Id { get; set; }
@@ -27,7 +27,7 @@ public class Module
 
     [JsonExtensionData]
     public Dictionary<string, object> JsonData { get; set; } = default!;
-    public ICollection<ModuleAction> ModuleActions { get; set; } = [];
+    public ICollection<DbModuleAction> ModuleActions { get; set; } = [];
     public ICollection<DbTask> ServerTasks { get; set; } = [];
 
     public override string ToString() => Name;

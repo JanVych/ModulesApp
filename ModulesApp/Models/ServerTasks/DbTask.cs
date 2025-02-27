@@ -23,7 +23,7 @@ public class DbTask
 
     public long? ModuleId { get; set; }
     [ForeignKey("ModuleId")]
-    public Module? Module { get; set; }
+    public DbModule? Module { get; set; }
 
     public ICollection<DbTaskNode> Nodes { get; set; } = [];
 }

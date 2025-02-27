@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
-namespace ModulesApp.Models.BackgroundService;
+namespace ModulesApp.Models.BackgroundServices;
 
 public enum BackgroundServiceType
 {

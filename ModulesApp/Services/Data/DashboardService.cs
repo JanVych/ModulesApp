@@ -16,28 +16,28 @@ public class DashboardService
 
     }
 
-    public void Add(Dashboard dashboard)
+    public void Add(DbDashboard dashboard)
     {
         using var context = _dbContextFactory.CreateDbContext();
         context.Dashboards.Add(dashboard);
         context.SaveChanges();
     }
 
-    public void Update(Dashboard dashboard)
+    public void Update(DbDashboard dashboard)
     {
         using var context = _dbContextFactory.CreateDbContext();
         context.Dashboards.Update(dashboard);
         context.SaveChanges();
     }
 
-    public void Delete(Dashboard dashboard)
+    public void Delete(DbDashboard dashboard)
     {
         using var context = _dbContextFactory.CreateDbContext();
         context.Dashboards.Remove(dashboard);
         context.SaveChanges();
     }
 
-    public Dashboard? GetDashBoard(long id)
+    public DbDashboard? GetDashBoard(long id)
     {
         using var context = _dbContextFactory.CreateDbContext();
         return context.Dashboards
@@ -45,7 +45,7 @@ public class DashboardService
             .FirstOrDefault(x => x.Id == id);
     }
 
-    public async Task<List<Dashboard>> GetAllDashboardsAync()
+    public async Task<List<DbDashboard>> GetAllDashboardsAync()
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Dashboards
@@ -61,7 +61,7 @@ public class DashboardService
         DashboardCardDataEvent?.Invoke(boardCardId, name, value);
     }
 
-    public void Add(DashBoardCard card)
+    public void Add(DbDashBoardCard card)
     {
         using var context = _dbContextFactory.CreateDbContext();
         context.DashBoardCards.Add(card);
@@ -81,14 +81,14 @@ public class DashboardService
         }
     }
 
-    public void Delete(DashBoardCard card)
+    public void Delete(DbDashBoardCard card)
     {
         using var context = _dbContextFactory.CreateDbContext();
         context.DashBoardCards.Remove(card);
         context.SaveChanges();
     }
 
-    public List<DashBoardCard> GetAllDashBoardCards()
+    public List<DbDashBoardCard> GetAllDashBoardCards()
     {
         using var context = _dbContextFactory.CreateDbContext();
         return context.DashBoardCards

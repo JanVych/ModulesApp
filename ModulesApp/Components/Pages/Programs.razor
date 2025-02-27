@@ -1,3 +1,261 @@
-﻿@page "/programs"
+﻿@using BlazorMonaco.Editor
+@using ModulesApp.Models.ModulesPrograms
+@using ModulesApp.Services
+@using System.Diagnostics
+
+@inject FirmwareService _firmwareService
+
+@page "/programs"
 
 <PageTitle>Programs</PageTitle>
+
+<MudGrid Spacing="6">
+    <MudItem xs="12">
+        <MudPaper Outlined="true" Class="pa-4">
+            <MudStack Wrap="Wrap.Wrap" Spacing="10" Row="true" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6">@_selectedProgram?.Name</MudText>
+                <MudPaper Style="width: 200px" Elevation="0">
+                    <MudSelect @bind-Value="_selectedFirmware" Variant="Variant.Outlined">
+                        @if (_firmware == null)
+                        {
+                            <MudText Typo="Typo.h6">Loading...</MudText>
+                        }
+                        else
+                        {
+                            @foreach (var f in _firmware)
+                            {
+                                <MudSelectItem Value="@f">@f.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Style="width: 200px" Elevation="0">
+                    <MudSelect @bind-Value="_selectedIDF" Variant="Variant.Outlined">
+                        @if (_idf == null)
+                        {
+                            <MudText Typo="Typo.h6">Loading...</MudText>
+                        }
+                        else
+                        {
+                            @foreach (var i in _idf)
+                            {
+                                <MudSelectItem Value="@i">@i.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </MudPaper>
+                <MudSpacer />
+                <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="DeleteProgram" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" OnClick="ReloadProgram" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Save" OnClick="SaveProgram" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Build" OnClick="BuilProgram" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Wash" OnClick="CleanProgram" />
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="2">
+        <MudPaper Elevation="0">
+            <MudList T="ModuleProgram"
+                     SelectedValue="@_selectedProgram"
+                     SelectionMode="SelectionMode.SingleSelection"
+                     SelectedValueChanged="@SelectedProgramChanged">
+                @if (_programs == null)
+                {
+                    <MudText Typo="Typo.h6">Loading...</MudText>
+                }
+                else
+                {
+                    @foreach (var p in _programs)
+                    {
+                        <MudListItem Value="@p" Text=@p.Name />
+                        <MudDivider />
+                    }
+                }
+                <MudIconButton Icon="@Icons.Material.Outlined.Add" OnClick="CreateNewProgram" />
+            </MudList>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="10">
+        <MudTabs Elevation="0" KeepPanelsAlive="false" @ref=_tabs ActivePanelIndexChanged="ActivePanelIndexChanged">
+            @if (_selectedProgram?.Files == null)
+            {
+                <MudText Typo="Typo.h6">Loading...</MudText>
+            }
+            else
+            {
+                @foreach (var f in _selectedProgram.Files)
+                {
+                    <MudTabPanel Text="@f.FileName" ShowCloseIcon=false>
+                        <MudPaper>
+                            <StandaloneCodeEditor @ref=_editor ConstructionOptions="CreateEditorConstructionOptions(f)" />
+                        </MudPaper>
+                    </MudTabPanel>
+                }
+            }
+
+        </MudTabs>
+    </MudItem>
+    <MudItem xs="12" sm="12">
+        <MudText Typo="Typo.h6">Output</MudText>
+        <MudPaper Elevation="0">
+            @_outputText
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<style>
+    .monaco-editor-container {
+        height: 600px;
+    }
+</style>
+
+@code
+{
+    private IReadOnlyList<ModuleProgram>? _programs;
+    private ModuleProgram? _selectedProgram;
+
+    private IReadOnlyList<ModuleFirmware>? _firmware;
+    private ModuleFirmware? _selectedFirmware;
+
+    private IReadOnlyList<ModuleIDF>? _idf;
+    private ModuleIDF? _selectedIDF;
+
+    private string _outputText = string.Empty;
+
+    private MudTabs? _tabs;
+    private int _activePanelIndex = 0;
+    private StandaloneCodeEditor? _editor;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        _idf = _firmwareService.IDF;
+        _selectedIDF = _idf?.FirstOrDefault();
+
+        _firmware = _firmwareService.Firmware;
+        _selectedFirmware = _firmware?.FirstOrDefault();
+
+        _programs = _firmwareService.Programs;
+        await LoadPrograms();
+    }
+
+    private async Task LoadPrograms()
+    {
+        _programs = _firmwareService.Programs;
+        if (_programs.Count != 0)
+        {
+            await SelectedProgramChanged(_programs.First());
+        }
+    }
+
+    private async Task SelectedProgramChanged(ModuleProgram program)
+    {
+        if (_editor != null && _selectedProgram?.Files != null)
+        {
+            _selectedProgram.Files[_activePanelIndex].Content = await _editor.GetValue();
+        }
+        _tabs?.ActivatePanel(0);
+        if (program.Files == null)
+        {
+            await program.LoadtProgramFiles();
+        }
+        _selectedProgram = program;
+
+        if (program.Files != null && _editor != null)
+        {
+            // TODO
+            try
+            {
+                await _editor.SetValue(program.Files.First().Content);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+
+        }
+    }
+
+    private async Task ActivePanelIndexChanged(int index)
+    {
+        if (_editor != null && _selectedProgram?.Files != null)
+        {
+            _selectedProgram.Files[_activePanelIndex].Content = await _editor.GetValue();
+        }
+        _activePanelIndex = index;
+    }
+
+    private Func<StandaloneCodeEditor, StandaloneEditorConstructionOptions> CreateEditorConstructionOptions(ModuleProgramFile file)
+    {
+        string language = Path.GetExtension(file.FileName) switch
+        {
+            ".c" => "c",
+            ".h" => "c",
+            // ".cmake" => "cmake", // Uncomment if needed
+            _ => "plaintext"
+        };
+
+        return editor => new StandaloneEditorConstructionOptions
+            {
+                AutomaticLayout = true,
+                Language = language,
+                Value = file.Content
+            };
+    }
+
+    private async Task CleanProgram()
+    {
+        _outputText = string.Empty;
+        await _firmwareService.CleanProgramAsync(_selectedProgram.Name, _selectedIDF.Name, OutputHandler);
+    }
+
+    private async Task BuilProgram()
+    {
+        _outputText = string.Empty;
+        await _firmwareService.BuildProgramAsync(_selectedProgram.Name, _selectedIDF.Name, OutputHandler);
+    }
+
+    private void CreateNewProgram()
+    {
+        if (_selectedFirmware != null)
+        {
+            _firmwareService.CreateNewProgram("test" + DateTime.Now.Millisecond, _selectedFirmware.Name);
+        }
+    }
+
+    private async Task ReloadProgram()
+    {
+        if (_selectedProgram != null)
+        {
+            await _selectedProgram.LoadtProgramFiles();
+            await _editor.SetValue(_selectedProgram.Files[_activePanelIndex].Content);
+        }
+    }
+
+    private void DeleteProgram()
+    {
+        if (_selectedProgram != null)
+        {
+            _firmwareService.DeleteProgram(_selectedProgram);
+        }
+    }
+
+    private async Task SaveProgram()
+    {
+        if (_selectedProgram != null)
+        {
+            _selectedProgram.Files[_activePanelIndex].Content = await _editor.GetValue();
+            await _firmwareService.SaveProgram(_selectedProgram);
+        }
+    }
+
+    private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+    {
+        if (!string.IsNullOrEmpty(outLine.Data))
+        {
+            _outputText += outLine.Data;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+}

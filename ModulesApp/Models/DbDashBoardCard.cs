@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ModulesApp.Models;
 
 [Table("DashBoardCard")]
-public class DashBoardCard
+public class DbDashBoardCard
 {
     [Key]
     public long Id { get; set; }
@@ -14,5 +14,5 @@ public class DashBoardCard
 
     public long DashboardId { get; set; }
     [ForeignKey("DashboardId")]
-    public Dashboard Dashboard { get; set; } = default!;
+    public DbDashboard Dashboard { get; set; } = default!;
 }

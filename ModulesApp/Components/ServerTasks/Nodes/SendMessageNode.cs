@@ -8,7 +8,7 @@ namespace ModulesApp.Components.ServerTasks.Nodes;
 
 public class SendMessageNode : TaskNode
 {
-    public List<Module> Modules { get; set; }
+    public List<DbModule> Modules { get; set; }
     public SendMessageNode(IServerContext context, Point? position = null) : base(context, position)
     {
         StringVal2 = "Number";

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Models;
-using ModulesApp.Models.BackgroundService;
+using ModulesApp.Models.BackgroundServices;
+using ModulesApp.Models.BackgroundServices.Servicves;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
-using ModulesApp.Services.Background;
 using System.Text.Json;
 
 namespace ModulesApp.Data;
@@ -12,11 +12,11 @@ public class SQLiteDb : DbContext
 {
     protected readonly IConfiguration _configuration;
 
-    public DbSet<Module> Modules { get; set; }
-    public DbSet<ModuleAction> ModuleActions { get; set; }
+    public DbSet<DbModule> Modules { get; set; }
+    public DbSet<DbModuleAction> ModuleActions { get; set; }
 
-    public DbSet<Dashboard> Dashboards { get; set; }
-    public DbSet<DashBoardCard> DashBoardCards { get; set; }
+    public DbSet<DbDashboard> Dashboards { get; set; }
+    public DbSet<DbDashBoardCard> DashBoardCards { get; set; }
 
     public DbSet<DbTaskNode> TaskNodes { get; set; }
     public DbSet<DbTaskLink> TaskLinks { get; set; }
@@ -64,13 +64,13 @@ public class SQLiteDb : DbContext
             .HasValue<DbSendMessageNode>("SendMessage");
 
 
-        builder.Entity<ModuleAction>()
+        builder.Entity<DbModuleAction>()
             .Property(p => p.Value)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
                 v => JsonSerializer.Deserialize<object>(v, SerializerOptions) ?? string.Empty);
 
-        builder.Entity<Module>()
+        builder.Entity<DbModule>()
             .Property(p => p.JsonData)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
@@ -79,7 +79,7 @@ public class SQLiteDb : DbContext
 
         builder.Entity<DbBackgroundService>()
             .HasDiscriminator<BackgroundServiceType>(nameof(DbBackgroundService.Type))
-            .HasValue<GoodweBackgroundService>(BackgroundServiceType.Goodwe);
+            .HasValue<DbGoodweBackgroundService>(BackgroundServiceType.Goodwe);
 
         builder.Entity<DbBackgroundService>()
             .Property(p => p.JsonData)

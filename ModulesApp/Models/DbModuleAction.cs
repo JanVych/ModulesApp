@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace ModulesApp.Models;
 
 [Table("ModuleAction")]
-public class ModuleAction
+public class DbModuleAction
 {
     [Key]
     public long Id { get; set; }
@@ -15,6 +15,6 @@ public class ModuleAction
 
     public long ModuleId { get; set; }
     [ForeignKey("ModuleId")]
-    public Module Module { get; set; } = default!;
+    public DbModule Module { get; set; } = default!;
 
 }

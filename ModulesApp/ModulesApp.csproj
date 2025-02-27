@@ -8,12 +8,13 @@
 
 
   <ItemGroup>
+    <PackageReference Include="BlazorMonaco" Version="3.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.13">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MudBlazor" Version="8.2.0" />
+    <PackageReference Include="MudBlazor" Version="8.3.0" />
     <PackageReference Include="Z.Blazor.Diagrams" Version="3.0.3" />
     <PackageReference Include="Z.Blazor.Diagrams.Core" Version="3.0.3" />
   </ItemGroup>
@@ -21,6 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Components\Parts\" />
+    <Folder Include="Data\programs\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 </Project>

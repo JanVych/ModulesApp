@@ -34,7 +34,7 @@ public class ServerTaskService
             .Include(t => t.Module)
             .ToListAsync();
     }
-    public async Task<List<DbTask>> GetAllTasks(Module module)
+    public async Task<List<DbTask>> GetAllTasks(DbModule module)
     {
         using var context = _dbContextFactory.CreateDbContext();
         return await context.Tasks
@@ -163,7 +163,7 @@ public class ServerTaskService
         }
     }
 
-    public async Task ProcessNodes(IServerContext serverContext, Module module)
+    public async Task ProcessNodes(IServerContext serverContext, DbModule module)
     {
         using var context = _dbContextFactory.CreateDbContext();
         var tasks  = await GetAllTasks(module);

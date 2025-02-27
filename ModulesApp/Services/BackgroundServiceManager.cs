@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Data;
-using ModulesApp.Models.BackgroundService;
+using ModulesApp.Models.BackgroundServices;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
 
-namespace ModulesApp.Services.Background;
+namespace ModulesApp.Services;
 
 public class BackgroundServiceManager
 {
@@ -31,7 +30,7 @@ public class BackgroundServiceManager
     {
         foreach (var backgroundService in _backgroundServices)
         {
-            if(backgroundService.IsRunning)
+            if (backgroundService.IsRunning)
             {
                 Start(backgroundService.Id);
             }

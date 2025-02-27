@@ -8,7 +8,7 @@ namespace ModulesApp.Components.ServerTasks.Nodes;
 
 public class DataDisplayNode : TaskNode
 {
-    public List<DashBoardCard> Cards { get; set; } = [];
+    public List<DbDashBoardCard> Cards { get; set; } = [];
     public DataDisplayNode(IServerContext context, Point? position = null) : base(context, position)
     {
         Type = NodeType.DataDisplay;

@@ -4,11 +4,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 #custom
-programs/*
-!programs/
-firmware/*
-!firmware/
-
+**/programs/
+**/firmware/
 
 # User-specific files
 *.rsuser
@@ -368,5 +365,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/ModulesApp/Data/firmware/main-project-1
-/ModulesApp/Data/programs/test662

@@ -3,7 +3,6 @@ using ModulesApp.Components;
 using ModulesApp.Data;
 using ModulesApp.Services;
 using ModulesApp.Services.Data;
-using ModulesApp.Services.Background;
 
 namespace ModulesApp;
 
@@ -32,6 +31,8 @@ public class Program
         builder.Services.AddSingleton<ServerContextService>();
 
         builder.Services.AddSingleton<BackgroundServiceManager>();
+
+        builder.Services.AddSingleton<FirmwareService>();
 
         var app = builder.Build();
 

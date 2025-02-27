@@ -62,11 +62,11 @@ public class ModulesController : ControllerBase
         return Ok();
     }
 
-    private static Module? ProcessJsonData(JsonElement data)
+    private static DbModule? ProcessJsonData(JsonElement data)
     {
         try
         {
-            return JsonSerializer.Deserialize<Module>(data);
+            return JsonSerializer.Deserialize<DbModule>(data);
         }
         catch (Exception ex)
         {
@@ -75,7 +75,7 @@ public class ModulesController : ControllerBase
         }
     }
 
-    private async Task<string?> ProcessExistingModule(Module module)
+    private async Task<string?> ProcessExistingModule(DbModule module)
     {
         module.LastResponse = DateTime.Now;
         // update module status
@@ -97,7 +97,7 @@ public class ModulesController : ControllerBase
         return response;
     }
 
-    private string? RegisterNewModule(Module module)
+    private string? RegisterNewModule(DbModule module)
     {
         // add new module to DB,
         // TODO

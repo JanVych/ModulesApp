@@ -13,21 +13,21 @@ public class ModuleActionService
         _dbContextFactory = dbContextFactory;
     }
 
-    public void Add(ModuleAction moduleAction)
+    public void Add(DbModuleAction moduleAction)
     {
         using var context = _dbContextFactory.CreateDbContext();
         context.ModuleActions.Add(moduleAction);
         context.SaveChanges();
     }
 
-    public async Task DeleteAsync(IEnumerable<ModuleAction> actions)
+    public async Task DeleteAsync(IEnumerable<DbModuleAction> actions)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         context.ModuleActions.RemoveRange(actions);
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<ModuleAction>> GetListAsync(long moduleId)
+    public async Task<List<DbModuleAction>> GetListAsync(long moduleId)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.ModuleActions
@@ -35,7 +35,7 @@ public class ModuleActionService
             .ToListAsync();
     }
 
-    public async Task<List<ModuleAction>> GetListAndDeleteAsync(long moduleId)
+    public async Task<List<DbModuleAction>> GetListAndDeleteAsync(long moduleId)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         var actions = await context.ModuleActions

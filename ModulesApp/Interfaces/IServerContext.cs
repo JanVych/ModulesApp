@@ -10,8 +10,8 @@ public interface IServerContext
     public JsonElement? GetMessageFromModule(long moduleId, string messageKey);
     public void DisplayValue(long boardCardId, string name, string value);
 
-    public List<Module> GetAllModules();
-    public List<DashBoardCard> GetAllBoardCards();
+    public List<DbModule> GetAllModules();
+    public List<DbDashBoardCard> GetAllBoardCards();
 }
 
 public class FakeContext : IServerContext
@@ -24,9 +24,9 @@ public class FakeContext : IServerContext
     {
         return new JsonElement();
     }
-    public List<Module> GetAllModules()
+    public List<DbModule> GetAllModules()
     {
-        var list = new List<Module>
+        var list = new List<DbModule>
         {
             new() { Id = 1, Name = "Module 1" },
             new() { Id = 2, Name = "Module 2" },
@@ -35,9 +35,9 @@ public class FakeContext : IServerContext
         return list;
 
     }
-    public List<DashBoardCard> GetAllBoardCards()
+    public List<DbDashBoardCard> GetAllBoardCards()
     {
-        var List = new List<DashBoardCard>
+        var List = new List<DbDashBoardCard>
         {
             new() { Id = 1, Name = "Card 1" },
             new() { Id = 2, Name = "Card 2" },

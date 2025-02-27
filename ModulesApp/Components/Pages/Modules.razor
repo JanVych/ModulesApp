@@ -55,7 +55,7 @@
 
 @code
 {
-    private List<Module> _modules = [];
+    private List<DbModule> _modules = [];
     private bool _modulesLoading = true;
 
     private MudMessageBox _mudMessageBox = new();
@@ -79,11 +79,11 @@
         _modulesLoading = false;
     }
 
-    private void EditModule(Module module)
+    private void EditModule(DbModule module)
     {
     }
 
-    private async Task DeleteModule(Module module)
+    private async Task DeleteModule(DbModule module)
     {
         bool? result = await _mudMessageBox.ShowAsync();
         if (result == true)

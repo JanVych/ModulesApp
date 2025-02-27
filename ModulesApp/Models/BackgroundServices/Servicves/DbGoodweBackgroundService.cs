@@ -1,18 +1,15 @@
 ﻿using ModulesApp.Interfaces;
-using ModulesApp.Models.BackgroundService;
 using System.Diagnostics;
-using System.Net.Sockets;
-using System.Net;
 
-namespace ModulesApp.Services.Background;
+namespace ModulesApp.Models.BackgroundServices.Servicves;
 
-public class GoodweBackgroundService : DbBackgroundService
+public class DbGoodweBackgroundService : DbBackgroundService
 {
     //private static int _port = 11000;
     //UdpClient udpListener = new UdpClient(_port);
     //IPEndPoint groupEndPoint = new IPEndPoint(IPAddress.Any, _port);
 
-    public GoodweBackgroundService()
+    public DbGoodweBackgroundService()
     {
         Type = BackgroundServiceType.Goodwe;
     }

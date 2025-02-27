@@ -26,7 +26,7 @@
     {
         <MudItem xs="11">
             <div class="d-flex align-start justify-center mud-width-full">
-                <MudChipSet T="Dashboard"
+                <MudChipSet T="DbDashboard"
                 @bind-SelectedValue="_selectedDashboard"
                 Variant="Variant.Text"
                 SelectionMode="SelectionMode.SingleSelection"
@@ -124,9 +124,9 @@
 @code
 {
     private bool _editMode = false;
-    private List<Dashboard>? _dashboards;
+    private List<DbDashboard>? _dashboards;
 
-    private Dashboard? _selectedDashboard;
+    private DbDashboard? _selectedDashboard;
 
     private string? _newCardName;
     private bool _showNewCardError = false;
@@ -143,7 +143,7 @@
             _dashboards = await _dashBoardService.GetAllDashboardsAync();
             if(_dashboards.Count == 0)
             {
-                var home = new Dashboard
+                var home = new DbDashboard
                 {
                     Name = "Home",
                     IconString = Icons.Material.Filled.Home
@@ -161,7 +161,7 @@
         if (_dashboards != null)
         {
             var newName = "New" + _dashboards.Count;
-            var dashboard = new Dashboard
+            var dashboard = new DbDashboard
                 {
                     Name = newName,
                     IconString = Icons.Material.Filled.Pageview
@@ -172,7 +172,7 @@
         }
     }
 
-    private void DeleteDashBoard(MudChip<Dashboard> chip)
+    private void DeleteDashBoard(MudChip<DbDashboard> chip)
     {
         if (_dashboards != null && chip.Value != null)
         {
@@ -188,7 +188,7 @@
         {
             if (!string.IsNullOrEmpty(_newCardName))
             {
-                var card = new DashBoardCard
+                var card = new DbDashBoardCard
                     {
                         Name = _newCardName,
                         DashboardId = _selectedDashboard.Id,
@@ -207,7 +207,7 @@
         }
     }
 
-    private void DeleteDashBoardCard(DashBoardCard card)
+    private void DeleteDashBoardCard(DbDashBoardCard card)
     {
         if (_selectedDashboard != null)
         {

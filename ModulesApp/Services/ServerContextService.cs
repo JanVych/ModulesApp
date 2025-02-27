@@ -1,6 +1,5 @@
 ﻿using ModulesApp.Interfaces;
 using ModulesApp.Models;
-using ModulesApp.Models.BackgroundService;
 using ModulesApp.Services.Data;
 using System.Diagnostics;
 using System.Text.Json;
@@ -26,12 +25,12 @@ public class ServerContextService : IServerContext
         Debug.WriteLine($"Displaying, name {name}, value {value} on board card {boardCardId}");
     }
 
-    public List<DashBoardCard> GetAllBoardCards()
+    public List<DbDashBoardCard> GetAllBoardCards()
     {
         return _dashboardService.GetAllDashBoardCards();
     }
 
-    public List<Module> GetAllModules()
+    public List<DbModule> GetAllModules()
     {
         return _modulessService.GetAll();
     }
@@ -55,7 +54,7 @@ public class ServerContextService : IServerContext
     {
         if (_modulessService.IsRegistrated(moduleId))
         {
-            var action = new ModuleAction
+            var action = new DbModuleAction
             {
                 ModuleId = moduleId,
                 Key = key,
