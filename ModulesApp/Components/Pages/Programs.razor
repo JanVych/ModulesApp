@@ -1,9 +1,11 @@
 ﻿@using BlazorMonaco.Editor
+@using ModulesApp.Models
 @using ModulesApp.Models.ModulesPrograms
 @using ModulesApp.Services
 @using System.Diagnostics
 
 @inject FirmwareService _firmwareService
+@inject ServerContextService _serverContextService
 
 @page "/programs"
 
@@ -50,15 +52,30 @@
                 <MudIconButton Icon="@Icons.Material.Outlined.Save" OnClick="SaveProgram" />
                 <MudIconButton Icon="@Icons.Material.Outlined.Build" OnClick="BuilProgram" />
                 <MudIconButton Icon="@Icons.Material.Outlined.Wash" OnClick="CleanProgram" />
+                <MudSpacer />
+                <MudSelect @bind-Value="_selectedModule" Variant="Variant.Outlined">
+                    @if (_modules == null)
+                    {
+                        <MudText Typo="Typo.h6">Loading...</MudText>
+                    }
+                    else
+                    {
+                        @foreach (var m in _modules)
+                        {
+                            <MudSelectItem Value="@m">@m.Name</MudSelectItem>
+                        }
+                    }
+                </MudSelect>
+                <MudIconButton Icon="@Icons.Material.Outlined.Send" OnClick="SetOtaUpdate" />
             </MudStack>
         </MudPaper>
     </MudItem>
     <MudItem xs="12" sm="2">
         <MudPaper Elevation="0">
             <MudList T="ModuleProgram"
-                     SelectedValue="@_selectedProgram"
-                     SelectionMode="SelectionMode.SingleSelection"
-                     SelectedValueChanged="@SelectedProgramChanged">
+            SelectedValue="@_selectedProgram"
+            SelectionMode="SelectionMode.SingleSelection"
+            SelectedValueChanged="@SelectedProgramChanged">
                 @if (_programs == null)
                 {
                     <MudText Typo="Typo.h6">Loading...</MudText>
@@ -105,12 +122,15 @@
 
 <style>
     .monaco-editor-container {
-        height: 600px;
+    height: 600px;
     }
 </style>
 
 @code
 {
+    private List<DbModule>? _modules;
+    private DbModule? _selectedModule;
+
     private IReadOnlyList<ModuleProgram>? _programs;
     private ModuleProgram? _selectedProgram;
 
@@ -137,6 +157,9 @@
         _selectedFirmware = _firmware?.FirstOrDefault();
 
         _programs = _firmwareService.Programs;
+
+        _modules = _serverContextService.GetAllModules();
+        _selectedModule = _modules?.FirstOrDefault();
         await LoadPrograms();
     }
 
@@ -220,7 +243,7 @@
     {
         if (_selectedFirmware != null)
         {
-            _firmwareService.CreateNewProgram("test" + DateTime.Now.Millisecond, _selectedFirmware.Name);
+            _firmwareService.CreateNewProgram("new " + DateTime.Now.Millisecond, _selectedFirmware.Name);
         }
     }
 
@@ -256,6 +279,14 @@
         {
             _outputText += outLine.Data;
             InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void SetOtaUpdate()
+    {
+        if (_selectedProgram != null && _selectedModule != null)
+        {
+            _serverContextService.SendToModule(_selectedModule.Id, "PerformOTA", _selectedProgram.Name);
         }
     }
 }
