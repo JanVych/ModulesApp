@@ -1,7 +1,6 @@
 ﻿using ModulesApp.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 
 namespace ModulesApp.Models.BackgroundServices;
 
@@ -39,6 +38,8 @@ public abstract class DbBackgroundService
         {
             IsRunning = true;
             _cancellationToken = new CancellationTokenSource();
+            await Task.Delay(1000, _cancellationToken.Token);
+            Console.WriteLine("The Service has started");
 
             try
             {
@@ -46,16 +47,23 @@ public abstract class DbBackgroundService
                 {
                     await ExecuteAsync(serverContext);
                     LastRun = DateTime.Now;
+                    foreach (var j in JsonData)
+                    {
+                        Console.WriteLine($"{j.Key}: {j.Value}");
+                    }
+                    Console.WriteLine();
+                    JsonData.Clear();
+
                     await Task.Delay(Interval, _cancellationToken.Token);
                 }
             }
             catch (TaskCanceledException)
             {
-                Debug.WriteLine("The Service was canceled");
+                Console.WriteLine("The Service was canceled");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"An unexpected error occurred: {ex.Message}");
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
             finally
             {
@@ -71,6 +79,14 @@ public abstract class DbBackgroundService
         {
             await _cancellationToken.CancelAsync();
         }   
+    }
+
+    protected void AddToMessage(string key, object? value)
+    {
+        if (value is not null)
+        {
+            JsonData.Add(key, value);
+        }
     }
 
     public DbBackgroundService(){}

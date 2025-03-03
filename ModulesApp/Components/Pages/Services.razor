@@ -26,7 +26,6 @@ SelectionMode="SelectionMode.SingleSelection">
     }
 </MudList>
 
-
 @code
 {
     private List<DbBackgroundService> dbServices;
@@ -43,6 +42,7 @@ SelectionMode="SelectionMode.SingleSelection">
         var service = new DbGoodweBackgroundService()
             {
                 Name = "Goodwe",
+                Interval = TimeSpan.FromSeconds(6),
             };
         await _backgroundServiceManager.Add(service);
     }
