@@ -28,14 +28,41 @@ public class DbGoodweBackgroundService : DbBackgroundService
     [NotMapped]
     private readonly ModbusRtuUdp _modbusRtuUdp = new(0xF7, 8899, "192.168.0.240", 2);
 
+    [NotMapped]
+    private bool _flag1 = true;
+    [NotMapped]
+    private bool _flag2 = true;
+
     public DbGoodweBackgroundService(){}
 
     public override async Task ExecuteAsync(IServerContext serverContext)
     {
         if (_modbusRtuUdp.Open())
         {
-            //SetBatteryDays(6);
-            //SetBatteryDischarge(5);
+            var now = DateTime.Now;
+            //var x = _modbusRtuUdp.ReadU16Register(47515);
+            //Console.WriteLine(x);
+            //var y = x | 0xFF00;
+            //Console.WriteLine(y);
+            //_modbusRtuUdp.WriteU16Register(47515, (ushort) y);
+            //Console.WriteLine(_modbusRtuUdp.ReadU16Register(47515));
+            //_modbusRtuUdp.WriteU16Register(47612, 1);
+            //Console.WriteLine(_modbusRtuUdp.ReadU16Register(47612));
+
+            if ((now.Hour >= 20 || now.Hour < 12) && _flag1)
+            {
+                Console.WriteLine("SetBatteryDischarge(1)");
+                SetBatteryDischarge(1);
+                _flag1 = false;
+                _flag2 = true;
+            }
+            if(now.Hour >= 12  && now.Hour < 20 && _flag2)
+            {
+                Console.WriteLine("SetBatteryDischarge(2)");
+                SetBatteryDischarge(0);
+                _flag1 = true;
+                _flag2 = false;
+            }
             AddToMessage("PV1 Power", GetPV1Power());
             AddToMessage("Inverter Power", GetInverterPower());
             AddToMessage("Backup Power", GetBackupPower());
@@ -45,6 +72,11 @@ public class DbGoodweBackgroundService : DbBackgroundService
             AddToMessage("Battery Temperature", GetBatteryTemperature());
             AddToMessage("Battery SOC", GetBatterySOC());
             AddToMessage("Battery Status", GetBatteryStatus());
+
+            AddToMessage("47515", _modbusRtuUdp.ReadU16Register(47515));
+            AddToMessage("47516", _modbusRtuUdp.ReadU16Register(47516));
+            AddToMessage("47517", _modbusRtuUdp.ReadS16Register(47517));
+            AddToMessage("47518", _modbusRtuUdp.ReadU16Register(47518));
         }
         _modbusRtuUdp.Close();
     }
@@ -81,13 +113,13 @@ public class DbGoodweBackgroundService : DbBackgroundService
         _modbusRtuUdp.WriteU16Register(47516, value);
     }
 
-    public void SetBatteryCharge(short power) => SetBattery(power);
-    public void SetBatteryDischarge(short power) => SetBattery((short) -power);
+    public void SetBatteryCharge(short power) => SetBattery((short) -power);
+    public void SetBatteryDischarge(short power) => SetBattery(power);
     private void SetBattery(short power)
     {
-        _modbusRtuUdp.WriteU16Register(47515, 0x0000);
-        _modbusRtuUdp.WriteU16Register(47516, 0x173B);
-        _modbusRtuUdp.WriteU16Register(47517, (ushort)power);
-        _modbusRtuUdp.WriteU16Register(47518, 0xFFFF);
+        //_modbusRtuUdp.WriteU16Register(47515, 0x0000);
+        //_modbusRtuUdp.WriteU16Register(47516, 0x173B);
+        _modbusRtuUdp.WriteS16Register(47517, power);
+        //_modbusRtuUdp.WriteU16Register(47518, 0xFFFF);
     }
 }

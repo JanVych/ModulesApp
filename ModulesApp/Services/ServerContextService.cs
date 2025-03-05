@@ -1,5 +1,6 @@
 ﻿using ModulesApp.Interfaces;
 using ModulesApp.Models;
+using ModulesApp.Models.Dasboards;
 using ModulesApp.Services.Data;
 using System.Diagnostics;
 using System.Text.Json;
@@ -19,16 +20,16 @@ public class ServerContextService : IServerContext
         _moduleActionService = moduleActionService;
     }
 
-    public void DisplayValue(long boardCardId, string name, string value)
+    public void DisplayValue(long dashboardEntityId, Dictionary<string, object> data)
     {
-        _dashboardService.CardValueChanged(boardCardId, name, value);
-        Debug.WriteLine($"Displaying, name {name}, value {value} on board card {boardCardId}");
+        _dashboardService.EntityDataChanged(dashboardEntityId, data);
     }
 
-    public List<DbDashBoardCard> GetAllBoardCards()
+    public List<DbDashboardEntity> GetAllDashBoardEntities()
     {
-        return _dashboardService.GetAllDashBoardCards();
+        return _dashboardService.GetAllDashBoardEntities();
     }
+
 
     public List<DbModule> GetAllModules()
     {

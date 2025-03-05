@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ModulesApp.Models;
 using ModulesApp.Services;
 using ModulesApp.Services.Data;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace ModulesApp.Controllers;
@@ -29,7 +27,7 @@ public class ModulesController : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        Debug.WriteLine("GET");
+        Console.WriteLine("GET");
         var data = new Dictionary<string, string>
         {
             { "name", "Jaroslav" },
@@ -42,8 +40,8 @@ public class ModulesController : ControllerBase
     [Consumes("application/json")]
     public async Task<IActionResult> PostJson([FromBody] JsonElement data)
     {
-        Debug.WriteLine("POST JSON");
-        Debug.WriteLine(data.ToString());
+        Console.WriteLine("POST JSON");
+        Console.WriteLine(data.ToString());
 
         var module = ProcessJsonData(data);
         if (module != null)
@@ -70,7 +68,7 @@ public class ModulesController : ControllerBase
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"{ex.Message}");
+            Console.WriteLine($"{ex.Message}");
             return null;
         }
     }
@@ -93,7 +91,7 @@ public class ModulesController : ControllerBase
             response = JsonSerializer.Serialize(jsonData);
         }
         // send actions from server
-        Debug.WriteLine(response);
+        Console.WriteLine(response);
         return response;
     }
 

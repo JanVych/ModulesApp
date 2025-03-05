@@ -32,6 +32,7 @@ public class ModuleProgram(string name, string path)
     public async Task LoadtProgramFiles()
     {
         var list = new List<ModuleProgramFile>();
+
         var programPath = Path.Combine(RelativePath, "components\\program");
         try
         {

@@ -19,7 +19,7 @@ public class ModbusRtuUdp
 
     public int ResponseHeaderSize { get; set; }
     public int TimeoutMs { get; set; } = 2000;
-    public int NumberofAttempts { get; set; } = 5;
+    public int NumberofAttempts { get; set; } = 4;
 
     private UdpClient? _udpClient;
 
@@ -78,6 +78,11 @@ public class ModbusRtuUdp
             Console.WriteLine($"ModbusRtuUdp, read registers: {ex.Message}\n");
             return null;
         }
+    }
+
+    public void WriteS16Register(ushort address, short registerValue)
+    {
+        WriteU16Register(address, (ushort)registerValue);
     }
 
     public void WriteU16Register(ushort address, ushort registerValue)

@@ -1,4 +1,5 @@
-﻿@using ModulesApp.Models
+﻿@using ModulesApp.Components.DashBoardEntities
+@using ModulesApp.Models.Dasboards
 @using ModulesApp.Services.Data
 
 @inject DashboardService _dashBoardService
@@ -6,6 +7,7 @@
 @implements IDisposable
 
 @page "/"
+
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -60,37 +62,11 @@
 
         <MudItem xs="12">
             <div class="d-flex align-content-start flex-wrap gap-8">
-                @foreach (var c in _selectedDashboard.Cards)
+                @foreach (var e in _selectedDashboard.Entities)
                 {
-                    if (_editMode)
+                    if (e.Type == DashboardEntityType.BasicCard)
                     {
-                        <MudCard Style="width: 300px; height: 300px;">
-                            <MudCardHeader>
-                                <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">@c.Name</MudText>
-                                    <MudText Typo="Typo.h6">Id: @c.Id</MudText>
-                                </CardHeaderContent>
-                                <CardHeaderActions>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => DeleteDashBoardCard(c)" />
-                                </CardHeaderActions>
-                            </MudCardHeader>
-                            <MudCardContent>
-                                <MudText>@c.Value</MudText>
-                            </MudCardContent>
-                        </MudCard>
-                    }
-                    else
-                    {
-                        <MudCard Style="width: 300px; height: 300px;">
-                            <MudCardHeader>
-                                <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">@c.Name</MudText>
-                                </CardHeaderContent>
-                            </MudCardHeader>
-                            <MudCardContent>
-                                <MudText>@c.Value</MudText>
-                            </MudCardContent>
-                        </MudCard>
+                        <BasicCardEntity EditMode="@_editMode" Entity="@e" DeleteButtonClick="DeleteDashBoardEntity" />
                     }
                 }
 
@@ -101,16 +77,16 @@
                             <MudText Typo="Typo.h6">Add</MudText>
                         </MudCardHeader>
                         <MudCardContent>
-                            <MudTextField @bind-Value="_newCardName"
+                            <MudTextField @bind-Value="_newEntityName"
                             Label="Name"
                             Variant="Variant.Text"
-                            Error="@_showNewCardError"
+                            Error="@_showNewEntityError"
                             ErrorText="the field is required!" />
                         </MudCardContent>
                         <MudCardActions>
                             <MudButton Variant="Variant.Text"
                             Color="Color.Primary"
-                            OnClick="AddDashBoardCard">
+                            OnClick="AddDashBoardEntity">
                                 Confirm
                             </MudButton>
                         </MudCardActions>
@@ -128,12 +104,12 @@
 
     private DbDashboard? _selectedDashboard;
 
-    private string? _newCardName;
-    private bool _showNewCardError = false;
+    private string? _newEntityName;
+    private bool _showNewEntityError = false;
 
     protected override void OnInitialized()
     {
-        _dashBoardService.DashboardCardDataEvent += OnDashBoardCardDataChanged;
+        _dashBoardService.DashboardEntityDataEvent += OnDashBoardEntityDataChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -182,49 +158,49 @@
         }
     }
 
-    private void AddDashBoardCard()
+    private void AddDashBoardEntity()
     {
         if (_selectedDashboard != null)
         {
-            if (!string.IsNullOrEmpty(_newCardName))
+            if (!string.IsNullOrEmpty(_newEntityName))
             {
-                var card = new DbDashBoardCard
+                var entity = new DbDashboardEntity
                     {
-                        Name = _newCardName,
                         DashboardId = _selectedDashboard.Id,
+                        Name = _newEntityName,
                     };
 
-                _dashBoardService.Add(card);
-                _selectedDashboard.Cards.Add(card);
+                _dashBoardService.Add(entity);
+                _selectedDashboard.Entities.Add(entity);
 
-                _showNewCardError = false;
-                _newCardName = string.Empty;
+                _showNewEntityError = false;
+                _newEntityName = string.Empty;
             }
             else
             {
-                _showNewCardError = true;
+                _showNewEntityError = true;
             }
         }
     }
 
-    private void DeleteDashBoardCard(DbDashBoardCard card)
+    private void DeleteDashBoardEntity(DbDashboardEntity entity)
     {
         if (_selectedDashboard != null)
         {
-            _dashBoardService.Delete(card);
-            _selectedDashboard.Cards.Remove(card);
+            _dashBoardService.Delete(entity);
+            _selectedDashboard.Entities.Remove(entity);
+            StateHasChanged();
         }
     }
 
-    private void  OnDashBoardCardDataChanged(long cardId, string name, string value)
+    private void  OnDashBoardEntityDataChanged(long entityId, Dictionary<string, object> data)
     {
         if(_selectedDashboard != null)
         {
-            var card = _selectedDashboard.Cards.FirstOrDefault(c => c.Id == cardId);
-            if (card != null)
+            var entity = _selectedDashboard.Entities.FirstOrDefault(c => c.Id == entityId);
+            if (entity != null)
             {
-                card.Name = name;
-                card.Value = value;
+                entity.Data = data;
                 InvokeAsync(StateHasChanged);
             }
         }
@@ -232,6 +208,6 @@
 
     public void Dispose()
     {
-        _dashBoardService.DashboardCardDataEvent -= OnDashBoardCardDataChanged;
+        _dashBoardService.DashboardEntityDataEvent -= OnDashBoardEntityDataChanged;
     }
 }

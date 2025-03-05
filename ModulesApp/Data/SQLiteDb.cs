@@ -2,6 +2,7 @@
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.BackgroundServices.Servicves;
+using ModulesApp.Models.Dasboards;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
 using System.Text.Json;
@@ -16,7 +17,7 @@ public class SQLiteDb : DbContext
     public DbSet<DbModuleAction> ModuleActions { get; set; }
 
     public DbSet<DbDashboard> Dashboards { get; set; }
-    public DbSet<DbDashBoardCard> DashBoardCards { get; set; }
+    public DbSet<DbDashboardEntity> DashboardEntities { get; set; }
 
     public DbSet<DbTaskNode> TaskNodes { get; set; }
     public DbSet<DbTaskLink> TaskLinks { get; set; }
@@ -86,6 +87,19 @@ public class SQLiteDb : DbContext
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
                 v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+
+
+        //builder.Entity<DbDashboardEntity>()
+        //    .HasDiscriminator<DashboardEntityType>(nameof(DashboardEntityType.BasicCard))
+        //    .HasValue<DbBasicCardEntity>(DashboardEntityType.BasicCard);
+
+        builder.Entity<DbDashboardEntity>()
+            .Property(p => p.Data)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, SerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+
+
 
 
         base.OnModelCreating(builder);

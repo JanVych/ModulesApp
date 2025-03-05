@@ -29,7 +29,12 @@ public class DbDataDisplayNode : DbTaskNode
 
         if (Value.Type != NodeValueType.Invalid)
         {
-            context.DisplayValue(LongVal1, StringVal1, Value.ToString() ?? string.Empty);
+            Dictionary<string, object> data = new()
+            {
+                {"Title", StringVal1 },
+                { "Value", Value.ToString() ?? string.Empty }
+            };
+            context.DisplayValue(LongVal1, data);
         }
         else
         {

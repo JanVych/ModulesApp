@@ -1,0 +1,76 @@
+﻿@using ModulesApp.Models.Dasboards
+
+@if(EditMode)
+{
+    <MudCard Style="width: 300px; height: 200px;">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4">@Entity?.Name</MudText>
+                <MudText Typo="Typo.h4">@Entity?.Id</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="OnDeleteButtonClick" />
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudText Typo="Typo.h6">@Title</MudText>
+            <MudText>@Value</MudText>
+        </MudCardContent>
+    </MudCard>
+}
+else
+{
+    <MudCard Style="width: 300px; height: 200px;">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4">@Entity?.Name</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudText Typo="Typo.h6">@Title</MudText>
+            <MudText>@Value</MudText>
+        </MudCardContent>
+    </MudCard>
+}
+
+@code 
+{
+    [Parameter]
+    public DbDashboardEntity? Entity { get; set; }
+    [Parameter]
+    public bool EditMode { get; set; }
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+
+    private string Title
+    {
+        get
+        {
+            if (Entity?.Data?.TryGetValue("Title", out var titleValue) == true)
+            {
+                return titleValue?.ToString() ?? "";
+            }
+            return "";
+        }
+    }
+
+    private string Value
+    {
+        get
+        {
+            if (Entity?.Data?.TryGetValue("Value", out var valueValue) == true)
+            {
+                return valueValue?.ToString() ?? "";
+            }
+            return "";
+        }
+    }
+
+
+
+    private void OnDeleteButtonClick()
+    {
+        DeleteButtonClick?.Invoke(Entity);
+    }
+
+}

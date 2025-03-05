@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ModulesApp.Models.BackgroundServices;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModulesApp.Models.ServerTasks;
@@ -24,6 +25,12 @@ public class DbTask
     public long? ModuleId { get; set; }
     [ForeignKey("ModuleId")]
     public DbModule? Module { get; set; }
+
+    //public long? BackgroundServiceId { get; set; }
+    //[ForeignKey("BackgroundServiceId")]
+    //public DbBackgroundService? BackgroundService { get; set; }
+
+
 
     public ICollection<DbTaskNode> Nodes { get; set; } = [];
 }

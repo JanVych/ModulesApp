@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Data;
-using ModulesApp.Models;
+using ModulesApp.Models.Dasboards;
 
 namespace ModulesApp.Services.Data;
 
@@ -8,7 +8,7 @@ public class DashboardService
 {
     private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
 
-    public event Action<long, string, string>? DashboardCardDataEvent;
+    public event Action<long, Dictionary<string, object>>? DashboardEntityDataEvent;
 
     public DashboardService(IDbContextFactory<SQLiteDb> dbContextFactory)
     {
@@ -41,7 +41,7 @@ public class DashboardService
     {
         using var context = _dbContextFactory.CreateDbContext();
         return context.Dashboards
-            .Include(x => x.Cards)
+            .Include(x => x.Entities)
             .FirstOrDefault(x => x.Id == id);
     }
 
@@ -49,49 +49,48 @@ public class DashboardService
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Dashboards
-            .Include(x => x.Cards)
+            .Include(x => x.Entities)
             .ToListAsync();
     }
 
-    /// Cards
+    /// Entities
     
-    public void CardValueChanged(long boardCardId, string name, string value)
+    public void EntityDataChanged(long entityId, Dictionary<string, object> data)
     {
-        Update(boardCardId, name, value);
-        DashboardCardDataEvent?.Invoke(boardCardId, name, value);
+        Update(entityId, data);
+        DashboardEntityDataEvent?.Invoke(entityId, data);
     }
 
-    public void Add(DbDashBoardCard card)
+    public void Add(DbDashboardEntity entity)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        context.DashBoardCards.Add(card);
+        context.DashboardEntities.Add(entity);
         context.SaveChanges();
     }
 
-    public void Update(long boardCardId, string name, string value)
+    public void Update(long entityId, Dictionary<string, object> data)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var card = context.DashBoardCards.FirstOrDefault(x => x.Id == boardCardId);
+        var card = context.DashboardEntities.FirstOrDefault(x => x.Id == entityId);
         if (card != null)
         {
-            card.Name = name;
-            card.Value = value;
-            context.DashBoardCards.Update(card);
+            card.Data = data;
+            context.DashboardEntities.Update(card);
             context.SaveChanges();
         }
     }
 
-    public void Delete(DbDashBoardCard card)
+    public void Delete(DbDashboardEntity entity)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        context.DashBoardCards.Remove(card);
+        context.DashboardEntities.Remove(entity);
         context.SaveChanges();
     }
 
-    public List<DbDashBoardCard> GetAllDashBoardCards()
+    public List<DbDashboardEntity> GetAllDashBoardEntities()
     {
         using var context = _dbContextFactory.CreateDbContext();
-        return context.DashBoardCards
+        return context.DashboardEntities
             .ToList();
     }
 }

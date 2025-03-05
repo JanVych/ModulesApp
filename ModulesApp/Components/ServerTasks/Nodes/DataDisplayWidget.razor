@@ -8,7 +8,7 @@
         Variant="Variant.Outlined" 
         Label="Select card" 
         Margin="Margin.Dense">
-        @foreach (var c in Node.Cards)
+        @foreach (var c in Node.Entities)
         {
             <MudSelectItem Value="@c.Id">@c.Name</MudSelectItem>
         }

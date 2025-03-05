@@ -42,7 +42,7 @@ SelectionMode="SelectionMode.SingleSelection">
         var service = new DbGoodweBackgroundService()
             {
                 Name = "Goodwe",
-                Interval = TimeSpan.FromSeconds(6),
+                Interval = TimeSpan.FromSeconds(10),
             };
         await _backgroundServiceManager.Add(service);
     }
