@@ -3,6 +3,7 @@ using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.BackgroundServices.Servicves;
 using ModulesApp.Models.Dasboards;
+using ModulesApp.Models.Dasboards.Entities;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
 using System.Text.Json;
@@ -89,15 +90,16 @@ public class SQLiteDb : DbContext
                 v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
 
 
-        //builder.Entity<DbDashboardEntity>()
-        //    .HasDiscriminator<DashboardEntityType>(nameof(DashboardEntityType.BasicCard))
-        //    .HasValue<DbBasicCardEntity>(DashboardEntityType.BasicCard);
-
         builder.Entity<DbDashboardEntity>()
             .Property(p => p.Data)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
                 v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+
+        builder.Entity<DbDashboardEntity>()
+            .HasDiscriminator<DashboardEntityType>(nameof(DbDashboardEntity.Type))
+            .HasValue<DbBasicCardEntity>(DashboardEntityType.BasicCard)
+            .HasValue<DbDataListCardEntity>(DashboardEntityType.DataListCard);
 
 
 

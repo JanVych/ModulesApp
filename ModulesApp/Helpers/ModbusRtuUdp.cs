@@ -130,7 +130,14 @@ public class ModbusRtuUdp
         }
         var bytes = TrySendAndRecive(client, data);
 
-        if(local)
+        if (bytes.Length == 5)
+        {
+            Console.WriteLine($"Frame sended: {string.Join(", ", data)}");
+            Console.WriteLine($"Error frame recive: {string.Join(", ", bytes)}");
+            Console.WriteLine();
+        }
+
+        if (local)
         {
             client.Close();
             client.Dispose();

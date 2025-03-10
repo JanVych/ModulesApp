@@ -1,5 +1,6 @@
 ﻿@using ModulesApp.Components.DashBoardEntities
 @using ModulesApp.Models.Dasboards
+@using ModulesApp.Models.Dasboards.Entities
 @using ModulesApp.Services.Data
 
 @inject DashboardService _dashBoardService
@@ -29,13 +30,13 @@
         <MudItem xs="11">
             <div class="d-flex align-start justify-center mud-width-full">
                 <MudChipSet T="DbDashboard"
-                @bind-SelectedValue="_selectedDashboard"
-                Variant="Variant.Text"
-                SelectionMode="SelectionMode.SingleSelection"
-                Size="Size.Large"
-                AllClosable="@_editMode"
-                OnClose="DeleteDashBoard"
-                Color="Color.Primary">
+                            @bind-SelectedValue="_selectedDashboard"
+                            Variant="Variant.Text"
+                            SelectionMode="SelectionMode.SingleSelection"
+                            Size="Size.Large"
+                            AllClosable="@_editMode"
+                            OnClose="DeleteDashBoard"
+                            Color="Color.Primary">
                     @foreach (var d in _dashboards)
                     {
                         <MudChip Value="@d" Style="height: 60px" Icon="@d.IconString">
@@ -45,12 +46,12 @@
                     @if (_editMode)
                     {
                         <MudChip Value="@("Add")"
-                        Style="height: 60px"
-                        Color="Color.Primary"
-                        Variant="Variant.Text"
-                        Size="Size.Large"
-                        Icon="@Icons.Material.Filled.Add"
-                        OnClick="AddDashBoard" />
+                                 Style="height: 60px"
+                                 Color="Color.Primary"
+                                 Variant="Variant.Text"
+                                 Size="Size.Large"
+                                 Icon="@Icons.Material.Filled.Add"
+                                 OnClick="AddDashBoard" />
                     }
                 </MudChipSet>
             </div>
@@ -64,9 +65,13 @@
             <div class="d-flex align-content-start flex-wrap gap-8">
                 @foreach (var e in _selectedDashboard.Entities)
                 {
-                    if (e.Type == DashboardEntityType.BasicCard)
+                    if (e is DbBasicCardEntity be)
                     {
-                        <BasicCardEntity EditMode="@_editMode" Entity="@e" DeleteButtonClick="DeleteDashBoardEntity" />
+                        <BasicCardEntity EditMode="@_editMode" Entity="@be" DeleteButtonClick="DeleteDashBoardEntity" />
+                    }
+                    if (e is DbDataListCardEntity de)
+                    {
+                        <DataListCardEntity EditMode="@_editMode" Entity="@de" DeleteButtonClick="DeleteDashBoardEntity" />
                     }
                 }
 
@@ -78,15 +83,15 @@
                         </MudCardHeader>
                         <MudCardContent>
                             <MudTextField @bind-Value="_newEntityName"
-                            Label="Name"
-                            Variant="Variant.Text"
-                            Error="@_showNewEntityError"
-                            ErrorText="the field is required!" />
+                                          Label="Name"
+                                          Variant="Variant.Text"
+                                          Error="@_showNewEntityError"
+                                          ErrorText="the field is required!" />
                         </MudCardContent>
                         <MudCardActions>
                             <MudButton Variant="Variant.Text"
-                            Color="Color.Primary"
-                            OnClick="AddDashBoardEntity">
+                                       Color="Color.Primary"
+                                       OnClick="AddDashBoardEntity">
                                 Confirm
                             </MudButton>
                         </MudCardActions>
@@ -117,13 +122,13 @@
         if (firstRender)
         {
             _dashboards = await _dashBoardService.GetAllDashboardsAync();
-            if(_dashboards.Count == 0)
+            if (_dashboards.Count == 0)
             {
                 var home = new DbDashboard
-                {
-                    Name = "Home",
-                    IconString = Icons.Material.Filled.Home
-                };
+                    {
+                        Name = "Home",
+                        IconString = Icons.Material.Filled.Home
+                    };
                 _dashBoardService.Add(home);
                 _dashboards.Add(home);
             }
@@ -160,27 +165,28 @@
 
     private void AddDashBoardEntity()
     {
-        if (_selectedDashboard != null)
-        {
-            if (!string.IsNullOrEmpty(_newEntityName))
-            {
-                var entity = new DbDashboardEntity
-                    {
-                        DashboardId = _selectedDashboard.Id,
-                        Name = _newEntityName,
-                    };
+        // if (_selectedDashboard != null)
+        // {
+        //     if (!string.IsNullOrEmpty(_newEntityName))
+        //     {
+        //         var entity = new DbDashboardEntity
+        //             {
+        //                 DashboardId = _selectedDashboard.Id,
+        //                 Name = _newEntityName,
+        //                 Type = DashboardEntityType.DataListCard
+        //             };
 
-                _dashBoardService.Add(entity);
-                _selectedDashboard.Entities.Add(entity);
+        //         _dashBoardService.Add(entity);
+        //         _selectedDashboard.Entities.Add(entity);
 
-                _showNewEntityError = false;
-                _newEntityName = string.Empty;
-            }
-            else
-            {
-                _showNewEntityError = true;
-            }
-        }
+        //         _showNewEntityError = false;
+        //         _newEntityName = string.Empty;
+        //     }
+        //     else
+        //     {
+        //         _showNewEntityError = true;
+        //     }
+        // }
     }
 
     private void DeleteDashBoardEntity(DbDashboardEntity entity)
@@ -193,14 +199,14 @@
         }
     }
 
-    private void  OnDashBoardEntityDataChanged(long entityId, Dictionary<string, object> data)
+    private void OnDashBoardEntityDataChanged(long entityId, Dictionary<string, object> data)
     {
-        if(_selectedDashboard != null)
+        if (_selectedDashboard != null)
         {
             var entity = _selectedDashboard.Entities.FirstOrDefault(c => c.Id == entityId);
             if (entity != null)
             {
-                entity.Data = data;
+                entity.UpdateData(data);
                 InvokeAsync(StateHasChanged);
             }
         }

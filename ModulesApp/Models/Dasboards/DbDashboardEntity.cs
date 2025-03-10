@@ -6,21 +6,26 @@ namespace ModulesApp.Models.Dasboards;
 public enum DashboardEntityType
 {
     BasicCard,
+    DataListCard,
 }
 
 [Table("DashBoardEntity")]
-public class DbDashboardEntity
+public abstract class DbDashboardEntity
 {
     [Key]
-    public long Id { get; set; }
+    public long Id { get; private set; }
 
-    public DashboardEntityType Type { get; set; }
+    public DashboardEntityType Type { get; protected set; }
 
     public string Name { get; set; } = default!;
-
+    
     public Dictionary<string, object> Data { get; set; } = [];
 
-    public long DashboardId { get; set; }
+    public long DashboardId { get; private set; }
     [ForeignKey("DashboardId")]
-    public DbDashboard Dashboard { get; set; } = default!;
+    public DbDashboard Dashboard { get; private set; } = default!;
+
+    public abstract void UpdateData(Dictionary<string, object> data);
+    public void UpdateData() => UpdateData(Data);
+
 }

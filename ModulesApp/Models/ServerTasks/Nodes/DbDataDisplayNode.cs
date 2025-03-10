@@ -32,7 +32,7 @@ public class DbDataDisplayNode : DbTaskNode
             Dictionary<string, object> data = new()
             {
                 {"Title", StringVal1 },
-                { "Value", Value.ToString() ?? string.Empty }
+                {"Value", Value.ToString() ?? string.Empty }
             };
             context.DisplayValue(LongVal1, data);
         }
