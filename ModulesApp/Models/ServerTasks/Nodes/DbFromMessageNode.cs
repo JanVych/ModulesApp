@@ -71,6 +71,7 @@ public class DbFromMessageNode : DbTaskNode
             "number" => value.Type == NodeValueType.Number,
             "string" => value.Type == NodeValueType.String,
             "boolean" => value.Type == NodeValueType.Boolean,
+            "array" => value.Type == NodeValueType.Array,
             _ => false
         };
     }

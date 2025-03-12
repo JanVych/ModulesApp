@@ -17,15 +17,17 @@ public abstract class DbDashboardEntity
 
     public DashboardEntityType Type { get; protected set; }
 
-    public string Name { get; set; } = default!;
+    public string Name { get; set; } = string.Empty;
     
     public Dictionary<string, object> Data { get; set; } = [];
 
-    public long DashboardId { get; private set; }
+    public long DashboardId { get; set; }
     [ForeignKey("DashboardId")]
     public DbDashboard Dashboard { get; private set; } = default!;
 
     public abstract void UpdateData(Dictionary<string, object> data);
     public void UpdateData() => UpdateData(Data);
+
+    public abstract void SaveData();
 
 }

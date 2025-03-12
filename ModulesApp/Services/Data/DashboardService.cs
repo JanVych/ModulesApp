@@ -68,6 +68,13 @@ public class DashboardService
         context.SaveChanges();
     }
 
+    public void Update(DbDashboardEntity entity)
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        context.DashboardEntities.Update(entity);
+        context.SaveChanges();
+    }
+
     public void Update(long entityId, Dictionary<string, object> data)
     {
         using var context = _dbContextFactory.CreateDbContext();

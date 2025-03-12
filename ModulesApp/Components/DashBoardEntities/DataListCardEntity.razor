@@ -4,35 +4,54 @@
 
 @if (EditMode)
 {
-    <MudCard Style="width: 300px; height: 200px;">
+    <MudCard Style="width: 300px;">
         <MudCardHeader>
             <CardHeaderContent>
-                <MudText Typo="Typo.h4">@Entity.Name</MudText>
-                <MudText Typo="Typo.h4">@Entity.Id</MudText>
+                <MudText Typo="Typo.h6">Id: @Entity.Id</MudText>
+                <MudTextField @bind-Value="@Entity.Name" Label="Name" />
             </CardHeaderContent>
             <CardHeaderActions>
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="OnDeleteButtonClick" />
+                @if (DeleteButtonClick != null)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                    OnClick="OnDeleteButtonClick" />
+                }
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardContent>
-         
+            <MudTable T="DbDataListCardEntity.TableItem" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0" Dense="true">
+                <RowTemplate>
+                    <MudTd>
+                        <MudTextField @bind-Value="context.Title" Margin="Margin.Dense" Variant="Variant.Outlined"/>
+                    </MudTd>
+                    <MudTd DataLabel="Value">@context.Value</MudTd>
+                    <MudTd>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                        OnClick="(() => Entity.TableData.Remove(context))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary"
+            OnClick="AddNewRow" />
         </MudCardContent>
     </MudCard>
 }
 else
 {
     <MudCard Style="width: 300px;">
-        <MudCardHeader>
-            <CardHeaderContent>
-                <MudText Typo="Typo.h4">@Entity.Name</MudText>
-            </CardHeaderContent>
-        </MudCardHeader>
+        @if (!string.IsNullOrEmpty(Entity.Name))
+        {
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4">@Entity.Name</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+        }
         <MudCardContent>
-            <MudTable T="(string, string)" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0">
+            <MudTable T="DbDataListCardEntity.TableItem" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0">
                 <RowTemplate>
-                    <MudTd DataLabel="Label">@context.Item1</MudTd>
-                    <MudTd DataLabel="Value">@context.Item2</MudTd>
-    
+                    <MudTd DataLabel="Label">@context.Title</MudTd>
+                    <MudTd DataLabel="Value">@context.Value</MudTd>
                 </RowTemplate>
             </MudTable>
         </MudCardContent>
@@ -44,9 +63,13 @@ else
     [Parameter, EditorRequired]
     public DbDataListCardEntity Entity { get; set; } = default!;
     [Parameter]
-    public bool EditMode { get; set; }
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public bool NewMode { get; set; } = false;
     [Parameter]
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    [Parameter]
+    public Action<DbDashboardEntity?>? SaveButtonClick { get; set; }
 
     protected override void OnInitialized()
     {
@@ -56,5 +79,13 @@ else
     private void OnDeleteButtonClick()
     {
         DeleteButtonClick?.Invoke(Entity);
+    }
+
+    private void AddNewRow()
+    {
+        Entity.TableData.Add(new DbDataListCardEntity.TableItem()
+            {
+                Value = "value"
+            });
     }
 }

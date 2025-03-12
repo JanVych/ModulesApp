@@ -9,7 +9,6 @@
 
 @page "/"
 
-
 <PageTitle>Dashboard</PageTitle>
 
 <MudStack Justify="Justify.FlexStart">
@@ -34,7 +33,7 @@
                             Variant="Variant.Text"
                             SelectionMode="SelectionMode.SingleSelection"
                             Size="Size.Large"
-                            AllClosable="@_editMode"
+                            AllClosable="@EditMode"
                             OnClose="DeleteDashBoard"
                             Color="Color.Primary">
                     @foreach (var d in _dashboards)
@@ -43,7 +42,7 @@
                             <MudText>@d.Name</MudText>
                         </MudChip>
                     }
-                    @if (_editMode)
+                    @if (EditMode)
                     {
                         <MudChip Value="@("Add")"
                                  Style="height: 60px"
@@ -51,51 +50,55 @@
                                  Variant="Variant.Text"
                                  Size="Size.Large"
                                  Icon="@Icons.Material.Filled.Add"
-                                 OnClick="AddDashBoard" />
+                                 OnClick="AddNewDashboard" />
                     }
                 </MudChipSet>
             </div>
         </MudItem>
 
         <MudItem xs="1" class="d-flex align-center justify-center mud-width-full">
-            <MudSwitch @bind-Value="@_editMode" Color="Color.Primary">Edit</MudSwitch>
+            <MudSwitch @bind-Value="@EditMode" Color="Color.Primary">Edit</MudSwitch>
         </MudItem>
 
         <MudItem xs="12">
-            <div class="d-flex align-content-start flex-wrap gap-8">
+            <div class="d-flex align-start flex-wrap gap-8">
                 @foreach (var e in _selectedDashboard.Entities)
                 {
                     if (e is DbBasicCardEntity be)
                     {
-                        <BasicCardEntity EditMode="@_editMode" Entity="@be" DeleteButtonClick="DeleteDashBoardEntity" />
+                        <BasicCardEntity EditMode="@EditMode" Entity="@be"
+                                         DeleteButtonClick="DeleteDashBoardEntity" />
                     }
-                    if (e is DbDataListCardEntity de)
+                    else if (e is DbDataListCardEntity de)
                     {
-                        <DataListCardEntity EditMode="@_editMode" Entity="@de" DeleteButtonClick="DeleteDashBoardEntity" />
+                        <DataListCardEntity EditMode="@EditMode" Entity="@de"
+                                            DeleteButtonClick="DeleteDashBoardEntity" />
                     }
                 }
 
-                @if (_editMode)
+                @if (EditMode)
                 {
-                    <MudCard Style="width: 300px; height: 300px;">
-                        <MudCardHeader>
-                            <MudText Typo="Typo.h6">Add</MudText>
-                        </MudCardHeader>
-                        <MudCardContent>
-                            <MudTextField @bind-Value="_newEntityName"
-                                          Label="Name"
-                                          Variant="Variant.Text"
-                                          Error="@_showNewEntityError"
-                                          ErrorText="the field is required!" />
-                        </MudCardContent>
-                        <MudCardActions>
-                            <MudButton Variant="Variant.Text"
-                                       Color="Color.Primary"
-                                       OnClick="AddDashBoardEntity">
-                                Confirm
-                            </MudButton>
-                        </MudCardActions>
-                    </MudCard>
+                    <div class="pa-8">
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h5">New Entity</MudText>
+                            <MudSelect T="DashboardEntityType" Value="_newEntityType" Label="Type" ValueChanged="ChangeNewEntityType">
+                                @foreach (DashboardEntityType type in Enum.GetValues(typeof(DashboardEntityType)))
+                                {
+                                    <MudSelectItem Value="type" />
+                                }
+                            </MudSelect>
+
+                            @if (_newEntity is DbBasicCardEntity be)
+                            {
+                                <BasicCardEntity EditMode="true" Entity="@be" />
+                            }
+                            else if (_newEntity is DbDataListCardEntity de)
+                            {
+                                <DataListCardEntity EditMode="true" Entity="@de" />
+                            }
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddDashBoardEntity">Add</MudButton>
+                        </MudStack>
+                    </div>
                 }
             </div>
         </MudItem>
@@ -105,12 +108,24 @@
 @code
 {
     private bool _editMode = false;
+    private bool EditMode
+    {
+        get => _editMode;
+        set
+        {
+            if (!value)
+            {
+                UpdateDashboard();
+            }
+            _editMode = value;
+        }
+    }
     private List<DbDashboard>? _dashboards;
 
     private DbDashboard? _selectedDashboard;
 
-    private string? _newEntityName;
-    private bool _showNewEntityError = false;
+    private DashboardEntityType _newEntityType;
+    private DbDashboardEntity _newEntity = new DbBasicCardEntity();
 
     protected override void OnInitialized()
     {
@@ -137,7 +152,7 @@
         }
     }
 
-    private void AddDashBoard()
+    private void AddNewDashboard()
     {
         if (_dashboards != null)
         {
@@ -163,30 +178,26 @@
         }
     }
 
+    private void ChangeNewEntityType(DashboardEntityType type)
+    {
+        _newEntityType = type;
+        _newEntity = type switch
+        {
+            DashboardEntityType.DataListCard => new DbDataListCardEntity(),
+            _ => new DbBasicCardEntity()
+        };
+    }
+
     private void AddDashBoardEntity()
     {
-        // if (_selectedDashboard != null)
-        // {
-        //     if (!string.IsNullOrEmpty(_newEntityName))
-        //     {
-        //         var entity = new DbDashboardEntity
-        //             {
-        //                 DashboardId = _selectedDashboard.Id,
-        //                 Name = _newEntityName,
-        //                 Type = DashboardEntityType.DataListCard
-        //             };
-
-        //         _dashBoardService.Add(entity);
-        //         _selectedDashboard.Entities.Add(entity);
-
-        //         _showNewEntityError = false;
-        //         _newEntityName = string.Empty;
-        //     }
-        //     else
-        //     {
-        //         _showNewEntityError = true;
-        //     }
-        // }
+        if (_selectedDashboard != null)
+        {
+            _newEntity.SaveData();
+            _newEntity.DashboardId = _selectedDashboard.Id;
+            _dashBoardService.Add(_newEntity);
+            _selectedDashboard.Entities.Add(_newEntity);
+            ChangeNewEntityType(_newEntityType);
+        }
     }
 
     private void DeleteDashBoardEntity(DbDashboardEntity entity)
@@ -209,6 +220,18 @@
                 entity.UpdateData(data);
                 InvokeAsync(StateHasChanged);
             }
+        }
+    }
+
+    private void UpdateDashboard()
+    {
+        if (_selectedDashboard != null)
+        {
+            foreach (var entity in _selectedDashboard.Entities)
+            {
+                entity.SaveData();
+            }
+            _dashBoardService.Update(_selectedDashboard);
         }
     }
 
