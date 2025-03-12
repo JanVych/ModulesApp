@@ -25,7 +25,7 @@ public class DbSendMessageNode : DbTaskNode
     public override void Process(IServerContext context)
     {
         Value = TargetLinks.FirstOrDefault()?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order},had no input");
-        if(Value.Type != NodeValueType.Invalid)
+        if (Value.Type != NodeValueType.Invalid)
         {
             if (StringVal2 == "String")
             {
@@ -46,6 +46,10 @@ public class DbSendMessageNode : DbTaskNode
             {
                 Value = new NodeValue.InvalidValue($"Invalid type: {StringVal2}, in node: {Order}");
             }
+        }
+        if (Value.Type == NodeValueType.Invalid)
+        {
+            Console.WriteLine(Value.ToString());
         }
 
         //Debug.WriteLine($"GetValue SendMessage: {Value.Type}, value: {Value}, key: {StringVal1}");

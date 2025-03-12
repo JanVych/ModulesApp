@@ -10,5 +10,5 @@ public class DbDashboard
     public long Id { get; set; }
     public string Name { get; set; } = default!;
     public string? IconString { get; set; }
-    public ICollection<DbDashboardEntity> Entities { get; set; } = [];
+    public List<DbDashboardEntity> Entities { get; set; } = [];
 }

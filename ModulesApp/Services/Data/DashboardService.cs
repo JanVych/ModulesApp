@@ -8,7 +8,7 @@ public class DashboardService
 {
     private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
 
-    public event Action<long, Dictionary<string, object>>? DashboardEntityDataEvent;
+    public event Action<DbDashboardEntity>? DashboardEntityDataEvent;
 
     public DashboardService(IDbContextFactory<SQLiteDb> dbContextFactory)
     {
@@ -44,47 +44,57 @@ public class DashboardService
             .Include(x => x.Entities)
             .FirstOrDefault(x => x.Id == id);
     }
-
-    public async Task<List<DbDashboard>> GetAllDashboardsAync()
+    public async Task<List<DbDashboard>> GetAllDashboardsAsync()
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
-        return await context.Dashboards
-            .Include(x => x.Entities)
+
+        var dashboards = await context.Dashboards
+            .Include(d => d.Entities)
             .ToListAsync();
+
+        dashboards.AsParallel().ForAll(d => d.Entities.ForEach(e => e.UpdateData()));
+
+        return dashboards;
     }
 
     /// Entities
-    
+
     public void EntityDataChanged(long entityId, Dictionary<string, object> data)
     {
-        Update(entityId, data);
-        DashboardEntityDataEvent?.Invoke(entityId, data);
+        var entity = Update(entityId, data);
+        if (entity != null)
+        {
+            DashboardEntityDataEvent?.Invoke(entity);
+        }
     }
 
     public void Add(DbDashboardEntity entity)
     {
         using var context = _dbContextFactory.CreateDbContext();
+        entity.SaveData();
         context.DashboardEntities.Add(entity);
         context.SaveChanges();
+    }
+
+    public DbDashboardEntity? Update(long entityId, Dictionary<string, object> data)
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        var entity = context.DashboardEntities.FirstOrDefault(x => x.Id == entityId);
+        entity?.UpdateData(data);
+        if (entity != null)
+        {
+            context.DashboardEntities.Update(entity);
+            context.SaveChanges();
+        }
+        return entity;
     }
 
     public void Update(DbDashboardEntity entity)
     {
         using var context = _dbContextFactory.CreateDbContext();
+        entity.SaveData();
         context.DashboardEntities.Update(entity);
         context.SaveChanges();
-    }
-
-    public void Update(long entityId, Dictionary<string, object> data)
-    {
-        using var context = _dbContextFactory.CreateDbContext();
-        var card = context.DashboardEntities.FirstOrDefault(x => x.Id == entityId);
-        if (card != null)
-        {
-            card.Data = data;
-            context.DashboardEntities.Update(card);
-            context.SaveChanges();
-        }
     }
 
     public void Delete(DbDashboardEntity entity)

@@ -26,42 +26,42 @@
     }
     else
     {
-        <MudItem xs="11">
-            <div class="d-flex align-start justify-center mud-width-full">
-                <MudChipSet T="DbDashboard"
-                            @bind-SelectedValue="_selectedDashboard"
-                            Variant="Variant.Text"
-                            SelectionMode="SelectionMode.SingleSelection"
-                            Size="Size.Large"
-                            AllClosable="@EditMode"
-                            OnClose="DeleteDashBoard"
-                            Color="Color.Primary">
-                    @foreach (var d in _dashboards)
-                    {
-                        <MudChip Value="@d" Style="height: 60px" Icon="@d.IconString">
-                            <MudText>@d.Name</MudText>
-                        </MudChip>
-                    }
-                    @if (EditMode)
-                    {
-                        <MudChip Value="@("Add")"
-                                 Style="height: 60px"
-                                 Color="Color.Primary"
-                                 Variant="Variant.Text"
-                                 Size="Size.Large"
-                                 Icon="@Icons.Material.Filled.Add"
-                                 OnClick="AddNewDashboard" />
-                    }
-                </MudChipSet>
-            </div>
-        </MudItem>
-
-        <MudItem xs="1" class="d-flex align-center justify-center mud-width-full">
-            <MudSwitch @bind-Value="@EditMode" Color="Color.Primary">Edit</MudSwitch>
+        <MudItem xs="12">
+            <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Baseline" StretchItems="StretchItems.Middle">
+                <div style="width: 85px"/>
+                <div class="d-flex align-start justify-center mud-width-full">
+                    <MudChipSet T="DbDashboard"
+                                @bind-SelectedValue="_selectedDashboard"
+                                Variant="Variant.Text"
+                                SelectionMode="SelectionMode.SingleSelection"
+                                Size="Size.Large"
+                                AllClosable="@EditMode"
+                                OnClose="DeleteDashBoard"
+                                Color="Color.Primary">
+                        @foreach (var d in _dashboards)
+                        {
+                            <MudChip Value="@d" Style="height: 60px" Icon="@d.IconString">
+                                <MudText>@d.Name</MudText>
+                            </MudChip>
+                        }
+                        @if (EditMode)
+                        {
+                            <MudChip Value="@("Add")"
+                                     Style="height: 60px"
+                                     Color="Color.Primary"
+                                     Variant="Variant.Text"
+                                     Size="Size.Large"
+                                     Icon="@Icons.Material.Filled.Add"
+                                     OnClick="AddNewDashboard" />
+                        }
+                    </MudChipSet>
+                </div>
+                <MudSwitch @bind-Value="@EditMode" Color="Color.Primary">Edit</MudSwitch>
+            </MudStack>
         </MudItem>
 
         <MudItem xs="12">
-            <div class="d-flex align-start flex-wrap gap-8">
+            <div class="d-flex align-start justify-center flex-wrap gap-8">
                 @foreach (var e in _selectedDashboard.Entities)
                 {
                     if (e is DbBasicCardEntity be)
@@ -136,7 +136,7 @@
     {
         if (firstRender)
         {
-            _dashboards = await _dashBoardService.GetAllDashboardsAync();
+            _dashboards = await _dashBoardService.GetAllDashboardsAsync();
             if (_dashboards.Count == 0)
             {
                 var home = new DbDashboard
@@ -192,7 +192,6 @@
     {
         if (_selectedDashboard != null)
         {
-            _newEntity.SaveData();
             _newEntity.DashboardId = _selectedDashboard.Id;
             _dashBoardService.Add(_newEntity);
             _selectedDashboard.Entities.Add(_newEntity);
@@ -210,14 +209,14 @@
         }
     }
 
-    private void OnDashBoardEntityDataChanged(long entityId, Dictionary<string, object> data)
+    private void OnDashBoardEntityDataChanged(DbDashboardEntity entity)
     {
         if (_selectedDashboard != null)
         {
-            var entity = _selectedDashboard.Entities.FirstOrDefault(c => c.Id == entityId);
-            if (entity != null)
+            var index = _selectedDashboard.Entities.FindIndex(e => e.Id == entity.Id);
+            if (index >= 0)
             {
-                entity.UpdateData(data);
+                _selectedDashboard.Entities[index] = entity;
                 InvokeAsync(StateHasChanged);
             }
         }
@@ -227,11 +226,10 @@
     {
         if (_selectedDashboard != null)
         {
-            foreach (var entity in _selectedDashboard.Entities)
+            foreach(var e in _selectedDashboard.Entities)
             {
-                entity.SaveData();
+                _dashBoardService.Update(e);
             }
-            _dashBoardService.Update(_selectedDashboard);
         }
     }
 

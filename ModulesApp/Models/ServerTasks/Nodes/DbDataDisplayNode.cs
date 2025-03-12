@@ -1,6 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Interfaces;
-using System.Diagnostics;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
@@ -29,16 +28,22 @@ public class DbDataDisplayNode : DbTaskNode
 
         if (Value.Type != NodeValueType.Invalid)
         {
-            Dictionary<string, object> data = new()
+            Dictionary<string, object> data = [];
+            if (Value is NodeValue.ArrayValue array)
             {
-                {"Title", StringVal1 },
-                {"Value", Value.ToString() ?? string.Empty }
-            };
+                data["Values"] = array.ToStringList();
+            }
+            else
+            {
+                data["Title"] = StringVal1;
+                data["Value"] = Value.ToString() ?? string.Empty;
+            }
+            
             context.DisplayValue(LongVal1, data);
         }
         else
         {
-            Debug.WriteLine(Value.ToString());
+            Console.WriteLine(Value.ToString());
         }
     }
 }

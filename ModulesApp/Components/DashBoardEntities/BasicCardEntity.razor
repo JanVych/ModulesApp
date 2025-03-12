@@ -58,11 +58,6 @@ else
     [Parameter]
     public Action<DbDashboardEntity?>? SaveButtonClick { get; set; }
 
-    protected override void OnInitialized()
-    {
-        Entity.UpdateData();
-    }
-
     private void OnDeleteButtonClick()
     {
         DeleteButtonClick?.Invoke(Entity);

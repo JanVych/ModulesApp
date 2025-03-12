@@ -71,11 +71,6 @@ else
     [Parameter]
     public Action<DbDashboardEntity?>? SaveButtonClick { get; set; }
 
-    protected override void OnInitialized()
-    {
-        Entity.UpdateData();
-    }
-
     private void OnDeleteButtonClick()
     {
         DeleteButtonClick?.Invoke(Entity);
@@ -85,7 +80,7 @@ else
     {
         Entity.TableData.Add(new DbDataListCardEntity.TableItem()
             {
-                Value = "value"
+                Value = "..."
             });
     }
 }

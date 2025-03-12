@@ -29,5 +29,6 @@ public class DbBasicCardEntity: DbDashboardEntity
 
     public override void SaveData()
     {
+        Data["Title"] = Title;
     }
 }

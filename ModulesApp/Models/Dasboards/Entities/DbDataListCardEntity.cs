@@ -16,7 +16,10 @@ public class DbDataListCardEntity : DbDashboardEntity
 
     public override void UpdateData(Dictionary<string, object> data)
     {
-        Data = data;
+        foreach(var (key, value) in data)
+        {
+            Data[key] = value;
+        }
         if (Data.TryGetValue("Titles", out var titles))
         {
             Data.TryGetValue("Values", out var values);
@@ -52,5 +55,6 @@ public class DbDataListCardEntity : DbDashboardEntity
     public override void SaveData()
     {
         Data["Titles"] = TableData.Select(i => i.Title).ToList();
+        Data["Values"] = TableData.Select(i => i.Value).ToList();
     }
 }
