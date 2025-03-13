@@ -115,7 +115,11 @@
     <MudItem xs="12" sm="12">
         <MudText Typo="Typo.h6">Output</MudText>
         <MudPaper Elevation="0">
-            @_outputText
+            @foreach(var t in _outputList)
+            {
+                <div>@t</div>
+            }
+            @* @_outputText *@
         </MudPaper>
     </MudItem>
 </MudGrid>
@@ -141,6 +145,7 @@
     private ModuleIDF? _selectedIDF;
 
     private string _outputText = string.Empty;
+    private List<string> _outputList= [];
 
     private MudTabs? _tabs;
     private int _activePanelIndex = 0;
@@ -243,7 +248,7 @@
     {
         if (_selectedFirmware != null)
         {
-            _firmwareService.CreateNewProgram("new " + DateTime.Now.Millisecond, _selectedFirmware.Name);
+            _firmwareService.CreateNewProgram("new_" + DateTime.Now.Millisecond, _selectedFirmware.Name);
         }
     }
 
@@ -277,10 +282,18 @@
     {
         if (!string.IsNullOrEmpty(outLine.Data))
         {
-            _outputText += outLine.Data;
+            if (_outputList.Count > 4)
+            {
+                _outputList.RemoveAt(0);
+            }
+            _outputList.Add(outLine.Data);
+
+            // _outputText += outLine.Data ;
+
             InvokeAsync(StateHasChanged);
         }
     }
+
 
     private void SetOtaUpdate()
     {

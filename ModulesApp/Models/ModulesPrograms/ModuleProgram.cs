@@ -27,13 +27,13 @@ public class ModuleProgram(string name, string path)
 {
     public string Name { get; } = name;
     public string RelativePath { get; } = path;
+    public string AbsolutePath => Path.GetFullPath(RelativePath);
     public IReadOnlyList<ModuleProgramFile>? Files { get; private set; }
 
     public async Task LoadtProgramFiles()
     {
         var list = new List<ModuleProgramFile>();
-
-        var programPath = Path.Combine(RelativePath, "components\\program");
+        var programPath = Path.Combine(RelativePath, Path.Join("components", "program"));
         try
         {
             foreach (var f in Directory.GetFiles(programPath))

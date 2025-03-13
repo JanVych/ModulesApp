@@ -11,8 +11,8 @@ using ModulesApp.Data;
 namespace ModulesApp.Migrations
 {
     [DbContext(typeof(SQLiteDb))]
-    [Migration("20250310123431_mig6")]
-    partial class mig6
+    [Migration("20250313132233_mig1")]
+    partial class mig1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

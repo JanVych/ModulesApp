@@ -24,12 +24,6 @@ public class FirmwareService
         LoadFrimware();
         LoadIDF();
         LoadPrograms();
-
-        //CleanProgram("test", "esp-idf-v5.2.3", OutputHandler);
-        // BuildProgram("test", "esp-idf-v5.2.3", OutputHandler);
-        //CreateNewProgram("test2", "main-project-1");
-        //GetProgramBinPath("test2");
-        //BuildProgram("test2", "esp-idf-v5.2.3", OutputHandler);
     }
 
     private string GetPathFromAppSettings(string appSettingsString)
@@ -98,21 +92,21 @@ public class FirmwareService
     {
         if (Programs.FirstOrDefault(x => x.Name == newName)?.RelativePath != null)
         {
-            Debug.WriteLine($"Program: {newName}, already exists");
+            Console.WriteLine($"Program: {newName}, already exists");
             return;
         }
 
         var firmwarePath = Firmware.FirstOrDefault(x => x.Name == firmwareName)?.RelativePath;
         if (firmwarePath == null)
         {
-            Debug.WriteLine($"Firmware: {firmwareName}, does not exist");
+            Console.WriteLine($"Firmware: {firmwareName}, does not exist");
             return;
         }
 
         var programPath = _configuration["AppSettings:ProgramPath"];
         if (string.IsNullOrEmpty(programPath))
         {
-            Debug.WriteLine($"Config: AppSettings:FirmwarePath, does not exist in appsettings.json");
+            Console.WriteLine($"Config: AppSettings:FirmwarePath, does not exist in appsettings.json");
             return;
         }
 
@@ -143,40 +137,41 @@ public class FirmwareService
 
     private void RunCMDCommand(string idfName, string programName, string command, DataReceivedEventHandler? outputHandler)
     {
-        var idfPath = IDF.FirstOrDefault(x => x.Name == idfName)?.AbsolutePath;
-        var programPath = Programs.FirstOrDefault(x => x.Name == programName)?.RelativePath;
-        if (idfPath == null)
+        var idfABsolutePath = IDF.FirstOrDefault(x => x.Name == idfName)?.AbsolutePath;
+        var programAbsolutePath = Programs.FirstOrDefault(x => x.Name == programName)?.AbsolutePath;
+        if (idfABsolutePath == null)
         {
-            Debug.WriteLine($"Invalid idf name: {idfName}");
+            Console.WriteLine($"Invalid idf name: {idfName}");
             return;
         }
-        if (programPath == null)
+        if (programAbsolutePath == null)
         {
-            Debug.WriteLine($"Invalid program name: {programName}");
+            Console.WriteLine($"Invalid program name: {programName}");
             return;
         }
-        RunCMDProcess(idfPath, programPath, command, outputHandler);
+        RunCMDProcess(idfABsolutePath, programAbsolutePath, command, outputHandler);
     }
 
-    private static void RunCMDProcess(string idfPath, string programPath, string command, DataReceivedEventHandler? outputHandler)
+    private static void RunCMDProcess(string idfAbsolutePath, string programAbsolutePath, string command, DataReceivedEventHandler? outputHandler)
     {
         Process cmdProcess = new();
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            // Windows-specific commands
-            cmdProcess.StartInfo.WorkingDirectory = programPath;
+            cmdProcess.StartInfo.WorkingDirectory = programAbsolutePath;
             cmdProcess.StartInfo.FileName = "cmd.exe";
-            cmdProcess.StartInfo.Arguments = $"/C {idfPath}\\install.bat && {idfPath}\\export.bat && idf.py {command}";
+            cmdProcess.StartInfo.Arguments = $"/C {idfAbsolutePath}\\install.bat && {idfAbsolutePath}\\export.bat && idf.py {command}";
+            //cmdProcess.StartInfo.Arguments = $"/C {idfAbsolutePath}\\export.bat && idf.py {command}";
         }
-        // TODO: Add support for Linux
-        //else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        //{
-        //    // Linux-specific commands
-        //    cmdProcess.StartInfo.WorkingDirectory = programPath;
-        //    cmdProcess.StartInfo.FileName = "/bin/bash";
-        //    cmdProcess.StartInfo.Arguments = $"-c \"source {idfPath}/install.sh && source {idfPath}/export.sh && idf.py {command}\"";
-        //}
+
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // TODO install.sh
+            cmdProcess.StartInfo.WorkingDirectory = programAbsolutePath;
+            cmdProcess.StartInfo.FileName = "/bin/bash";
+            cmdProcess.StartInfo.Arguments = $"-c \"source {idfAbsolutePath}/export.sh && idf.py {command}\"";
+        }
+
 
         cmdProcess.StartInfo.RedirectStandardOutput = true;
         cmdProcess.StartInfo.UseShellExecute = false;
