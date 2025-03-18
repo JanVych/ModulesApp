@@ -8,7 +8,6 @@ public class DbModuleAction
 {
     [Key]
     public long Id { get; set; }
-    //public Dictionary<string, object> JsonData { get; set; } = default!;
 
     public string Key { get; set; } = default!;
     public object Value { get; set; } = default!;

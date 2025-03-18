@@ -3,6 +3,7 @@
 
 @inject ModuleService _moduleService
 @inject IDialogService _dialogService
+@inject NavigationManager _navigationManager
 
 @implements IDisposable
 
@@ -10,39 +11,56 @@
 
 <PageTitle>Modules</PageTitle>
 
-<MudText Typo="Typo.h3" Class="mb-8">Modules</MudText>
+<MudText Typo="Typo.h4" Class="mb-4">Modules</MudText>
 
-<MudTable Items="@_modules" Loading="@_modulesLoading">
+<MudTable Items="@_modules" Loading="@_modulesLoading" Hover="true">
     <HeaderContent>
         <MudTh>Name</MudTh>
-        <MudTh>Current program</MudTh>
-        <MudTh>Wifi network</MudTh>
-        <MudTh>Free Memory</MudTh>
+        <MudTh>Program</MudTh>
+        <MudTh>Status</MudTh>
         <MudTh>Last response</MudTh>
+        <MudTh>Free Memory</MudTh>
+        <MudTh>Wifi network</MudTh>
         <MudTh>Firmware Version</MudTh>
         <MudTh>Actions</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="Current program">@context.ProgramName</MudTd>
+        <MudTd DataLabel="Program">@context.ProgramName</MudTd>
+
+        <MudTd DataLabel="Status">
+            <MudChip T="string" Color="@Color.Primary">
+                @context.ProgramStatus
+            </MudChip>
+        </MudTd>
+        <MudTd DataLabel="Last response">
+            <MudChip T="string" Color="@context.LastResponseColor()">
+                @context.LastResponseText()
+            </MudChip>
+        </MudTd>
+
+        <MudTd DataLabel="Free Memory">
+            @context.FreeHeapText()
+        </MudTd>
+
         <MudTd DataLabel="Wifi network">@context.WifiCurrent</MudTd>
-        <MudTd DataLabel="Free Memory">@context.FreeHeap</MudTd>
-        <MudTd DataLabel="Last response">@context.LastResponse</MudTd>
         <MudTd DataLabel="Firmware Version">@context.FirmwareVersion</MudTd>
+
         <MudTd DataLabel="Actions">
             <MudStack Row="true">
                 <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                               Color="Color.Primary"
-                               OnClick="() => EditModule(context)">
+                Color="Color.Primary"
+                OnClick="() => DetailModule(context)">
                 </MudIconButton>
                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                               Color="Color.Secondary"
-                               OnClick="() => DeleteModule(context)">
+                Color="Color.Secondary"
+                OnClick="() => DeleteModule(context)">
                 </MudIconButton>
             </MudStack>
         </MudTd>
     </RowTemplate>
 </MudTable>
+
 
 <MudMessageBox @ref="_mudMessageBox" Title="Warning" CancelText="Cancel">
     <MessageContent>
@@ -79,8 +97,9 @@
         _modulesLoading = false;
     }
 
-    private void EditModule(DbModule module)
+    private void DetailModule(DbModule module)
     {
+        _navigationManager.NavigateTo("/modules/detail?id=" + module.Id.ToString());
     }
 
     private async Task DeleteModule(DbModule module)

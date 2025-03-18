@@ -22,6 +22,13 @@ public class ModuleService
         return result;
     }
 
+    private async Task<int> SaveChangesAsync(SQLiteDb context)
+    {
+        var result = await context.SaveChangesAsync();
+        ModulesDbChangedEvent?.Invoke();
+        return result;
+    }
+
     public void Add(DbModule module)
     {
         using var context = _dbContextFactory.CreateDbContext();
@@ -34,6 +41,13 @@ public class ModuleService
         using var context = _dbContextFactory.CreateDbContext();
         context.Modules.Update(module);
         SaveChanges(context);
+    }
+
+    public async Task UpdateAsync(DbModule module)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        context.Modules.Update(module);
+        await SaveChangesAsync(context);
     }
 
     public void Delete(DbModule module)
@@ -63,6 +77,15 @@ public class ModuleService
         using var context = _dbContextFactory.CreateDbContext();
         return context.Modules
             .FirstOrDefault(x => x.Id == id);
+    }
+
+    public async Task<DbModule?> GetAsyncIncludeAll(long id)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.Modules
+            .Include(x => x.ModuleActions)
+            .Include(x => x.ServerTasks)
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public bool IsRegistrated(long id, string key)
