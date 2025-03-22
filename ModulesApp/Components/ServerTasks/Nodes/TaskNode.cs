@@ -20,6 +20,7 @@ public abstract class TaskNode : NodeModel, IDbNode
     public double DoubleVal1 { get; set; }
     public bool BoolVal1 { get; set; }
     public long LongVal1 { get; set; }
+    public long LongVal2 { get; set; }
 
     public TaskNode(IServerContext context, Point? position = null) : base(position)
     {
@@ -39,6 +40,7 @@ public abstract class TaskNode : NodeModel, IDbNode
         StringVal3 = dbNode.StringVal3;
         DoubleVal1 = dbNode.DoubleVal1;
         LongVal1 = dbNode.LongVal1;
+        LongVal2 = dbNode.LongVal2;
         BoolVal1 = dbNode.BoolVal1;
     }
 }

@@ -1,9 +1,11 @@
 ﻿@using ModulesApp.Components.DashBoardEntities
+@using ModulesApp.Components.Dialog
 @using ModulesApp.Models.Dasboards
 @using ModulesApp.Models.Dasboards.Entities
 @using ModulesApp.Services.Data
 
 @inject DashboardService _dashBoardService
+@inject IDialogService DialogService
 
 @implements IDisposable
 
@@ -74,31 +76,16 @@
                         <DataListCardEntity EditMode="@EditMode" Entity="@de"
                                             DeleteButtonClick="DeleteDashBoardEntity" />
                     }
+                    else if (e is DbBasicSwitchEntity se)
+                    {
+                        <BasicSwitchEntity EditMode="@EditMode" Entity="@se" 
+                                            DeleteButtonClick="DeleteDashBoardEntity"/>
+                    }
                 }
 
                 @if (EditMode)
                 {
-                    <div class="pa-8">
-                        <MudStack AlignItems="AlignItems.Center">
-                            <MudText Typo="Typo.h5">New Entity</MudText>
-                            <MudSelect T="DashboardEntityType" Value="_newEntityType" Label="Type" ValueChanged="ChangeNewEntityType">
-                                @foreach (DashboardEntityType type in Enum.GetValues(typeof(DashboardEntityType)))
-                                {
-                                    <MudSelectItem Value="type" />
-                                }
-                            </MudSelect>
-
-                            @if (_newEntity is DbBasicCardEntity be)
-                            {
-                                <BasicCardEntity EditMode="true" Entity="@be" />
-                            }
-                            else if (_newEntity is DbDataListCardEntity de)
-                            {
-                                <DataListCardEntity EditMode="true" Entity="@de" />
-                            }
-                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddDashBoardEntity">Add</MudButton>
-                        </MudStack>
-                    </div>
+                    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddEntityDialog" />
                 }
             </div>
         </MudItem>
@@ -123,9 +110,6 @@
     private List<DbDashboard>? _dashboards;
 
     private DbDashboard? _selectedDashboard;
-
-    private DashboardEntityType _newEntityType;
-    private DbDashboardEntity _newEntity = new DbBasicCardEntity();
 
     protected override void OnInitialized()
     {
@@ -178,27 +162,6 @@
         }
     }
 
-    private void ChangeNewEntityType(DashboardEntityType type)
-    {
-        _newEntityType = type;
-        _newEntity = type switch
-        {
-            DashboardEntityType.DataListCard => new DbDataListCardEntity(),
-            _ => new DbBasicCardEntity()
-        };
-    }
-
-    private void AddDashBoardEntity()
-    {
-        if (_selectedDashboard != null)
-        {
-            _newEntity.DashboardId = _selectedDashboard.Id;
-            _dashBoardService.Add(_newEntity);
-            _selectedDashboard.Entities.Add(_newEntity);
-            ChangeNewEntityType(_newEntityType);
-        }
-    }
-
     private void DeleteDashBoardEntity(DbDashboardEntity entity)
     {
         if (_selectedDashboard != null)
@@ -229,6 +192,31 @@
             foreach(var e in _selectedDashboard.Entities)
             {
                 _dashBoardService.Update(e);
+            }
+        }
+    }
+
+    private void AddDashBoardEntity(DbDashboardEntity entity)
+    {
+        if (_selectedDashboard != null)
+        {
+            entity.DashboardId = _selectedDashboard.Id;
+            _dashBoardService.Add(entity);
+            _selectedDashboard.Entities.Add(entity);
+        }
+    }
+
+    private async Task OpenAddEntityDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var dRef = await DialogService.ShowAsync<DashboardAddEntityDialog>("Simple Dialog", options);
+        var result = await dRef.Result;
+        if (result is not null && !result.Canceled)
+        {
+            if (result.Data is DbDashboardEntity entity)
+            {
+                AddDashBoardEntity(entity);
             }
         }
     }

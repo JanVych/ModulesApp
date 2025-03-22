@@ -55,8 +55,6 @@ else
     public bool EditMode { get; set; } = false;
     [Parameter]
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
-    [Parameter]
-    public Action<DbDashboardEntity?>? SaveButtonClick { get; set; }
 
     private void OnDeleteButtonClick()
     {

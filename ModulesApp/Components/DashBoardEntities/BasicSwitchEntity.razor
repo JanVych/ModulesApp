@@ -1,0 +1,49 @@
+﻿@using ModulesApp.Models.Dasboards
+@using System.Text.Json
+@using ModulesApp.Models.Dasboards.Entities
+
+@if (EditMode)
+{
+    <MudPaper Class="pa-4" Style="width: 150px;">
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudTextField @bind-Value="@Entity.Name" Label="Name" />
+            <MudSwitch T="bool" @bind-value="@Entity.Value" Color="Color.Primary">
+                @StringValue
+            </MudSwitch>
+            @if (DeleteButtonClick != null)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               OnClick="OnDeleteButtonClick" />
+            }
+        </MudStack>
+    </MudPaper>
+}
+else
+{
+    <MudPaper Class="pa-4" Style="width: 150px;">
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">@Entity?.Name</MudText>
+            <MudSwitch T="bool" @bind-value="@Entity.Value" Color="Color.Primary">
+                @StringValue
+            </MudSwitch>
+        </MudStack>
+    </MudPaper>
+}
+
+@code
+{
+    [Parameter, EditorRequired]
+    public DbBasicSwitchEntity Entity { get; set; } = default!;
+    [Parameter]
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+
+    public string StringValue => Entity.Value ? "on" : "off";
+
+    private void OnDeleteButtonClick()
+    {
+        DeleteButtonClick?.Invoke(Entity);
+    }
+}

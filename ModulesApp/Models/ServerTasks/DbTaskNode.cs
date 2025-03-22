@@ -20,6 +20,7 @@ public class DbTaskNode : IDbNode
     public string StringVal3 { get; set; } = string.Empty;
     public double DoubleVal1 { get; set; }
     public long LongVal1 { get; set; }
+    public long LongVal2 { get; set; }
     public bool BoolVal1 { get; set; }
 
     public double PositionX { get; set; } = 0;
@@ -50,6 +51,7 @@ public class DbTaskNode : IDbNode
         StringVal3 = node.StringVal3;
         DoubleVal1 = node.DoubleVal1;
         LongVal1 = node.LongVal1;
+        LongVal2 = node.LongVal2;
         BoolVal1 = node.BoolVal1;
 
         PositionX = node.PositionX;

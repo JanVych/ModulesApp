@@ -112,6 +112,10 @@ public class ServerTaskService
             {
                 dbNodes.Add(new DbSendMessageNode(sendMessageNode));
             }
+            else if (node is ArrayOperationNode arrayOperationNode)
+            {
+                 dbNodes.Add(new DbArrayOperationNode(arrayOperationNode));
+            }
         }
 
         var dbNodeLookup = dbNodes.ToDictionary(node => node.Order);
@@ -158,7 +162,9 @@ public class ServerTaskService
         {
             if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
             {
-                node.Process(serverContext);
+                //node.Process(serverContext);
+                var value = node.GetValue(null, serverContext);
+                Console.WriteLine($"Node: {node.Order}, Value: {value}");
             }
         }
     }
@@ -175,7 +181,9 @@ public class ServerTaskService
             {
                 if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
                 {
-                    node.Process(serverContext);
+                    //node.Process(serverContext);
+                    var value = node.GetValue(null, serverContext);
+                    Console.WriteLine($"Node: {node.Order}, Value: {value}");
                 }
             }
         }

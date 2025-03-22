@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace ModulesApp.Models.ModulesPrograms;
+﻿namespace ModulesApp.Models.ModulesPrograms;
 
 public class ModuleIDF(string name, string path, string version)
 {
@@ -8,7 +6,6 @@ public class ModuleIDF(string name, string path, string version)
     public string AbsolutePath { get; } = path;
     public string Version { get; } = version;
 }
-
 public class ModuleFirmware(string name, string path, string version)
 {
     public string Name { get; } = name;
@@ -44,13 +41,13 @@ public class ModuleProgram(string name, string path)
         }
         catch (Exception e)
         {
-            Debug.WriteLine(e.Message);
+            Console.WriteLine(e.Message);
         }
     }
 
     public string? GetBinPath()
     {
         var path = Path.Combine(RelativePath, "build");
-        return Directory.GetFiles(path, "*.bin").FirstOrDefault();
+        return Directory.GetFiles(path, "main-project-1.bin").FirstOrDefault();
     }
 }

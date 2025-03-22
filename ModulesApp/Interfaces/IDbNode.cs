@@ -4,11 +4,11 @@ public enum NodeType
 {
     None,
     Condition,
-    Operation,
     FromMessage,
     DataDisplay,
     Value,
-    SendMessage
+    SendMessage,
+    ArrayOperation
 }
 
 public enum NodeConditionType
@@ -20,6 +20,12 @@ public enum NodeConditionType
     Less,
     GreaterOrEqual,
     LessOrEqual
+}
+
+public enum NodeArrayOperationType
+{
+    ArraySlice,
+    ArrayRemoveAt
 }
 
 public static class NodeExtensions
@@ -53,16 +59,26 @@ public static class NodeExtensions
             _ => type.ToString()
         };
     }
+
+    public static string ToLongString(this NodeArrayOperationType type)
+    {
+        return type switch
+        {
+            NodeArrayOperationType.ArraySlice => "Array Slice",
+            NodeArrayOperationType.ArrayRemoveAt => "Array Remove At",
+            _ => type.ToString()
+        };
+    }
 }
 
-public enum NodeOperationType
-{
-    None,
-    Add,
-    Subtract,
-    Multiply,
-    Divide
-}
+//public enum NodeOperationType
+//{
+//    None,
+//    Add,
+//    Subtract,
+//    Multiply,
+//    Divide
+//}
 
 public enum NodeInputType
 {
@@ -83,6 +99,7 @@ public interface IDbNode
     public string StringVal3 { get; set; }
     public double DoubleVal1 { get; set; }
     public long LongVal1 { get; set; }
+    public long LongVal2 { get; set; }
     public bool BoolVal1 { get; set; }
 
     public int Order { get; set; }

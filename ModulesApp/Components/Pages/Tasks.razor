@@ -85,7 +85,6 @@
                          Class="custom-menu-label custom-menu-icon"
                          Style="align-self: auto; background-color: var(--condition-node-background);">
 
-
                     @foreach (NodeConditionType condition in Enum.GetValues(typeof(NodeConditionType)))
                     {
                         <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
@@ -126,6 +125,27 @@
                        OnClick="() => AddNode(NodeType.SendMessage)">
                 Send Message
             </MudButton>
+
+            <MudButtonGroup Variant="Variant.Filled">
+                <MudButton Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                           OnClick="() => AddNode(NodeType.ArrayOperation)">
+                    Array Operation
+                </MudButton>
+                <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                         Label="@_selectedOperation.ToLongString()"
+                         Class="custom-menu-label custom-menu-icon"
+                         Style="align-self: auto; background-color: var(--condition-node-background);">
+
+                    @foreach (NodeArrayOperationType operation in Enum.GetValues(typeof(NodeArrayOperationType)))
+                    {
+                        <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                                     @onclick="() => ChangeOperationType(operation)">
+                            @operation.ToLongString()
+                        </MudMenuItem>
+                    }
+
+                </MudMenu>
+            </MudButtonGroup>
 
         </MudStack>
 
@@ -183,6 +203,7 @@
     private BlazorDiagram? _currentDiagram;
     private NodeConditionType _selectedCondition = NodeConditionType.Equal;
     private NodeInputType _selectedInputType = NodeInputType.Single;
+    private NodeArrayOperationType _selectedOperation = NodeArrayOperationType.ArraySlice;
 
     private List<DbModule>? _modules;
 
@@ -194,9 +215,9 @@
                 {
                     AllowMultiSelection = true,
                     Zoom =
-                {
-                    Enabled = false,
-                },
+                    {
+                        Enabled = true,
+                    },
                     Links =
                 {
                     Factory = LinkFactory.CustomLinkFactory,
@@ -212,6 +233,7 @@
             _currentDiagram.RegisterComponent<DataDisplayNode, DataDisplayWidget>();
             _currentDiagram.RegisterComponent<ValueNode, ValueWidget>();
             _currentDiagram.RegisterComponent<SendMessageNode, SendMessageWidget>();
+            _currentDiagram.RegisterComponent<ArrayOperationNode, ArrayOperationWidget>();
 
             _modules = await _moduleService.GetAllAsync();
 
@@ -319,12 +341,21 @@
             {
                 _currentDiagram.Nodes.Add(new SendMessageNode(_serverContextService, point) { Order = smallestOrder });
             }
+            else if (type == NodeType.ArrayOperation)
+            {
+                _currentDiagram.Nodes.Add(new ArrayOperationNode(_serverContextService, _selectedOperation ,point) { Order = smallestOrder });
+            }
         }
     }
 
     private void ChangeConditionType(NodeConditionType condition)
     {
         _selectedCondition = condition;
+    }
+
+    private void ChangeOperationType(NodeArrayOperationType condition)
+    {
+        _selectedOperation = condition;
     }
 
     private void ChangeInputType(NodeInputType type)
@@ -373,6 +404,10 @@
                 else if (node.Type == NodeType.SendMessage)
                 {
                     _currentDiagram.Nodes.Add(new SendMessageNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.ArrayOperation)
+                {
+                    _currentDiagram.Nodes.Add(new ArrayOperationNode(_serverContextService, node));
                 }
             }
 

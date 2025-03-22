@@ -1,0 +1,63 @@
+﻿@using ModulesApp.Components.DashBoardEntities
+@using ModulesApp.Models.Dasboards
+@using ModulesApp.Models.Dasboards.Entities
+
+<MudDialog>
+    <TitleContent>
+        Dialog Title
+    </TitleContent>
+    <DialogContent>
+        <div class="pa-8">
+            <MudStack AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h5">New Entity</MudText>
+                <MudSelect T="DashboardEntityType" Value="EntityType" Label="Type" ValueChanged="ChangeNewEntityType">
+                    @foreach (DashboardEntityType type in Enum.GetValues(typeof(DashboardEntityType)))
+                    {
+                        <MudSelectItem Value="type" />
+                    }
+                </MudSelect>
+
+                @if (Entity is DbBasicCardEntity be)
+                {
+                    <BasicCardEntity EditMode="true" Entity="@be" />
+                }
+                else if (Entity is DbDataListCardEntity de)
+                {
+                    <DataListCardEntity EditMode="true" Entity="@de" />
+                }
+                else if (Entity is DbBasicSwitchEntity se)
+                {
+                    <BasicSwitchEntity EditMode="true" Entity="@se" />
+                }
+            </MudStack>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter, EditorRequired]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    public DbDashboardEntity Entity { get; set; } = new DbBasicCardEntity();
+    public DashboardEntityType EntityType { get; set; } = DashboardEntityType.BasicCard;
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Entity));
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void ChangeNewEntityType(DashboardEntityType type)
+    {
+        EntityType = type;
+        Entity = type switch
+        {
+            DashboardEntityType.DataListCard => new DbDataListCardEntity(),
+            DashboardEntityType.BasicSwitch => new DbBasicSwitchEntity(),
+            _ => new DbBasicCardEntity()
+        };
+    }
+}
+

@@ -7,6 +7,7 @@ public enum DashboardEntityType
 {
     BasicCard,
     DataListCard,
+    BasicSwitch,
 }
 
 [Table("DashBoardEntity")]

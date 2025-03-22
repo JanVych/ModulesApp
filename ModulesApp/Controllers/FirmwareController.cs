@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ModulesApp.Services;
-using System.Diagnostics;
 
 namespace ModulesApp.Controllers;
 
@@ -17,14 +16,17 @@ public class FirmwareController : ControllerBase
     [HttpGet]
     public IActionResult Get([FromQuery] string program)
     {
-        Debug.WriteLine("GET FIRMWARE");
-        Debug.WriteLine(program);
+        Console.WriteLine("GET FIRMWARE");
+        Console.WriteLine(program);
         var programs = _firmwareService.Programs;
+
         foreach (var p in programs)
         {
+            Console.WriteLine(p.Name);
             if (p.Name == program)
             {
                 var path = p.GetBinPath();
+                Console.WriteLine(path);
                 if (path == null)
                 {
                     return NotFound($"Binary file for program name: {program} not found");
