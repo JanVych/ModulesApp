@@ -9,13 +9,14 @@ namespace ModulesApp.Services;
 
 public class ServerContextService : IServerContext
 {
-    private readonly ModuleService _modulessService;
+    private readonly ModuleService _modulesService;
     private readonly DashboardService _dashboardService;
-    private readonly ModuleActionService _moduleActionService;
+    private readonly ActionService _moduleActionService;
 
-    public ServerContextService(ModuleService moduleService, DashboardService dashboardService, ModuleActionService moduleActionService)
+
+    public ServerContextService(ModuleService moduleService, DashboardService dashboardService, ActionService moduleActionService)
     {
-        _modulessService = moduleService;
+        _modulesService = moduleService;
         _dashboardService = dashboardService;
         _moduleActionService = moduleActionService;
     }
@@ -33,18 +34,18 @@ public class ServerContextService : IServerContext
 
     public List<DbModule> GetAllModules()
     {
-        return _modulessService.GetAll();
+        return _modulesService.GetAll();
     }
 
     public JsonElement? GetMessageFromModule(long moduleId, string key)
     {
-        var module = _modulessService.Get(moduleId);
-        if (module == null || module.JsonData == null)
+        var module = _modulesService.Get(moduleId);
+        if (module == null || module.Data == null)
         {
             return null;
         }
 
-        if (module.JsonData.TryGetValue(key, out var value) && value is JsonElement element)
+        if (module.Data.TryGetValue(key, out var value) && value is JsonElement element)
         {
             return element;
         }
@@ -53,9 +54,9 @@ public class ServerContextService : IServerContext
 
     public void SendToModule(long moduleId, string key, object value)
     {
-        if (_modulessService.IsRegistrated(moduleId))
+        if (_modulesService.IsRegistrated(moduleId))
         {
-            var action = new DbModuleAction
+            var action = new DbAction
             {
                 ModuleId = moduleId,
                 Key = key,

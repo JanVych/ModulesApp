@@ -15,7 +15,6 @@ public class SQLiteDb : DbContext
     protected readonly IConfiguration _configuration;
 
     public DbSet<DbModule> Modules { get; set; }
-    public DbSet<DbModuleAction> ModuleActions { get; set; }
 
     public DbSet<DbDashboard> Dashboards { get; set; }
     public DbSet<DbDashboardEntity> DashboardEntities { get; set; }
@@ -24,8 +23,9 @@ public class SQLiteDb : DbContext
     public DbSet<DbTaskLink> TaskLinks { get; set; }
     public DbSet<DbTask> Tasks { get; set; }
 
-
     public DbSet<DbBackgroundService> BackgroundServices { get; set; }
+
+    public DbSet<DbAction> Actions { get; set; }
 
     public SQLiteDb(IConfiguration configuration)
     {
@@ -67,14 +67,14 @@ public class SQLiteDb : DbContext
             .HasValue<DbArrayOperationNode>("ArrayOperation");
 
 
-        builder.Entity<DbModuleAction>()
+        builder.Entity<DbAction>()
             .Property(p => p.Value)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
                 v => JsonSerializer.Deserialize<object>(v, SerializerOptions) ?? string.Empty);
 
         builder.Entity<DbModule>()
-            .Property(p => p.JsonData)
+            .Property(p => p.Data)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
                 v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
@@ -82,10 +82,11 @@ public class SQLiteDb : DbContext
 
         builder.Entity<DbBackgroundService>()
             .HasDiscriminator<BackgroundServiceType>(nameof(DbBackgroundService.Type))
-            .HasValue<DbGoodweBackgroundService>(BackgroundServiceType.Goodwe);
+            .HasValue<DbGoodweBackgroundService>(BackgroundServiceType.Goodwe)
+            .HasValue<DbTestBackgroundService>(BackgroundServiceType.Test);
 
         builder.Entity<DbBackgroundService>()
-            .Property(p => p.JsonData)
+            .Property(p => p.Data)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
                 v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());

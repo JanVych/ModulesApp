@@ -37,8 +37,8 @@ public class DbModule
     public DateTime? LastResponse { get; set; }
 
     [JsonExtensionData]
-    public Dictionary<string, object> JsonData { get; set; } = default!;
-    public ICollection<DbModuleAction> ModuleActions { get; set; } = [];
+    public Dictionary<string, object> Data { get; set; } = default!;
+    public ICollection<DbAction> Actions { get; set; } = [];
     public ICollection<DbTask> ServerTasks { get; set; } = [];
 
     public override string ToString() => Name;

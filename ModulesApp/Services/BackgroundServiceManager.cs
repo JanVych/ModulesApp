@@ -1,82 +1,168 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Data;
+using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
-using System.Collections.Concurrent;
+using ModulesApp.Services.Data;
 
 namespace ModulesApp.Services;
 
 public class BackgroundServiceManager
 {
+    //private readonly ILogger<BackgroundServiceManager> _logger;
+    private readonly ServerTaskService _serverTaskService;
+    private readonly ActionService _actionService;
+
     private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
+    public event Action? BackgroundServiceChangedEvent;
 
-    private readonly ILogger<BackgroundServiceManager> _logger;
+    private readonly List<DbBackgroundService> _backgroundServices;
+    private readonly object _lock = new();
 
-    private readonly ServerContextService _serverContextService;
 
-    private readonly ConcurrentBag<DbBackgroundService> _backgroundServices;
-
-    public BackgroundServiceManager(IDbContextFactory<SQLiteDb> dbContextFactory, ServerContextService serverContextService, ILogger<BackgroundServiceManager> logger)
+    public BackgroundServiceManager( ServerTaskService serverTaskService, ActionService actionService, IDbContextFactory<SQLiteDb> dbContextFactory)
     {
-        _dbContextFactory = dbContextFactory;
-        _serverContextService = serverContextService;
-        _logger = logger;
+        _serverTaskService = serverTaskService;
+        _actionService = actionService;
+        _dbContextFactory = dbContextFactory;   
 
-        using var db = dbContextFactory.CreateDbContext();
-        _backgroundServices = new ConcurrentBag<DbBackgroundService>(db.BackgroundServices);
+        _backgroundServices = GetList();
         Launch();
     }
 
     private void Launch()
     {
-        foreach (var backgroundService in _backgroundServices)
+        lock (_lock)
         {
-            if (backgroundService.IsRunning)
+            foreach (var backgroundService in _backgroundServices)
             {
-                Start(backgroundService.Id);
+                if (backgroundService.Status == BackgroundServiceStatus.Running)
+                {
+                    Task.Run(() => backgroundService.StartAsync(this));
+                }
+                else
+                {
+                    backgroundService.Status = BackgroundServiceStatus.Stopped;
+                }
             }
         }
     }
 
-    public void Start(long taskId)
+    public void Start(long serviceId)
     {
-        var backgroundService = _backgroundServices.FirstOrDefault(x => x.Id == taskId);
-        if (backgroundService != null)
+        DbBackgroundService? service;
+        lock (_lock)
         {
-            Task.Run(() => backgroundService.StartAsync(_serverContextService));
+            service = _backgroundServices.FirstOrDefault(x => x.Id == serviceId);
+        }
+        if (service is not null && service.Status == BackgroundServiceStatus.Stopped)
+        {
+            Task.Run(() => service.StartAsync(this));
         }
     }
 
-    public async Task Stop(long taskId)
+    public async Task Stop(long serviceId)
     {
-        var backgroundService = _backgroundServices.FirstOrDefault(x => x.Id == taskId);
-        if (backgroundService != null)
+        DbBackgroundService? service;
+        lock (_lock)
         {
-            await backgroundService.StopAsync();
+            service = _backgroundServices.FirstOrDefault(x => x.Id == serviceId);
+        }
+        if (service is not null && service.Status == BackgroundServiceStatus.Running)
+        {
+            await service.StopAsync(this);
         }
     }
 
-    public async Task Add(DbBackgroundService backgroundService)
+    public async Task<List<DbAction>> GetActions(DbBackgroundService service)
+    {
+        return await _actionService.GetListAndDeleteAsync(service);
+    }
+
+    public List<DbBackgroundService> GetList()
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        return context.BackgroundServices.ToList();
+    }
+
+    public async Task<List<DbBackgroundService>> GetListAsync()
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.BackgroundServices.ToListAsync();
+    }
+
+    public async Task<DbBackgroundService?> GetAsync(long id)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.BackgroundServices
+            .Include(x => x.Actions)
+            .Include(x => x.ServerTasks)
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task UpdateFromService(DbBackgroundService service)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        context.BackgroundServices.Update(service);
+        await context.SaveChangesAsync();
+        BackgroundServiceChangedEvent?.Invoke();
+    }
+
+    public async Task ExecuteServerTasks(DbBackgroundService service)
+    {
+        await _serverTaskService.ProcessNodes(service);
+    }
+
+    public async Task Add(DbBackgroundService service)
     {
         using var db = await _dbContextFactory.CreateDbContextAsync();
-        db.BackgroundServices.Add(backgroundService);
+        db.BackgroundServices.Add(service);
         await db.SaveChangesAsync();
-        _backgroundServices.Add(backgroundService);
-    }
-
-    public async Task Remove(long taskId)
-    {
-        var backgroundService = _backgroundServices.FirstOrDefault(x => x.Id == taskId);
-        if (backgroundService != null)
+        lock (_lock)
         {
-            using var db = await _dbContextFactory.CreateDbContextAsync();
-            db.BackgroundServices.Remove(backgroundService);
-            await db.SaveChangesAsync();
-            _backgroundServices.TryTake(out backgroundService);
+            _backgroundServices.Add(service);
         }
     }
 
-    public List<DbBackgroundService> GetAll()
+    public async Task Delete(long taskId)
     {
-        return _backgroundServices.ToList();
+        var service = _backgroundServices.FirstOrDefault(x => x.Id == taskId);
+        if (service is not null && service.Status == BackgroundServiceStatus.Stopped)
+        {
+            //await service.StopAsync();
+
+            //while(service.IsRunning)
+            //{
+            //    await Task.Delay(100);
+            //}
+            lock (_lock)
+            {
+                _backgroundServices.Remove(service);
+            }
+            using var db = await _dbContextFactory.CreateDbContextAsync();
+            db.BackgroundServices.Remove(service);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    public async Task Update(DbBackgroundService service)
+    {
+        var index = -1;
+        if (service.Status == BackgroundServiceStatus.Stopped)
+        {
+            lock (_lock)
+            {
+                index = _backgroundServices.FindIndex(x => x.Id == service.Id);
+                if (index != -1)
+                {
+                    _backgroundServices[index] = service;
+                }
+            }
+            if (index != -1)
+            {
+                using var db = await _dbContextFactory.CreateDbContextAsync();
+                db.BackgroundServices.Update(service);
+                await db.SaveChangesAsync();
+            }
+        }
     }
 }

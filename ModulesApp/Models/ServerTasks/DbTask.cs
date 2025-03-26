@@ -22,15 +22,13 @@ public class DbTask
     public int IntervalSeconds { get; set; }
     public DateTime LastRun { get; set; }
 
-    public long? ModuleId { get; set; }
+    public long ModuleId { get; set; }
     [ForeignKey("ModuleId")]
     public DbModule? Module { get; set; }
 
-    //public long? BackgroundServiceId { get; set; }
-    //[ForeignKey("BackgroundServiceId")]
-    //public DbBackgroundService? BackgroundService { get; set; }
-
-
+    public long BackgroundServiceId { get; set; }
+    [ForeignKey("BackgroundServiceId")]
+    public DbBackgroundService? BackgroundService { get; set; }
 
     public ICollection<DbTaskNode> Nodes { get; set; } = [];
 }

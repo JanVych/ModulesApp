@@ -61,7 +61,7 @@ public class ModuleService
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Modules
-            .Include(x => x.ModuleActions)
+            .Include(x => x.Actions)
             .ToListAsync();
     }
 
@@ -83,7 +83,7 @@ public class ModuleService
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Modules
-            .Include(x => x.ModuleActions)
+            .Include(x => x.Actions)
             .Include(x => x.ServerTasks)
             .FirstOrDefaultAsync(x => x.Id == id);
     }

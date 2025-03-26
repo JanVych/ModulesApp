@@ -11,12 +11,12 @@ namespace ModulesApp.Controllers;
 public class ModulesController : ControllerBase
 {
     private readonly ModuleService _moduleService;
-    private readonly ModuleActionService _modulActionsService;
+    private readonly ActionService _modulActionsService;
     private readonly ServerTaskService _serverTasksService;
 
     private readonly ServerContextService _serverContextService;
 
-    public ModulesController(ModuleService modulesService, ModuleActionService moduleActionsService, ServerTaskService serverTaskService, ServerContextService serverContextService)
+    public ModulesController(ModuleService modulesService, ActionService moduleActionsService, ServerTaskService serverTaskService, ServerContextService serverContextService)
     {
         _moduleService = modulesService;
         _modulActionsService = moduleActionsService;
@@ -83,7 +83,7 @@ public class ModulesController : ControllerBase
         await _serverTasksService.ProcessNodes(_serverContextService, module);
 
         //get and delete all related actions
-        var moduleActions = await _modulActionsService.GetListAndDeleteAsync(module.Id);
+        var moduleActions = await _modulActionsService.GetListAndDeleteAsync(module);
         string response = string.Empty;
         if (moduleActions.Count != 0)
         {

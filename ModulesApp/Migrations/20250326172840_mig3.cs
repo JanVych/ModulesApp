@@ -5,25 +5,25 @@
 namespace ModulesApp.Migrations
 {
     /// <inheritdoc />
-    public partial class mig4 : Migration
+    public partial class mig3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<long>(
-                name: "LongVal2",
-                table: "TaskNode",
+            migrationBuilder.AddColumn<int>(
+                name: "Status",
+                table: "BackgroundService",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0L);
+                defaultValue: 0);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "LongVal2",
-                table: "TaskNode");
+                name: "Status",
+                table: "BackgroundService");
         }
     }
 }

@@ -25,16 +25,16 @@ public class DbFromMessageNode : DbTaskNode
 
     public override void Process(IServerContext context)
     {
-        Value = TargetLinks.FirstOrDefault()?.GetValue(context)
-                ?? new NodeValue.InvalidValue($"node: {Order}, had no input");
+        //Value = TargetLinks.FirstOrDefault()?.GetValue(context)
+        //        ?? new NodeValue.InvalidValue($"node: {Order}, had no input");
 
-        if (Task == null || Task.ModuleId == null)
+        if (Task == null)
         {
             Value = new NodeValue.InvalidValue($"Module not found, in node: {Order}");
             return;
         }
 
-        var value = context.GetMessageFromModule((long)Task.ModuleId, StringVal1);
+        var value = context.GetMessageFromModule(Task.ModuleId, StringVal1);
 
         if (value is null)
         {

@@ -23,14 +23,11 @@ namespace ModulesApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<TimeSpan>("Interval")
+                    b.Property<string>("Data")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsRunning")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("JsonData")
-                        .IsRequired()
+                    b.Property<TimeSpan>("Interval")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("LastRun")
@@ -39,6 +36,9 @@ namespace ModulesApp.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
@@ -101,6 +101,35 @@ namespace ModulesApp.Migrations
                     b.UseTphMappingStrategy();
                 });
 
+            modelBuilder.Entity("ModulesApp.Models.DbAction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("BackgroundServiceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("ModuleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BackgroundServiceId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.ToTable("Action");
+                });
+
             modelBuilder.Entity("ModulesApp.Models.DbModule", b =>
                 {
                     b.Property<long>("Id")
@@ -108,6 +137,10 @@ namespace ModulesApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Chip")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirmwareVersion")
@@ -120,10 +153,6 @@ namespace ModulesApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("IDFVersion")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("JsonData")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Key")
@@ -154,34 +183,13 @@ namespace ModulesApp.Migrations
                     b.ToTable("Module");
                 });
 
-            modelBuilder.Entity("ModulesApp.Models.DbModuleAction", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("ModuleId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ModuleId");
-
-                    b.ToTable("ModuleAction");
-                });
-
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.DbTask", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("BackgroundServiceId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("IntervalSeconds")
@@ -190,7 +198,7 @@ namespace ModulesApp.Migrations
                     b.Property<DateTime>("LastRun")
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("ModuleId")
+                    b.Property<long>("ModuleId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -201,6 +209,8 @@ namespace ModulesApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BackgroundServiceId");
 
                     b.HasIndex("ModuleId");
 
@@ -322,6 +332,15 @@ namespace ModulesApp.Migrations
                     b.HasDiscriminator().HasValue(0);
                 });
 
+            modelBuilder.Entity("ModulesApp.Models.BackgroundServices.Servicves.DbTestBackgroundService", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.BackgroundServices.DbBackgroundService");
+
+                    b.ToTable("BackgroundService");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+
             modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbBasicCardEntity", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
@@ -414,22 +433,40 @@ namespace ModulesApp.Migrations
                     b.Navigation("Dashboard");
                 });
 
-            modelBuilder.Entity("ModulesApp.Models.DbModuleAction", b =>
+            modelBuilder.Entity("ModulesApp.Models.DbAction", b =>
                 {
+                    b.HasOne("ModulesApp.Models.BackgroundServices.DbBackgroundService", "BackgroundService")
+                        .WithMany("Actions")
+                        .HasForeignKey("BackgroundServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ModulesApp.Models.DbModule", "Module")
-                        .WithMany("ModuleActions")
+                        .WithMany("Actions")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BackgroundService");
 
                     b.Navigation("Module");
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.DbTask", b =>
                 {
+                    b.HasOne("ModulesApp.Models.BackgroundServices.DbBackgroundService", "BackgroundService")
+                        .WithMany("ServerTasks")
+                        .HasForeignKey("BackgroundServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ModulesApp.Models.DbModule", "Module")
                         .WithMany("ServerTasks")
-                        .HasForeignKey("ModuleId");
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BackgroundService");
 
                     b.Navigation("Module");
                 });
@@ -464,6 +501,13 @@ namespace ModulesApp.Migrations
                     b.Navigation("Task");
                 });
 
+            modelBuilder.Entity("ModulesApp.Models.BackgroundServices.DbBackgroundService", b =>
+                {
+                    b.Navigation("Actions");
+
+                    b.Navigation("ServerTasks");
+                });
+
             modelBuilder.Entity("ModulesApp.Models.Dasboards.DbDashboard", b =>
                 {
                     b.Navigation("Entities");
@@ -471,7 +515,7 @@ namespace ModulesApp.Migrations
 
             modelBuilder.Entity("ModulesApp.Models.DbModule", b =>
                 {
-                    b.Navigation("ModuleActions");
+                    b.Navigation("Actions");
 
                     b.Navigation("ServerTasks");
                 });

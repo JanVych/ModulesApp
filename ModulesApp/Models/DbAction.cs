@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using ModulesApp.Models.BackgroundServices;
 
 namespace ModulesApp.Models;
 
-[Table("ModuleAction")]
-public class DbModuleAction
+[Table("Action")]
+public class DbAction
 {
     [Key]
     public long Id { get; set; }
@@ -14,6 +15,9 @@ public class DbModuleAction
 
     public long ModuleId { get; set; }
     [ForeignKey("ModuleId")]
-    public DbModule Module { get; set; } = default!;
+    public DbModule? Module { get; set; }
 
+    public long BackgroundServiceId { get; set; }
+    [ForeignKey("BackgroundServiceId")]
+    public DbBackgroundService? BackgroundService { get; set; }
 }

@@ -24,7 +24,7 @@ public class Program
         builder.Services.AddControllers();
 
         builder.Services.AddSingleton<ModuleService>();
-        builder.Services.AddSingleton<ModuleActionService>();
+        builder.Services.AddSingleton<ActionService>();
         builder.Services.AddSingleton<DashboardService>();
         builder.Services.AddSingleton<ServerTaskService>();
 

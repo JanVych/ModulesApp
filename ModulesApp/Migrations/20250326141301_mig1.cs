@@ -21,7 +21,7 @@ namespace ModulesApp.Migrations
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     Interval = table.Column<TimeSpan>(type: "TEXT", nullable: false),
                     LastRun = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    JsonData = table.Column<string>(type: "TEXT", nullable: false),
+                    Data = table.Column<string>(type: "TEXT", nullable: false),
                     IsRunning = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -52,6 +52,7 @@ namespace ModulesApp.Migrations
                     Key = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     ProgramName = table.Column<string>(type: "TEXT", nullable: true),
+                    ProgramStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     ProgramVersion = table.Column<string>(type: "TEXT", nullable: true),
                     Chip = table.Column<string>(type: "TEXT", nullable: true),
                     IDFVersion = table.Column<string>(type: "TEXT", nullable: true),
@@ -60,7 +61,7 @@ namespace ModulesApp.Migrations
                     FreeHeap = table.Column<int>(type: "INTEGER", nullable: true),
                     WifiCurrent = table.Column<string>(type: "TEXT", nullable: true),
                     LastResponse = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    JsonData = table.Column<string>(type: "TEXT", nullable: false)
+                    Data = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -90,20 +91,27 @@ namespace ModulesApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ModuleAction",
+                name: "Action",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Key = table.Column<string>(type: "TEXT", nullable: false),
                     Value = table.Column<string>(type: "TEXT", nullable: false),
-                    ModuleId = table.Column<long>(type: "INTEGER", nullable: false)
+                    ModuleId = table.Column<long>(type: "INTEGER", nullable: false),
+                    BackgroundServiceId = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ModuleAction", x => x.Id);
+                    table.PrimaryKey("PK_Action", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ModuleAction_Module_ModuleId",
+                        name: "FK_Action_BackgroundService_BackgroundServiceId",
+                        column: x => x.BackgroundServiceId,
+                        principalTable: "BackgroundService",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Action_Module_ModuleId",
                         column: x => x.ModuleId,
                         principalTable: "Module",
                         principalColumn: "Id",
@@ -120,16 +128,24 @@ namespace ModulesApp.Migrations
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     IntervalSeconds = table.Column<int>(type: "INTEGER", nullable: false),
                     LastRun = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ModuleId = table.Column<long>(type: "INTEGER", nullable: true)
+                    ModuleId = table.Column<long>(type: "INTEGER", nullable: false),
+                    BackgroundServiceId = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Task", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Task_BackgroundService_BackgroundServiceId",
+                        column: x => x.BackgroundServiceId,
+                        principalTable: "BackgroundService",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Task_Module_ModuleId",
                         column: x => x.ModuleId,
                         principalTable: "Module",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -146,12 +162,13 @@ namespace ModulesApp.Migrations
                     StringVal3 = table.Column<string>(type: "TEXT", nullable: false),
                     DoubleVal1 = table.Column<double>(type: "REAL", nullable: false),
                     LongVal1 = table.Column<long>(type: "INTEGER", nullable: false),
+                    LongVal2 = table.Column<long>(type: "INTEGER", nullable: false),
                     BoolVal1 = table.Column<bool>(type: "INTEGER", nullable: false),
                     PositionX = table.Column<double>(type: "REAL", nullable: false),
                     PositionY = table.Column<double>(type: "REAL", nullable: false),
                     Order = table.Column<int>(type: "INTEGER", nullable: false),
                     TaskId = table.Column<long>(type: "INTEGER", nullable: false),
-                    NodeType = table.Column<string>(type: "TEXT", maxLength: 13, nullable: false)
+                    NodeType = table.Column<string>(type: "TEXT", maxLength: 21, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -197,14 +214,24 @@ namespace ModulesApp.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Action_BackgroundServiceId",
+                table: "Action",
+                column: "BackgroundServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Action_ModuleId",
+                table: "Action",
+                column: "ModuleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DashBoardEntity_DashboardId",
                 table: "DashBoardEntity",
                 column: "DashboardId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ModuleAction_ModuleId",
-                table: "ModuleAction",
-                column: "ModuleId");
+                name: "IX_Task_BackgroundServiceId",
+                table: "Task",
+                column: "BackgroundServiceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Task_ModuleId",
@@ -231,13 +258,10 @@ namespace ModulesApp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BackgroundService");
+                name: "Action");
 
             migrationBuilder.DropTable(
                 name: "DashBoardEntity");
-
-            migrationBuilder.DropTable(
-                name: "ModuleAction");
 
             migrationBuilder.DropTable(
                 name: "TaskLink");
@@ -250,6 +274,9 @@ namespace ModulesApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "Task");
+
+            migrationBuilder.DropTable(
+                name: "BackgroundService");
 
             migrationBuilder.DropTable(
                 name: "Module");

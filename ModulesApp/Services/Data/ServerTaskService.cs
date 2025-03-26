@@ -6,6 +6,7 @@ using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Data;
 using ModulesApp.Interfaces;
 using ModulesApp.Models;
+using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
 
@@ -13,11 +14,13 @@ namespace ModulesApp.Services.Data;
 
 public class ServerTaskService
 {
-    private IDbContextFactory<SQLiteDb> _dbContextFactory;
+    private readonly ServerContextService _serverContext;
+    private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
 
-    public ServerTaskService(IDbContextFactory<SQLiteDb> dbContextFactory)
+    public ServerTaskService(IDbContextFactory<SQLiteDb> dbContextFactory, ServerContextService serverContext)
     {
         _dbContextFactory = dbContextFactory;
+        _serverContext = serverContext;
     }
 
     public async Task Delete(DbTask task)
@@ -32,6 +35,7 @@ public class ServerTaskService
         using var context = _dbContextFactory.CreateDbContext();
         return await context.Tasks
             .Include(t => t.Module)
+            .Include(t => t.BackgroundService)
             .ToListAsync();
     }
     public async Task<List<DbTask>> GetAllTasks(DbModule module)
@@ -40,6 +44,15 @@ public class ServerTaskService
         return await context.Tasks
             .Where(t => t.ModuleId == module.Id)
             .Include(t => t.Module)
+            .ToListAsync();
+    }
+
+    public async Task<List<DbTask>> GetAllTasks(DbBackgroundService service)
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        return await context.Tasks
+            .Where(t => t.BackgroundServiceId == service.Id)
+            .Include(t => t.BackgroundService)
             .ToListAsync();
     }
 
@@ -183,6 +196,26 @@ public class ServerTaskService
                 {
                     //node.Process(serverContext);
                     var value = node.GetValue(null, serverContext);
+                    Console.WriteLine($"Node: {node.Order}, Value: {value}");
+                }
+            }
+        }
+    }
+
+    public async Task ProcessNodes(DbBackgroundService service)
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        var tasks = await GetAllTasks(service);
+        foreach (var task in tasks)
+        {
+            var nodes = await GetAllTaskNodes(task);
+
+            foreach (var node in nodes)
+            {
+                if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
+                {
+                    //node.Process(serverContext);
+                    var value = node.GetValue(null, _serverContext);
                     Console.WriteLine($"Node: {node.Order}, Value: {value}");
                 }
             }

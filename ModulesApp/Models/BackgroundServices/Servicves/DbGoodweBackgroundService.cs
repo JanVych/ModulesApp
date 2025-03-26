@@ -29,18 +29,12 @@ public class DbGoodweBackgroundService : DbBackgroundService
     [NotMapped]
     private readonly ModbusRtuUdp _modbusRtuUdp = new(0xF7, 8899, "192.168.0.240", 2);
 
-    [NotMapped]
-    private bool _flag1 = true;
-    [NotMapped]
-    private bool _flag2 = true;
-
     public DbGoodweBackgroundService(){}
 
-    public override async Task ExecuteAsync(IServerContext serverContext)
+    public override async Task ExecuteAsync()
     {
         if (_modbusRtuUdp.Open())
         {
-            var now = DateTime.Now;
             //var x = _modbusRtuUdp.ReadU16Register(47515);
             //Console.WriteLine(x);
             //var y = x | 0xFF00;
@@ -64,15 +58,15 @@ public class DbGoodweBackgroundService : DbBackgroundService
             //    _flag1 = true;
             //    _flag2 = false;
             //}
-            AddToMessage("PV1 Power", GetPV1Power());
-            AddToMessage("Grid Power", GetGridPower());
-            AddToMessage("Backup Power", GetBackupPower());
-            AddToMessage("Load Power", GetLoadPower());
-            AddToMessage("Battery Power", GetBatteryPower());
-            AddToMessage("Inverter Temperature", GetInverterTemperature());
-            AddToMessage("Battery Temperature", GetBatteryTemperature());
-            AddToMessage("Battery SOC", GetBatterySOC());
-            AddToMessage("Battery Status", GetBatteryStatus());
+            AddMessage("PV1 Power", GetPV1Power());
+            AddMessage("Grid Power", GetGridPower());
+            AddMessage("Backup Power", GetBackupPower());
+            AddMessage("Load Power", GetLoadPower());
+            AddMessage("Battery Power", GetBatteryPower());
+            AddMessage("Inverter Temperature", GetInverterTemperature());
+            AddMessage("Battery Temperature", GetBatteryTemperature());
+            AddMessage("Battery SOC", GetBatterySOC());
+            AddMessage("Battery Status", GetBatteryStatus());
 
             //SetBatteryDischarge(6);
             //AddToMessage("47515", _modbusRtuUdp.ReadU16Register(47515));
@@ -89,7 +83,7 @@ public class DbGoodweBackgroundService : DbBackgroundService
     ///  Get Grid Power in wats
     /// </summary>
     /// <returns>negative value = consuming, positive value = suplying</returns>
-    public int? GetGridPower() => (int)_modbusRtuUdp.ReadU32Register(35139);
+    public int? GetGridPower() => (int?)_modbusRtuUdp.ReadU32Register(35139);
     public uint? GetBackupPower() => _modbusRtuUdp.ReadU32Register(35169);
     public uint? GetLoadPower() => _modbusRtuUdp.ReadU32Register(35171);
     public uint? GetBatteryPower() => _modbusRtuUdp.ReadU32Register(35182);
