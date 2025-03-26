@@ -68,7 +68,7 @@
         </MudTd>
     </RowTemplate>
 </MudTable>
-<MudButton OnClick="Add" Variant="Variant.Outlined">Add</MudButton>
+<MudButton OnClick="Add" Class="ma-2" Variant="Variant.Outlined" Color="Color.Primary">Add</MudButton>
 
 @code
 {
@@ -94,21 +94,20 @@
         _servicesLoading = false;
     }
 
-    private async Task Add()
+    private void Add()
     {
-        var service = new DbTestBackgroundService()
-            {
-                Name = "New service",
-                Interval = TimeSpan.FromSeconds(10)
-            };
-        await _backgroundServiceManager.Add(service);
-        await UpdateData();
+        _navigationManager.NavigateTo("/services/add");
+        // var service = new DbTestBackgroundService()
+        //     {
+        //         Name = "New service",
+        //         Interval = TimeSpan.FromSeconds(10)
+        //     };
+        // await _backgroundServiceManager.Add(service);
     }
 
     private async Task Delete(DbBackgroundService service)
     {
         await _backgroundServiceManager.Delete(service.Id);
-        await UpdateData();
     }
 
     private void DetailService(DbBackgroundService service)

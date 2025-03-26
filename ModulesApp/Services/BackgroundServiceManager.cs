@@ -121,6 +121,7 @@ public class BackgroundServiceManager
         {
             _backgroundServices.Add(service);
         }
+        BackgroundServiceChangedEvent?.Invoke();
     }
 
     public async Task Delete(long taskId)
@@ -141,6 +142,7 @@ public class BackgroundServiceManager
             using var db = await _dbContextFactory.CreateDbContextAsync();
             db.BackgroundServices.Remove(service);
             await db.SaveChangesAsync();
+            BackgroundServiceChangedEvent?.Invoke();
         }
     }
 

@@ -1,0 +1,141 @@
+﻿@using ModulesApp.Models
+@using ModulesApp.Models.BackgroundServices
+@using ModulesApp.Models.BackgroundServices.Servicves
+@using ModulesApp.Services
+@using ModulesApp.Services.Data
+@using System.Text.Json
+
+@inject NavigationManager _navigationManager
+@inject BackgroundServiceManager _backgroundServiceManager
+
+@page "/services/add"
+
+<PageTitle>Add Service</PageTitle>
+
+<div>
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
+            @if (_service is not null)
+            {
+                <MudText Typo="Typo.h4">@_service.Name</MudText>
+            }
+        </MudStack>
+    </MudStack>
+
+    <MudDivider Class="mb-4" />
+
+    @if (_service is null)
+    {
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    }
+    else
+    {
+        <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
+            <div>
+                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
+                    <MudText Typo="Typo.h5">Add new service</MudText>
+                    <MudDivider Class="mt-2" />
+                </MudPaper>
+                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                    <tbody>
+                        <tr>
+                            <td>Name</td>
+                            <td>
+                                <MudTextField @bind-Value="_service.Name" Variant="Variant.Text" Margin="Margin.Dense" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Type</td>
+                            <td>
+                                <MudSelect T="BackgroundServiceType" Value="_selectedType" ValueChanged="SelectedTypeChanged">
+                                    @foreach (BackgroundServiceType type in Enum.GetValues(typeof(BackgroundServiceType)))
+                                    {
+                                        <MudSelectItem Value="type"/>
+                                    }
+                                </MudSelect>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Interval</td>
+                            <td>
+                                <MudNumericField @bind-Value="_intervalSeconds" Variant="Variant.Text" Margin="Margin.Dense" Min="5"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveService">Save</MudButton>
+                            </td>
+                        </tr>
+                    </tbody>
+                </MudSimpleTable>
+            </div>
+        </MudStack>
+    }
+</div>
+
+@code
+{
+    private DbBackgroundService? _service;
+    private double _intervalSeconds = 10;
+    private BackgroundServiceType _selectedType = BackgroundServiceType.Test;
+
+
+    protected override void OnInitialized()
+    {
+        CreateNewService(_selectedType);
+    }
+
+    public void SelectedTypeChanged(BackgroundServiceType type)
+    {
+        if (type != _selectedType)
+        {
+            _selectedType = type;
+            CreateNewService(type);
+        }
+    }
+
+    public void CreateNewService(BackgroundServiceType type)
+    {
+        if (type == BackgroundServiceType.Test)
+        {
+            _service = new DbTestBackgroundService()
+                {
+                    Name = "Test_Service",
+                    Interval = TimeSpan.FromSeconds(_intervalSeconds)
+                };
+        }
+        else if (type == BackgroundServiceType.Goodwe)
+        {
+            _service = new DbGoodweBackgroundService()
+                {
+                    Name = "Goodwee_Service",
+                    Interval = TimeSpan.FromSeconds(_intervalSeconds)
+                };
+        }
+    }
+
+    private void GoBack()
+    {
+        _navigationManager.NavigateTo("/services");
+    }
+
+    private string GenerateValueTypeText(object value)
+    {
+        if (value is JsonElement jsonElement)
+        {
+            return jsonElement.ValueKind.ToString();
+        }
+        return value.GetType().Name;
+    }
+
+    private async Task SaveService()
+    {
+        if (_service is not null)
+        {
+            _service.Interval = TimeSpan.FromSeconds(_intervalSeconds);
+            await _backgroundServiceManager.Add(_service);
+            GoBack();
+        }
+    }
+}
