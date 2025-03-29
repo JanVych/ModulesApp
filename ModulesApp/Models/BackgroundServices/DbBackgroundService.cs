@@ -39,6 +39,7 @@ public abstract class DbBackgroundService
     [NotMapped]
     protected CancellationTokenSource _cancellationToken = new();
     public DbBackgroundService() { }
+    public override string ToString() => Name;
 
     public abstract Task ExecuteAsync();
 

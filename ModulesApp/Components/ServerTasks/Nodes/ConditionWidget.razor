@@ -7,13 +7,12 @@
 
     @if (Node.InputType == NodeInputType.Single)
     {
-        <MudNumericField 
-            T="double" 
-            @bind-Value="Node.DoubleVal1" 
-            Variant="Variant.Outlined" 
-            Margin="Margin.Dense" 
-            Immediate="true"/>
-
+        <MudNumericField T="double"
+                         @bind-Value="Node.DoubleVal1"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense"
+                         Immediate="true" />
+        
         @* <input id="valueInput" type="number" class="form-control" @bind=Node.DoubleVal1 /> *@
     }
 

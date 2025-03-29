@@ -34,7 +34,16 @@ public class DbFromMessageNode : DbTaskNode
             return;
         }
 
-        var value = context.GetMessageFromModule(Task.ModuleId, StringVal1);
+        JsonElement? value = null;
+        if (Task.ModuleId is long moduleId)
+        {
+            value = context.GetMessageFromModule(moduleId, StringVal1);
+        }
+
+        if(Task.BackgroundServiceId is long backgroundServiceId)
+        {
+            value = context.GetMessageFromService(backgroundServiceId, StringVal1);
+        }
 
         if (value is null)
         {

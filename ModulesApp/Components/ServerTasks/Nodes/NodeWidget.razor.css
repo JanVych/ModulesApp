@@ -4,24 +4,22 @@
     justify-content: center;
     align-items: center;
     width: 250px;
-    border: 1px solid lightgray;
+    border: 1px solid var(--mud-palette-background-gray);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    background-color: white;
+    background-color: var(--mud-palette-surface);
 }
 
 .node-header {
-    color: white;
+    color: var(--mud-palette-surface);
     width: 100%;
     padding: 8px;
     padding-left: 30px;
     font-size: 18px;
-
     font-family: Roboto, sans-serif;
-/*    font-size: 0.875rem;*/
+    /*    font-size: 0.875rem;*/
     font-weight: 500;
     line-height: 1.75;
     text-transform: uppercase;
-
     font-weight: bold;
 }
 
@@ -38,10 +36,13 @@
 .output-text {
     position: absolute;
     font-size: 14px;
-    color: white;
+    color: var(--mud-palette-surface);
     transform: translate(-50%, -50%);
     right: -8px;
+    pointer-events: none;
+    font-weight: bold;
 }
+
 
 .output-text.true {
     top: 50%;
@@ -74,7 +75,7 @@
     ::deep .diagram-port.in.second {
         left: -0px;
         top: 80%;
-        background-color: #FEFFE5;
+/*        background-color: #FEFFE5;*/
     }
 
     ::deep .diagram-port.out.first {

@@ -3,8 +3,9 @@
 @using ModulesApp.Components.ServerTasks.Ports
 @using ModulesApp.Models
 @using ModulesApp.Interfaces
-@using ModulesApp.Models.ServerTasks
 @using ModulesApp.Services
+@using ModulesApp.Models.BackgroundServices
+@using ModulesApp.Models.ServerTasks
 @using ModulesApp.Services.Data
 @using Blazor.Diagrams
 @using Blazor.Diagrams.Components
@@ -12,146 +13,184 @@
 @using Blazor.Diagrams.Core.PathGenerators
 @using Blazor.Diagrams.Core.Routers
 @using Blazor.Diagrams.Options
-@using Blazor.Diagrams.Core.Geometry
 @using Blazor.Diagrams.Core.Models
-@using System.Diagnostics
 
 @inject ServerTaskService _serverTaskService
 @inject ModuleService _moduleService
+@inject BackgroundServiceService _backgroundServiceService
 @inject ServerContextService _serverContextService
+
+@* @implements IDisposable *@
 
 @page "/tasks"
 
 <PageTitle>Tasks</PageTitle>
 
-<MudGrid>
-    <MudItem xs="2">
-        <MudText Typo="Typo.h4" Class="mb-8">Tasks</MudText>
+<MudGrid Spacing="0">
 
-        <MudList T="DbTask" SelectedValue="_selectedTask">
-            @foreach (var task in _tasks)
-            {
-                <MudListItem Value="task" OnClick="@(() => SelectTask(task))">@task.Name</MudListItem>
-            }
-        </MudList>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@AddNewTask">Add New</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@DeleteTask">Delete</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@SaveTask">Save</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="RunTask">Run</MudButton>
+    <MudItem xs="12" md="2">
+        <MudStack Spacing="2">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h4">Tasks</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Primary" OnClick="@AddNewTask" />
+            </MudStack>
+            <MudDivider />
+            <MudList T="DbTask" SelectedValue="_selectedTask">
+                @foreach (var task in _tasks)
+                {
+                    <MudListItem Value="task" OnClick="@(() => ChangeSelectedTask(task))">@task.Name</MudListItem>
+                }
+            </MudList>
+            <MudDivider />
+        </MudStack>
     </MudItem>
 
-    <MudItem xs="10">
-        @if (_selectedTask != null && _modules != null)
+    <MudItem xs="12" md="10" Class="pl-4">
+        @if (_selectedTask != null)
         {
-            <MudStack Class="mb-5" Row="true">
-                <MudTextField @bind-Value="_selectedTask.Name" Label="Name" Variant="Variant.Text"></MudTextField>
-                <MudSelect Label="Type" @bind-Value="_selectedTask.Type">
-                    @foreach (TaskType type in Enum.GetValues(typeof(TaskType)))
+            <MudPaper Class="pa-4 mb-2">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <MudText Typo="Typo.h5">
+                        @_selectedTask.Name
+                    </MudText>
+                    <MudStack Row="true">
+                        <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveTask" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteTask" />
+                        <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled" Color="Color.Primary" OnClick="@RunTask" />
+                    </MudStack>
+                </MudStack>
+
+                <MudStack Row="true" Wrap="Wrap.Wrap">
+                    <MudTextField @bind-Value="_selectedTask.Name" Variant="Variant.Text" />
+                    <MudSelect @bind-Value="_selectedTask.TargetType">
+
+                        @foreach (TaskTargetType type in Enum.GetValues(typeof(TaskTargetType)))
+                        {
+                            <MudSelectItem Value="type"></MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudSelect @bind-Value="_selectedTask.Type">
+                        @foreach (TaskType type in Enum.GetValues(typeof(TaskType)))
+                        {
+                            <MudSelectItem Value="type"></MudSelectItem>
+                        }
+                    </MudSelect>
+                    @if (_selectedTask.TargetType == TaskTargetType.BackgroundService)
                     {
-                        <MudSelectItem Value="type"></MudSelectItem>
+                        <MudSelect @bind-Value="_selectedTask.BackgroundService">
+                            @foreach (var service in _services)
+                            {
+                                <MudSelectItem Value="service"></MudSelectItem>
+                            }
+                        </MudSelect>
                     }
-                </MudSelect>
-                <MudSelect Label="Module" @bind-Value="_selectedTask.Module">
-                    @foreach (var module in _modules)
+                    else if (_selectedTask.TargetType == TaskTargetType.Module)
                     {
-                        <MudSelectItem Value="module">@module.Name</MudSelectItem>
+                        <MudSelect @bind-Value="_selectedTask.Module">
+                            @foreach (var module in _modules)
+                            {
+                                <MudSelectItem Value="module"></MudSelectItem>
+                            }
+                        </MudSelect>
                     }
-                </MudSelect>
-            </MudStack>
+                </MudStack>
+            </MudPaper>
         }
-        <MudStack Class="mb-5" Row="true">
 
-            <MudButton StartIcon="@Icons.Material.Filled.Message"
-                       Variant="Variant.Filled"
-                       Style="background-color: var(--from-message-node-background); color: var(--node-color);"
-                       OnClick="() => AddNode(NodeType.FromMessage)">
-                From Message
-            </MudButton>
+        <MudPaper Class="pa-4 mb-2">
+            <MudStack Row="true" Wrap="Wrap.Wrap">
 
-            <MudButton StartIcon="@Icons.Material.Filled.Numbers"
-                       Variant="Variant.Filled"
-                       Style="background-color: var(--from-message-node-background); color: var(--node-color);"
-                       OnClick="() => AddNode(NodeType.Value)">
-                Static Data
-            </MudButton>
-
-            <MudButtonGroup Variant="Variant.Filled">
-                <MudButton Style="background-color: var(--condition-node-background); color: var(--node-color);"
-                           OnClick="() => AddNode(NodeType.Condition)">
-                    Condition
+                <MudButton StartIcon="@Icons.Material.Filled.Message"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--from-message-node-background); color: var(--node-color);"
+                           OnClick="() => AddNode(NodeType.FromMessage)">
+                    From Message
                 </MudButton>
-                <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                         Label="@_selectedCondition.ToLongString()"
-                         Class="custom-menu-label custom-menu-icon"
-                         Style="align-self: auto; background-color: var(--condition-node-background);">
 
-                    @foreach (NodeConditionType condition in Enum.GetValues(typeof(NodeConditionType)))
-                    {
-                        <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
-                                     @onclick="() => ChangeConditionType(condition)">
-                            @condition.ToLongString()
-                        </MudMenuItem>
-                    }
-
-                </MudMenu>
-
-                <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                         Label="@_selectedInputType.ToString()"
-                         Class="custom-menu-label custom-menu-icon"
-                         Style="align-self: auto; background-color: var(--condition-node-background);">
-
-                    <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
-                                 @onclick="() => ChangeInputType(NodeInputType.Double)">
-                        Double
-                    </MudMenuItem>
-                    <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
-                                 @onclick="() => ChangeInputType(NodeInputType.Single)">
-                        Single
-                    </MudMenuItem>
-
-                </MudMenu>
-            </MudButtonGroup>
-
-            <MudButton StartIcon="@Icons.Material.Filled.DashboardCustomize"
-                       Variant="Variant.Filled"
-                       Style="background-color: var(--data-display-node-background); color: var(--node-color);"
-                       OnClick="() => AddNode(NodeType.DataDisplay)">
-                Data Display
-            </MudButton>
-
-            <MudButton StartIcon="@Icons.Material.Filled.Send"
-                       Variant="Variant.Filled"
-                       Style="background-color: var(--data-display-node-background); color: var(--node-color);"
-                       OnClick="() => AddNode(NodeType.SendMessage)">
-                Send Message
-            </MudButton>
-
-            <MudButtonGroup Variant="Variant.Filled">
-                <MudButton Style="background-color: var(--condition-node-background); color: var(--node-color);"
-                           OnClick="() => AddNode(NodeType.ArrayOperation)">
-                    Array Operation
+                <MudButton StartIcon="@Icons.Material.Filled.Numbers"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--from-message-node-background); color: var(--node-color);"
+                           OnClick="() => AddNode(NodeType.Value)">
+                    Static Data
                 </MudButton>
-                <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                         Label="@_selectedOperation.ToLongString()"
-                         Class="custom-menu-label custom-menu-icon"
-                         Style="align-self: auto; background-color: var(--condition-node-background);">
 
-                    @foreach (NodeArrayOperationType operation in Enum.GetValues(typeof(NodeArrayOperationType)))
-                    {
+                <MudButtonGroup Variant="Variant.Filled">
+                    <MudButton Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                               OnClick="() => AddNode(NodeType.Condition)">
+                        Condition
+                    </MudButton>
+                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                             Label="@_selectedCondition.ToLongString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="auto; background-color: var(--condition-node-background);">
+
+                        @foreach (NodeConditionType condition in Enum.GetValues(typeof(NodeConditionType)))
+                        {
+                            <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                                         @onclick="() => ChangeConditionType(condition)">
+                                @condition.ToLongString()
+                            </MudMenuItem>
+                        }
+
+                    </MudMenu>
+
+                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                             Label="@_selectedInputType.ToString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--condition-node-background);">
+
                         <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
-                                     @onclick="() => ChangeOperationType(operation)">
-                            @operation.ToLongString()
+                                     @onclick="() => ChangeInputType(NodeInputType.Double)">
+                            Double
                         </MudMenuItem>
-                    }
+                        <MudMenuItem Style="background-color: var(--condition-node-background); color: var(--node-color);"
+                                     @onclick="() => ChangeInputType(NodeInputType.Single)">
+                            Single
+                        </MudMenuItem>
 
-                </MudMenu>
-            </MudButtonGroup>
+                    </MudMenu>
+                </MudButtonGroup>
 
-        </MudStack>
+                <MudButton StartIcon="@Icons.Material.Filled.DashboardCustomize"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--data-display-node-background); color: var(--node-color);"
+                           OnClick="() => AddNode(NodeType.DataDisplay)">
+                    Data Display
+                </MudButton>
+
+                <MudButton StartIcon="@Icons.Material.Filled.Send"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--data-display-node-background); color: var(--node-color);"
+                           OnClick="() => AddNode(NodeType.SendMessage)">
+                    Send Message
+                </MudButton>
+
+                <MudButtonGroup Variant="Variant.Filled">
+                    <MudButton Style="background-color: var(--array-operation-node-background); color: var(--node-color);"
+                               OnClick="() => AddNode(NodeType.ArrayOperation)">
+                        Array Operation
+                    </MudButton>
+                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                             Label="@_selectedOperation.ToLongString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--array-operation-node-background);">
+
+                        @foreach (NodeArrayOperationType operation in Enum.GetValues(typeof(NodeArrayOperationType)))
+                        {
+                            <MudMenuItem Style="background-color: var(--array-operation-node-background); color: var(--node-color);"
+                                         @onclick="() => ChangeOperationType(operation)">
+                                @operation.ToLongString()
+                            </MudMenuItem>
+                        }
+
+                    </MudMenu>
+                </MudButtonGroup>
+            </MudStack>
+        </MudPaper>
 
         @if (_currentDiagram != null)
         {
-            <div class="diagram-container">
+            <MudPaper class="diagram-container pa-2">
                 <CascadingValue Value="_currentDiagram" IsFixed="true">
                     <DiagramCanvas>
                         <Widgets>
@@ -160,7 +199,8 @@
                             <NavigatorWidget Width="200"
                                              Height="120"
                                              Class="border border-secondary absolute"
-                                             Style="bottom: 15px; right: 15px; background-color: white;" />
+                                             Style="bottom: 15px; right: 15px; background-color: var(--mud-palette-background);">
+                            </NavigatorWidget>
 
                         </Widgets>
                         <AdditionalHtml>
@@ -171,7 +211,7 @@
                         </AdditionalSvg>
                     </DiagramCanvas>
                 </CascadingValue>
-            </div>
+            </MudPaper>
         }
     </MudItem>
 </MudGrid>
@@ -179,8 +219,8 @@
 <style>
     .diagram-container {
         width: 100%;
-        height: 700px;
-        border: 1px solid grey;
+        height: 70vh;
+/*         border: 2px solid var(--mud-palette-drawer-text); */
     }
 
     .custom-menu-icon .mud-icon-root {
@@ -197,15 +237,18 @@
 @code
 {
     private List<DbTask> _tasks = [];
-    private DbTask? _selectedTask;
+
     private bool _tasksLoading = true;
+    private DbTask? _selectedTask;
 
     private BlazorDiagram? _currentDiagram;
+
     private NodeConditionType _selectedCondition = NodeConditionType.Equal;
     private NodeInputType _selectedInputType = NodeInputType.Single;
     private NodeArrayOperationType _selectedOperation = NodeArrayOperationType.ArraySlice;
 
-    private List<DbModule>? _modules;
+    private List<DbModule> _modules = [];
+    private List<DbBackgroundService> _services = [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -219,11 +262,11 @@
                         Enabled = true,
                     },
                     Links =
-                {
-                    Factory = LinkFactory.CustomLinkFactory,
-                    DefaultRouter = new NormalRouter(),
-                    DefaultPathGenerator = new SmoothPathGenerator(),
-                },
+                    {
+                        Factory = LinkFactory.CustomLinkFactory,
+                        DefaultRouter = new NormalRouter(),
+                        DefaultPathGenerator = new SmoothPathGenerator(),
+                    },
                 };
 
             _currentDiagram = new BlazorDiagram(options);
@@ -236,10 +279,11 @@
             _currentDiagram.RegisterComponent<ArrayOperationNode, ArrayOperationWidget>();
 
             _modules = await _moduleService.GetAllAsync();
+            _services = await _backgroundServiceService.GetListAsync();
 
-            _tasks = await _serverTaskService.GetAllTasks();
-            _selectedTask = _tasks.FirstOrDefault();
-            await LoadDiagram();
+            _tasks = await _serverTaskService.GetListAsync();
+
+            await ChangeSelectedTask(_tasks?.FirstOrDefault());
             _tasksLoading = false;
 
             StateHasChanged();
@@ -255,7 +299,7 @@
         }
     }
 
-    private async Task SelectTask(DbTask task)
+    private async Task ChangeSelectedTask(DbTask? task)
     {
         ClearDiagram();
         _selectedTask = task;
@@ -269,7 +313,7 @@
             {
                 Name = $"New Task {_tasks.Count}",
             };
-        await _serverTaskService.Add(newTask);
+        await _serverTaskService.AddAsync(newTask);
         _tasks.Add(newTask);
         _selectedTask = _tasks.LastOrDefault();
     }
@@ -290,19 +334,29 @@
     {
         if (_selectedTask != null && _currentDiagram != null)
         {
+            if (_selectedTask.TargetType == TaskTargetType.Module)
+            {
+                _selectedTask.BackgroundServiceId = null;
+                _selectedTask.BackgroundService = null;
+            }
+            else if (_selectedTask.TargetType == TaskTargetType.BackgroundService)
+            {
+                _selectedTask.ModuleId = null;
+                _selectedTask.Module = null;
+            }
             await _serverTaskService.Save(_selectedTask, _currentDiagram);
         }
     }
 
     private async Task RunTask()
     {
-        var stopwatch = Stopwatch.StartNew();
+        // var stopwatch = Stopwatch.StartNew();
         if (_selectedTask != null)
         {
             await _serverTaskService.ProcessNodes(_serverContextService, _selectedTask);
         }
-        stopwatch.Stop();
-        Debug.WriteLine($"Elapsed Time: {stopwatch.ElapsedMilliseconds} ms");
+        // stopwatch.Stop();
+        // Debug.WriteLine($"Elapsed Time: {stopwatch.ElapsedMilliseconds} ms");
     }
 
     private void AddNode(NodeType type)
@@ -319,7 +373,7 @@
                 smallestOrder++;
             }
 
-            Point point = new Point(x, y);
+            Blazor.Diagrams.Core.Geometry.Point point = new(x, y);
 
             if (type == NodeType.Condition)
             {
@@ -343,7 +397,7 @@
             }
             else if (type == NodeType.ArrayOperation)
             {
-                _currentDiagram.Nodes.Add(new ArrayOperationNode(_serverContextService, _selectedOperation ,point) { Order = smallestOrder });
+                _currentDiagram.Nodes.Add(new ArrayOperationNode(_serverContextService, _selectedOperation, point) { Order = smallestOrder });
             }
         }
     }
@@ -440,10 +494,15 @@
                 if (sourcePort != null && targetPort != null)
                 {
                     linkModel = new LinkModel(sourcePort, targetPort);
-                    if (!sourcePort.Data || !targetPort.Data)
-                    {
-                        linkModel.Color = "grey";
-                    }
+                    linkModel.Color = "var(--mud-palette-text-secondary)";
+                    // if (!sourcePort.Data || !targetPort.Data)
+                    // {
+                    //     linkModel.Color = "var(--mud-palette-text-disabled)";
+                    // }
+                    // else
+                    // {
+                    //     linkModel.Color = "var(--mud-palette-text-secondary)";
+                    // }
                     _currentDiagram.Links.Add(linkModel);
                 }
             }

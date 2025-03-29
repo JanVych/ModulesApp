@@ -30,26 +30,27 @@ public class ServerTaskService
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<DbTask>> GetAllTasks()
+    public async Task<List<DbTask>> GetListAsync()
     {
-        using var context = _dbContextFactory.CreateDbContext();
+        using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Tasks
             .Include(t => t.Module)
             .Include(t => t.BackgroundService)
             .ToListAsync();
     }
-    public async Task<List<DbTask>> GetAllTasks(DbModule module)
+
+    public async Task<List<DbTask>> GetListAsync(DbModule module)
     {
-        using var context = _dbContextFactory.CreateDbContext();
+        using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Tasks
             .Where(t => t.ModuleId == module.Id)
             .Include(t => t.Module)
             .ToListAsync();
     }
 
-    public async Task<List<DbTask>> GetAllTasks(DbBackgroundService service)
+    public async Task<List<DbTask>> GetListAsync(DbBackgroundService service)
     {
-        using var context = _dbContextFactory.CreateDbContext();
+        using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Tasks
             .Where(t => t.BackgroundServiceId == service.Id)
             .Include(t => t.BackgroundService)
@@ -77,9 +78,9 @@ public class ServerTaskService
             .ToListAsync();
     }
 
-    public async Task Add(DbTask task)
+    public async Task AddAsync(DbTask task)
     {
-        using var context = _dbContextFactory.CreateDbContext();
+        using var context = await _dbContextFactory.CreateDbContextAsync();
         await context.Tasks.AddAsync(task);
         await context.SaveChangesAsync();
     }
@@ -185,7 +186,7 @@ public class ServerTaskService
     public async Task ProcessNodes(IServerContext serverContext, DbModule module)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var tasks  = await GetAllTasks(module);
+        var tasks  = await GetListAsync(module);
         foreach (var task in tasks)
         {
             var nodes = await GetAllTaskNodes(task);
@@ -205,7 +206,7 @@ public class ServerTaskService
     public async Task ProcessNodes(DbBackgroundService service)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var tasks = await GetAllTasks(service);
+        var tasks = await GetListAsync(service);
         foreach (var task in tasks)
         {
             var nodes = await GetAllTaskNodes(task);

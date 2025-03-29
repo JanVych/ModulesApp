@@ -8,6 +8,7 @@ public interface IServerContext
 {
     public void SendToModule(long moduleId, string key, object value);
     public JsonElement? GetMessageFromModule(long moduleId, string messageKey);
+    public JsonElement? GetMessageFromService(long serviceId, string messageKey);
     public void DisplayValue(long dashboardEntityId, Dictionary<string, object> data);
 
     public List<DbModule> GetAllModules();

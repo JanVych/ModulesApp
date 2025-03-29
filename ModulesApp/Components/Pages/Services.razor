@@ -52,14 +52,14 @@
                 </MudIconButton>
                 @if(context.Status == BackgroundServiceStatus.Running)
                 {
-                    <MudIconButton Icon="@Icons.Material.Filled.PauseCircleOutline"
+                    <MudIconButton Icon="@Icons.Material.Filled.PauseCircleFilled"
                     Color="Color.Primary"
                     OnClick="() => PauseService(context)">
                     </MudIconButton>
                 }
                 else if (context.Status == BackgroundServiceStatus.Stopped)
                 {
-                    <MudIconButton Icon="@Icons.Material.Filled.PlayCircleOutline"
+                    <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled"
                     Color="Color.Primary"
                     OnClick="() => StartService(context)">
                     </MudIconButton>

@@ -27,6 +27,7 @@ public class Program
         builder.Services.AddSingleton<ActionService>();
         builder.Services.AddSingleton<DashboardService>();
         builder.Services.AddSingleton<ServerTaskService>();
+        builder.Services.AddSingleton<BackgroundServiceService>();
 
         builder.Services.AddSingleton<ServerContextService>();
 
