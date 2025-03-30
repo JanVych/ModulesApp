@@ -35,7 +35,6 @@ public class DbConditionNode : DbTaskNode
         return value;
     }
 
-
     public override void Process(IServerContext context)
     {
         NodeValue leftValue = Left?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no left input");
@@ -55,19 +54,19 @@ public class DbConditionNode : DbTaskNode
             return;
         }
 
-        if (leftValue is not NodeValue.NumberValue && rightValue is not NodeValue.NumberValue)
+        if (leftValue.Type == NodeValueType.Invalid && rightValue.Type == NodeValueType.Invalid)
         {
             Value = new NodeValue.InvalidValue($"node: {Order}, type error, both left and right are not numbers");
             return;
         }
-        else if (leftValue is not NodeValue.NumberValue)
-        {
-            Value = new NodeValue.InvalidValue($"node: {Order}, type error, left is not a number");
-            return;
-        }
-        else if (rightValue is not NodeValue.NumberValue)
+        else if (rightValue.Type != NodeValueType.Number)
         {
             Value = new NodeValue.InvalidValue($"node: {Order}, type error, right is not a number");
+            return;
+        }
+        else if (leftValue.Type != NodeValueType.Number)
+        {
+            Value = new NodeValue.InvalidValue($"node: {Order}, type error, left is not a number");
             return;
         }
         else

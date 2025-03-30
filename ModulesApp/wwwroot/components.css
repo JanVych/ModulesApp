@@ -4,4 +4,5 @@
     --from-message-node-background: var(--mud-palette-primary-darken);
     --data-display-node-background: var(--mud-palette-success-darken);
     --array-operation-node-background: var(--mud-palette-tertiary-darken);
+    --arithmetic-operation-node-background: var(--mud-palette-tertiary-darken);
 }

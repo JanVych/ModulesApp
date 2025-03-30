@@ -8,11 +8,12 @@ namespace ModulesApp.Components.ServerTasks.Nodes;
 public class ArrayOperationNode :TaskNode
 {
     public NodeArrayOperationType OperationType => (NodeArrayOperationType)SubType;
-    public ArrayOperationNode(IServerContext context, NodeArrayOperationType condition, Point? position = null)
+
+    public ArrayOperationNode(IServerContext context, NodeArrayOperationType operationType, Point? position = null)
         : base(context, position)
     {
         Type = NodeType.ArrayOperation;
-        SubType = (int)condition;
+        SubType = (int)operationType;
         AddPorts();
     }
 

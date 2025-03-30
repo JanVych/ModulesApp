@@ -8,7 +8,8 @@ public enum NodeType
     DataDisplay,
     Value,
     SendMessage,
-    ArrayOperation
+    ArrayOperation,
+    ArithmeticOperation,
 }
 
 public enum NodeConditionType
@@ -26,6 +27,14 @@ public enum NodeArrayOperationType
 {
     ArraySlice,
     ArrayRemoveAt
+}
+
+public enum NodeArithmeticOperationType
+{
+    Add,
+    Subtract,
+    Multiply,
+    Divide
 }
 
 public static class NodeExtensions

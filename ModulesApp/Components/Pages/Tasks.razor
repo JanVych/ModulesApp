@@ -135,7 +135,7 @@
                     </MudMenu>
 
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                             Label="@_selectedInputType.ToString()"
+                             Label="@_selectedConditionInputType.ToString()"
                              Class="custom-menu-label custom-menu-icon"
                              Style="background-color: var(--condition-node-background);">
 
@@ -182,6 +182,42 @@
                                 @operation.ToLongString()
                             </MudMenuItem>
                         }
+
+                    </MudMenu>
+                </MudButtonGroup>
+
+                <MudButtonGroup Variant="Variant.Filled">
+                    <MudButton Style="background-color: var(--arithmetic-operation-node-background); color: var(--node-color);"
+                               OnClick="() => AddNode(NodeType.ArithmeticOperation)">
+                        Arithmetic Operation
+                    </MudButton>
+                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                             Label="@_selectedArithmeticOperation.ToString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--arithmetic-operation-node-background);">
+
+                        @foreach (NodeArithmeticOperationType operation in Enum.GetValues(typeof(NodeArithmeticOperationType)))
+                        {
+                            <MudMenuItem Style="background-color: var(--arithmetic-operation-node-background); color: var(--node-color);"
+                                         @onclick="() => _selectedArithmeticOperation = operation">
+                                @operation.ToString()
+                            </MudMenuItem>
+                        }
+                    </MudMenu>
+
+                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                             Label="@_selectedOperationInputType.ToString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--arithmetic-operation-node-background);">
+
+                        <MudMenuItem Style="background-color: var(--arithmetic-operation-node-background); color: var(--node-color);"
+                                     @onclick="() => _selectedOperationInputType = NodeInputType.Double">
+                            Double
+                        </MudMenuItem>
+                        <MudMenuItem Style="background-color: var(--arithmetic-operation-node-background); color: var(--node-color);"
+                                     @onclick="() => _selectedOperationInputType = NodeInputType.Double">
+                            Single
+                        </MudMenuItem>
 
                     </MudMenu>
                 </MudButtonGroup>
@@ -244,8 +280,11 @@
     private BlazorDiagram? _currentDiagram;
 
     private NodeConditionType _selectedCondition = NodeConditionType.Equal;
-    private NodeInputType _selectedInputType = NodeInputType.Single;
+    private NodeInputType _selectedConditionInputType = NodeInputType.Single;
     private NodeArrayOperationType _selectedOperation = NodeArrayOperationType.ArraySlice;
+
+    private NodeArithmeticOperationType _selectedArithmeticOperation = NodeArithmeticOperationType.Add;
+    private NodeInputType _selectedOperationInputType = NodeInputType.Single;
 
     private List<DbModule> _modules = [];
     private List<DbBackgroundService> _services = [];
@@ -277,6 +316,7 @@
             _currentDiagram.RegisterComponent<ValueNode, ValueWidget>();
             _currentDiagram.RegisterComponent<SendMessageNode, SendMessageWidget>();
             _currentDiagram.RegisterComponent<ArrayOperationNode, ArrayOperationWidget>();
+            _currentDiagram.RegisterComponent<ArithmeticOperationNode, ArithmeticOperationWidget>();
 
             _modules = await _moduleService.GetAllAsync();
             _services = await _backgroundServiceService.GetListAsync();
@@ -359,6 +399,27 @@
         // Debug.WriteLine($"Elapsed Time: {stopwatch.ElapsedMilliseconds} ms");
     }
 
+    private void ChangeConditionType(NodeConditionType condition)
+    {
+        _selectedCondition = condition;
+    }
+
+    private void ChangeOperationType(NodeArrayOperationType condition)
+    {
+        _selectedOperation = condition;
+    }
+
+
+    private void ChangeInputType(NodeInputType type)
+    {
+        _selectedConditionInputType = type;
+    }
+
+    private void ChangeAritmeticOperationInputType(NodeInputType type)
+    {
+        _selectedOperationInputType = type;
+    }
+
     private void AddNode(NodeType type)
     {
         if (_currentDiagram?.Container != null)
@@ -377,7 +438,7 @@
 
             if (type == NodeType.Condition)
             {
-                _currentDiagram.Nodes.Add(new ConditionNode(_serverContextService, _selectedCondition, point, input: _selectedInputType) { Order = smallestOrder });
+                _currentDiagram.Nodes.Add(new ConditionNode(_serverContextService, _selectedCondition, point, input: _selectedConditionInputType) { Order = smallestOrder });
             }
             else if (type == NodeType.FromMessage)
             {
@@ -399,22 +460,11 @@
             {
                 _currentDiagram.Nodes.Add(new ArrayOperationNode(_serverContextService, _selectedOperation, point) { Order = smallestOrder });
             }
+            else if (type == NodeType.ArithmeticOperation)
+            {
+                _currentDiagram.Nodes.Add(new ArithmeticOperationNode(_serverContextService, _selectedArithmeticOperation, point, input: _selectedOperationInputType) { Order = smallestOrder });
+            }
         }
-    }
-
-    private void ChangeConditionType(NodeConditionType condition)
-    {
-        _selectedCondition = condition;
-    }
-
-    private void ChangeOperationType(NodeArrayOperationType condition)
-    {
-        _selectedOperation = condition;
-    }
-
-    private void ChangeInputType(NodeInputType type)
-    {
-        _selectedInputType = type;
     }
 
     private async Task LoadDiagram()
@@ -463,8 +513,11 @@
                 {
                     _currentDiagram.Nodes.Add(new ArrayOperationNode(_serverContextService, node));
                 }
+                else if (node.Type == NodeType.ArithmeticOperation)
+                {
+                    _currentDiagram.Nodes.Add(new ArithmeticOperationNode(_serverContextService, node));
+                }
             }
-
 
             foreach (var link in links)
             {

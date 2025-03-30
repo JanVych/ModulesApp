@@ -64,7 +64,8 @@ public class SQLiteDb : DbContext
             .HasValue<DbFromMessageNode>("FromMessage")
             .HasValue<DbValueNode>("StaticData")
             .HasValue<DbSendMessageNode>("SendMessage")
-            .HasValue<DbArrayOperationNode>("ArrayOperation");
+            .HasValue<DbArrayOperationNode>("ArrayOperation")
+            .HasValue<DbArithmeticOperationNode>("ArithmeticOperation");
 
 
         builder.Entity<DbAction>()

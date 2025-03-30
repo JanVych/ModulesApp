@@ -106,30 +106,17 @@ public class ServerTaskService
 
         foreach (TaskNode node in nodes)
         {
-            if (node is ConditionNode conditionNode)
+            dbNodes.Add(node.Type switch
             {
-                dbNodes.Add(new DbConditionNode(conditionNode));
-            }
-            else if (node is FromMessageNode fromMessageNode)
-            {
-                dbNodes.Add(new DbFromMessageNode(fromMessageNode));
-            }
-            else if (node is DataDisplayNode dataDisplayNode)
-            {
-                dbNodes.Add(new DbDataDisplayNode(dataDisplayNode));
-            }
-            else if (node is ValueNode staticDataNode)
-            {
-                dbNodes.Add(new DbValueNode(staticDataNode));
-            }
-            else if (node is SendMessageNode sendMessageNode)
-            {
-                dbNodes.Add(new DbSendMessageNode(sendMessageNode));
-            }
-            else if (node is ArrayOperationNode arrayOperationNode)
-            {
-                 dbNodes.Add(new DbArrayOperationNode(arrayOperationNode));
-            }
+                NodeType.Condition => new DbConditionNode((ConditionNode)node),
+                NodeType.FromMessage => new DbFromMessageNode((FromMessageNode)node),
+                NodeType.DataDisplay => new DbDataDisplayNode((DataDisplayNode)node),
+                NodeType.Value => new DbValueNode((ValueNode)node),
+                NodeType.SendMessage => new DbSendMessageNode((SendMessageNode)node),
+                NodeType.ArrayOperation => new DbArrayOperationNode((ArrayOperationNode)node),
+                NodeType.ArithmeticOperation => new DbArithmeticOperationNode(node),
+                _ => throw new ArgumentException($"Unsupported node type: {node.Type}")
+            });
         }
 
         var dbNodeLookup = dbNodes.ToDictionary(node => node.Order);
