@@ -37,6 +37,11 @@ public class ServerContextService : IServerContext
         return _modulesService.GetAll();
     }
 
+    public async Task<List<DbModule>> GetAllModulesAsync()
+    {
+        return await _modulesService.GetAllAsync();
+    }
+
     public JsonElement? GetMessageFromModule(long moduleId, string key)
     {
         var module = _modulesService.Get(moduleId);

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ModulesApp.Services;
+using ModulesApp.Services.Data;
 
 namespace ModulesApp.Controllers;
 
@@ -7,10 +7,10 @@ namespace ModulesApp.Controllers;
 [ApiController]
 public class FirmwareController : ControllerBase
 {
-    FirmwareService _firmwareService;
-    public FirmwareController(FirmwareService firmwareService)
+    ModuleProgramService _moduleProgramService;
+    public FirmwareController(ModuleProgramService moduleProgramService)
     {
-        _firmwareService = firmwareService;
+        _moduleProgramService = moduleProgramService;
     }
 
     [HttpGet]
@@ -18,7 +18,7 @@ public class FirmwareController : ControllerBase
     {
         Console.WriteLine("GET FIRMWARE");
         Console.WriteLine(program);
-        var programs = _firmwareService.Programs;
+        var programs = _moduleProgramService.GetProgramsList();
 
         foreach (var p in programs)
         {

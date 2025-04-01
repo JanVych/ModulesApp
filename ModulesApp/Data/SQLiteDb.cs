@@ -4,6 +4,7 @@ using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.BackgroundServices.Servicves;
 using ModulesApp.Models.Dasboards;
 using ModulesApp.Models.Dasboards.Entities;
+using ModulesApp.Models.ModulesPrograms;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
 using System.Text.Json;
@@ -27,6 +28,11 @@ public class SQLiteDb : DbContext
 
     public DbSet<DbAction> Actions { get; set; }
 
+    public DbSet<DbModuleIDF> IDFs { get; set; }
+    public DbSet<DbModuleFirmware> Firmwares { get; set; }
+    public DbSet<DbModuleProgram> Programs { get; set; }
+    public DbSet<DbModuleProgramFile> ProgramsFiles { get; set; }
+
     public SQLiteDb(IConfiguration configuration)
     {
         _configuration = configuration;
@@ -36,7 +42,7 @@ public class SQLiteDb : DbContext
     {
         optionsBuilder
             //.UseLazyLoadingProxies()
-            .UseSqlite(_configuration.GetConnectionString("SQLiteDb"));
+            .UseSqlite(NormalizePath(_configuration.GetConnectionString("SQLiteDb")));
     }
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -105,9 +111,11 @@ public class SQLiteDb : DbContext
             .HasValue<DbDataListCardEntity>(DashboardEntityType.DataListCard)
             .HasValue<DbBasicSwitchEntity>(DashboardEntityType.BasicSwitch);
 
-
-
-
         base.OnModelCreating(builder);
+    }
+
+    static string? NormalizePath(string? connectionString)
+    {
+        return connectionString?.Replace("\\", Path.DirectorySeparatorChar.ToString());
     }
 }

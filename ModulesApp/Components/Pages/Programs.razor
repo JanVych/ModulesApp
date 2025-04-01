@@ -2,131 +2,152 @@
 @using ModulesApp.Models
 @using ModulesApp.Models.ModulesPrograms
 @using ModulesApp.Services
+@using ModulesApp.Services.Data
 @using System.Diagnostics
 
-@inject FirmwareService _firmwareService
+@inject ModuleProgramManager _moduleprogramManager
+@inject ModuleProgramService _moduleProgramService
 @inject ServerContextService _serverContextService
 
 @page "/programs"
 
 <PageTitle>Programs</PageTitle>
 
-<MudGrid Spacing="6">
-    <MudItem xs="12">
-        <MudPaper Outlined="true" Class="pa-4">
-            <MudStack Wrap="Wrap.Wrap" Spacing="10" Row="true" AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.h6">@_selectedProgram?.Name</MudText>
-                <MudPaper Style="width: 200px" Elevation="0">
-                    <MudSelect @bind-Value="_selectedFirmware" Variant="Variant.Outlined">
-                        @if (_firmware == null)
-                        {
-                            <MudText Typo="Typo.h6">Loading...</MudText>
-                        }
-                        else
-                        {
-                            @foreach (var f in _firmware)
-                            {
-                                <MudSelectItem Value="@f">@f.Name</MudSelectItem>
-                            }
-                        }
-                    </MudSelect>
-                </MudPaper>
-                <MudPaper Style="width: 200px" Elevation="0">
-                    <MudSelect @bind-Value="_selectedIDF" Variant="Variant.Outlined">
-                        @if (_idf == null)
-                        {
-                            <MudText Typo="Typo.h6">Loading...</MudText>
-                        }
-                        else
-                        {
-                            @foreach (var i in _idf)
-                            {
-                                <MudSelectItem Value="@i">@i.Name</MudSelectItem>
-                            }
-                        }
-                    </MudSelect>
-                </MudPaper>
-                <MudSpacer />
-                <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="DeleteProgram" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" OnClick="ReloadProgram" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Save" OnClick="SaveProgram" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Build" OnClick="BuilProgram" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Wash" OnClick="CleanProgram" />
-                <MudSpacer />
-                <MudSelect @bind-Value="_selectedModule" Variant="Variant.Outlined">
-                    @if (_modules == null)
-                    {
-                        <MudText Typo="Typo.h6">Loading...</MudText>
-                    }
-                    else
-                    {
-                        @foreach (var m in _modules)
-                        {
-                            <MudSelectItem Value="@m">@m.Name</MudSelectItem>
-                        }
-                    }
-                </MudSelect>
-                <MudIconButton Icon="@Icons.Material.Outlined.Send" OnClick="SetOtaUpdate" />
-            </MudStack>
-        </MudPaper>
-    </MudItem>
+<MudGrid Spacing="0">
     <MudItem xs="12" sm="2">
-        <MudPaper Elevation="0">
-            <MudList T="ModuleProgram"
-            SelectedValue="@_selectedProgram"
-            SelectionMode="SelectionMode.SingleSelection"
-            SelectedValueChanged="@SelectedProgramChanged">
-                @if (_programs == null)
-                {
-                    <MudText Typo="Typo.h6">Loading...</MudText>
-                }
-                else
-                {
-                    @foreach (var p in _programs)
-                    {
-                        <MudListItem Value="@p" Text=@p.Name />
-                        <MudDivider />
-                    }
-                }
-                <MudIconButton Icon="@Icons.Material.Outlined.Add" OnClick="CreateNewProgram" />
-            </MudList>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="10">
-        <MudTabs Elevation="0" KeepPanelsAlive="false" @ref=_tabs ActivePanelIndexChanged="ActivePanelIndexChanged">
-            @if (_selectedProgram?.Files == null)
+        <MudStack Spacing="2">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h4">Programs</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddNewProgram"/>
+            </MudStack>
+            <MudDivider />
+            @if(_programs == null)
             {
-                <MudText Typo="Typo.h6">Loading...</MudText>
+                <MudProgressCircular Indeterminate="true" Color="@Color.Primary" />
             }
             else
             {
-                @foreach (var f in _selectedProgram.Files)
-                {
-                    <MudTabPanel Text="@f.FileName" ShowCloseIcon=false>
-                        <MudPaper>
-                            <StandaloneCodeEditor @ref=_editor ConstructionOptions="CreateEditorConstructionOptions(f)" />
-                        </MudPaper>
-                    </MudTabPanel>
-                }
+                <MudList T="DbModuleProgram"
+                SelectedValue="@_selectedProgram"
+                SelectedValueChanged="@SelectedProgramChanged">
+                    @foreach (var p in _programs)
+                    {
+                        <MudListItem Value="@p" Text=@p.Name />
+                    }
+                </MudList>
             }
-
-        </MudTabs>
+            <MudDivider />
+        </MudStack>
     </MudItem>
-    <MudItem xs="12" sm="12">
+
+    <MudItem xs="12" sm="10" Class="pl-4">
+        @if(_isNewProgram)
+        {
+            <MudPaper Class="pa-6">
+                <MudStack Class="pb-2" Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="ToggleNewMode" />
+                    <MudText Typo="Typo.h4">Add new</MudText>
+                </MudStack>
+                <MudDivider />
+
+                <MudStack Class="pa-2" Spacing="4" AlignItems="AlignItems.Stretch" Justify="Justify.FlexStart">
+                    <MudText Typo="Typo.h5">@_newProgramName</MudText>
+
+                    <MudTextField Label="Program Name" @bind-Value="_newProgramName" Style="max-width: 300px" />
+                    @if (_firmwares == null)
+                    {
+                        <MudProgressCircular Indeterminate="true" Color="@Color.Primary" />
+                    }
+                    else
+                    {
+                        <MudSelect @bind-Value="_newProgramFirmware" Label="Firmware" Style="max-width: 300px">
+                            @foreach (var f in _firmwares)
+                            {
+                                <MudSelectItem Value="@f">@f.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudStack Spacing="2" Row="true">
+                            <MudText Typo="Typo.body1">IDF version:</MudText>
+                            <MudText Typo="Typo.body1">@_newProgramFirmware?.IDF.Name</MudText>
+                        </MudStack>
+
+                        <MudButton Style="max-width: 200px" Color="@Color.Primary" Variant="Variant.Filled"
+                        OnClick="SaveNewProgram">
+                            Save
+                        </MudButton>
+                    }
+                </MudStack>
+            </MudPaper>
+        }
+        else
+        {
+            <MudPaper Class="pa-4 mb-2">
+                <MudStack Row="true" Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <MudText Typo="Typo.h5">
+                        @_selectedProgram?.Name
+                    </MudText>
+
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudStack Row="true">
+                            <MudIconButton Icon="@Icons.Material.Outlined.Build" Color="@Color.Primary" OnClick="BuilProgram" />
+                            <MudIconButton Icon="@Icons.Material.Outlined.Wash" Color="@Color.Primary" OnClick="CleanProgram" />
+                        </MudStack>
+                        <MudStack Row="true">
+                            <MudSelect @bind-Value="_selectedModule" Variant="Variant.Outlined">
+                                @if (_modules != null)
+                                {
+                                    @foreach (var m in _modules)
+                                    {
+                                        <MudSelectItem Value="@m">@m.Name</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                            <MudIconButton Icon="@Icons.Material.Outlined.Send" Color="@Color.Primary" OnClick="SetOtaUpdate" />
+                        </MudStack>
+                    </MudStack>
+
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudIconButton Icon="@Icons.Material.Outlined.Save" Color="Color.Primary" OnClick="SaveProgram" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Secondary" OnClick="DeleteProgram" />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Color="Color.Primary" OnClick="ReloadProgram" />
+                    </MudStack>
+
+                </MudStack>
+            </MudPaper>
+
+            <MudTabs KeepPanelsAlive="false" @ref=_tabs ActivePanelIndexChanged="ActivePanelIndexChanged">
+                @if (_selectedProgram?.Files == null)
+                {
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Style="height: 70vh;"/>
+                }
+                else
+                {
+                    @foreach (var f in _selectedProgram.Files)
+                    {
+                        <MudTabPanel Text="@f.Name" ShowCloseIcon=false>
+                            <MudPaper>
+                                <StandaloneCodeEditor @ref=_editor ConstructionOptions="CreateEditorConstructionOptions(f)" />
+                            </MudPaper>
+                        </MudTabPanel>
+                    }
+                }
+            </MudTabs>
+        }
+    </MudItem>
+        <MudItem xs="12" sm="12">
         <MudText Typo="Typo.h6">Output</MudText>
         <MudPaper Elevation="0">
             @foreach(var t in _outputList)
             {
                 <div>@t</div>
             }
-            @* @_outputText *@
         </MudPaper>
     </MudItem>
 </MudGrid>
 
 <style>
     .monaco-editor-container {
-    height: 600px;
+    height: 70vh;
     }
 </style>
 
@@ -135,14 +156,14 @@
     private List<DbModule>? _modules;
     private DbModule? _selectedModule;
 
-    private IReadOnlyList<ModuleProgram>? _programs;
-    private ModuleProgram? _selectedProgram;
+    private List<DbModuleProgram>? _programs;
+    private DbModuleProgram? _selectedProgram;
 
-    private IReadOnlyList<ModuleFirmware>? _firmware;
-    private ModuleFirmware? _selectedFirmware;
+    private bool _isNewProgram;
+    private string _newProgramName = string.Empty;
+    private DbModuleFirmware? _newProgramFirmware;
 
-    private IReadOnlyList<ModuleIDF>? _idf;
-    private ModuleIDF? _selectedIDF;
+    private List<DbModuleFirmware>? _firmwares;
 
     private string _outputText = string.Empty;
     private List<string> _outputList= [];
@@ -153,74 +174,45 @@
 
     protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-
-        _idf = _firmwareService.IDF;
-        _selectedIDF = _idf?.FirstOrDefault();
-
-        _firmware = _firmwareService.Firmware;
-        _selectedFirmware = _firmware?.FirstOrDefault();
-
-        _programs = _firmwareService.Programs;
-
-        _modules = _serverContextService.GetAllModules();
+        _modules = await _serverContextService.GetAllModulesAsync();
         _selectedModule = _modules?.FirstOrDefault();
-        await LoadPrograms();
+        _firmwares = await _moduleProgramService.GetFirmwareListAsync();
+        _programs = await _moduleProgramService.GetProgramsListAsync();
+        _selectedProgram = _programs.FirstOrDefault();
+        _programs.ForEach(async p => await p.LoadtProgramFiles());
     }
 
-    private async Task LoadPrograms()
+    private async Task SelectedProgramChanged(DbModuleProgram program)
     {
-        _programs = _firmwareService.Programs;
-        if (_programs.Count != 0)
-        {
-            await SelectedProgramChanged(_programs.First());
-        }
-    }
-
-    private async Task SelectedProgramChanged(ModuleProgram program)
-    {
-        if (_editor != null && _selectedProgram?.Files != null)
-        {
-            _selectedProgram.Files[_activePanelIndex].Content = await _editor.GetValue();
-        }
         _tabs?.ActivatePanel(0);
-        if (program.Files == null)
-        {
-            await program.LoadtProgramFiles();
-        }
         _selectedProgram = program;
-
-        if (program.Files != null && _editor != null)
-        {
-            // TODO
-            try
-            {
-                await _editor.SetValue(program.Files.First().Content);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-
-        }
+        await UpdateEditorValue();
     }
 
     private async Task ActivePanelIndexChanged(int index)
     {
-        if (_editor != null && _selectedProgram?.Files != null)
+        if (_editor != null && _selectedProgram != null)
         {
             _selectedProgram.Files[_activePanelIndex].Content = await _editor.GetValue();
         }
         _activePanelIndex = index;
     }
 
-    private Func<StandaloneCodeEditor, StandaloneEditorConstructionOptions> CreateEditorConstructionOptions(ModuleProgramFile file)
+    private async Task UpdateEditorValue()
     {
-        string language = Path.GetExtension(file.FileName) switch
+        if (_editor != null && _selectedProgram != null)
+        {
+            await _editor.SetValue(_selectedProgram.Files[_activePanelIndex].Content);
+        }
+    }
+
+    private Func<StandaloneCodeEditor, StandaloneEditorConstructionOptions> CreateEditorConstructionOptions(DbModuleProgramFile file)
+    {
+        string language = Path.GetExtension(file.Name) switch
         {
             ".c" => "c",
             ".h" => "c",
-            // ".cmake" => "cmake", // Uncomment if needed
+            // ".cmake" => "cmake",
             _ => "plaintext"
         };
 
@@ -234,47 +226,76 @@
 
     private async Task CleanProgram()
     {
-        _outputText = string.Empty;
-        await _firmwareService.CleanProgramAsync(_selectedProgram.Name, _selectedIDF.Name, OutputHandler);
+        if (_selectedProgram != null)
+        {
+            _outputText = string.Empty;
+            await _moduleprogramManager.CleanProgramAsync(_selectedProgram, OutputHandler);
+        }
     }
 
     private async Task BuilProgram()
     {
-        _outputText = string.Empty;
-        await _firmwareService.BuildProgramAsync(_selectedProgram.Name, _selectedIDF.Name, OutputHandler);
+        if (_selectedProgram != null)
+        {
+            _outputText = string.Empty;
+            await _moduleprogramManager.BuildProgramAsync(_selectedProgram, OutputHandler);
+        }
     }
 
-    private void CreateNewProgram()
+    private void AddNewProgram()
     {
-        if (_selectedFirmware != null)
+        _newProgramName = "new_" + DateTime.Now.Millisecond;
+        _newProgramFirmware = _firmwares?.FirstOrDefault();
+        _isNewProgram = true;
+    }
+
+    private async Task SaveNewProgram()
+    {
+        if (_newProgramFirmware != null && _programs != null)
         {
-            _firmwareService.CreateNewProgram("new_" + DateTime.Now.Millisecond, _selectedFirmware.Name);
+            var newProgram = new DbModuleProgram
+                {
+                    Name = _newProgramName,
+                };
+            newProgram = await _moduleprogramManager.CreateNewProgram(newProgram, _newProgramFirmware);
+            if (newProgram != null)
+            {
+                await newProgram.LoadtProgramFiles();
+                _programs.Add(newProgram);
+                _tabs?.ActivatePanel(0);
+                _selectedProgram = newProgram;
+            }
         }
+        _isNewProgram = false;
     }
 
     private async Task ReloadProgram()
     {
-        if (_selectedProgram != null)
+        if (_selectedProgram != null && _editor != null)
         {
             await _selectedProgram.LoadtProgramFiles();
-            await _editor.SetValue(_selectedProgram.Files[_activePanelIndex].Content);
+            await UpdateEditorValue();
         }
     }
 
-    private void DeleteProgram()
+    private async Task DeleteProgram()
     {
-        if (_selectedProgram != null)
+        if (_selectedProgram != null && _programs != null)
         {
-            _firmwareService.DeleteProgram(_selectedProgram);
+            await _moduleprogramManager.DeleteProgram(_selectedProgram);
+            _programs.Remove(_selectedProgram);
+            _selectedProgram = _programs.FirstOrDefault();
+            _tabs?.ActivatePanel(0);
+            await UpdateEditorValue();
         }
     }
 
     private async Task SaveProgram()
     {
-        if (_selectedProgram != null)
+        if (_selectedProgram != null && _editor != null)
         {
             _selectedProgram.Files[_activePanelIndex].Content = await _editor.GetValue();
-            await _firmwareService.SaveProgram(_selectedProgram);
+            await _moduleprogramManager.SaveProgram(_selectedProgram);
         }
     }
 
@@ -294,6 +315,10 @@
         }
     }
 
+    public void ToggleNewMode()
+    {
+        _isNewProgram = !_isNewProgram;
+    }
 
     private void SetOtaUpdate()
     {

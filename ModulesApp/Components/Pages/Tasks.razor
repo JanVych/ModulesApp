@@ -35,10 +35,10 @@
                 <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Primary" OnClick="@AddNewTask" />
             </MudStack>
             <MudDivider />
-            <MudList T="DbTask" SelectedValue="_selectedTask">
+            <MudList T="DbTask" SelectedValue="_selectedTask" SelectedValueChanged="ChangeSelectedTask">
                 @foreach (var task in _tasks)
                 {
-                    <MudListItem Value="task" OnClick="@(() => ChangeSelectedTask(task))">@task.Name</MudListItem>
+                    <MudListItem Value="task">@task.Name</MudListItem>
                 }
             </MudList>
             <MudDivider />
@@ -365,7 +365,7 @@
             ClearDiagram();
             await _serverTaskService.Delete(_selectedTask);
             _tasks.Remove(_selectedTask);
-            _selectedTask = _tasks.LastOrDefault();
+            _selectedTask = _tasks.FirstOrDefault();
             await LoadDiagram();
         }
     }

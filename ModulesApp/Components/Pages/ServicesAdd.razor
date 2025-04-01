@@ -23,7 +23,7 @@
         </MudStack>
     </MudStack>
 
-    <MudDivider Class="mb-4" />
+    <MudDivider Class="mb-2" />
 
     @if (_service is null)
     {
@@ -31,46 +31,44 @@
     }
     else
     {
-        <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Add new service</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
-                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                    <tbody>
-                        <tr>
-                            <td>Name</td>
-                            <td>
-                                <MudTextField @bind-Value="_service.Name" Variant="Variant.Text" Margin="Margin.Dense" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Type</td>
-                            <td>
-                                <MudSelect T="BackgroundServiceType" Value="_selectedType" ValueChanged="SelectedTypeChanged">
-                                    @foreach (BackgroundServiceType type in Enum.GetValues(typeof(BackgroundServiceType)))
-                                    {
-                                        <MudSelectItem Value="type"/>
-                                    }
-                                </MudSelect>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Interval</td>
-                            <td>
-                                <MudNumericField @bind-Value="_intervalSeconds" Variant="Variant.Text" Margin="Margin.Dense" Min="5"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveService">Save</MudButton>
-                            </td>
-                        </tr>
-                    </tbody>
-                </MudSimpleTable>
-            </div>
-        </MudStack>
+        <div>
+            <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
+                <MudText Typo="Typo.h5">Add new service</MudText>
+                <MudDivider Class="mt-2" />
+            </MudPaper>
+            <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                <tbody>
+                    <tr>
+                        <td>Name</td>
+                        <td>
+                            <MudTextField @bind-Value="_service.Name" Style="max-width: 300px;" Variant="Variant.Text" Margin="Margin.Dense" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td>
+                            <MudSelect T="BackgroundServiceType" Value="_selectedType" ValueChanged="SelectedTypeChanged" Style="max-width: 300px;">
+                                @foreach (BackgroundServiceType type in Enum.GetValues(typeof(BackgroundServiceType)))
+                                {
+                                    <MudSelectItem Value="type" />
+                                }
+                            </MudSelect>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Interval</td>
+                        <td>
+                            <MudNumericField @bind-Value="_intervalSeconds" Style="max-width: 300px;" Variant="Variant.Text" Margin="Margin.Dense" Min="5" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveService">Save</MudButton>
+                        </td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+        </div>
     }
 </div>
 

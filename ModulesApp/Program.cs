@@ -28,12 +28,13 @@ public class Program
         builder.Services.AddSingleton<DashboardService>();
         builder.Services.AddSingleton<ServerTaskService>();
         builder.Services.AddSingleton<BackgroundServiceService>();
+        builder.Services.AddSingleton<ModuleProgramService>();
 
         builder.Services.AddSingleton<ServerContextService>();
 
         builder.Services.AddSingleton<BackgroundServiceManager>();
 
-        builder.Services.AddSingleton<FirmwareService>();
+        builder.Services.AddSingleton<ModuleProgramManager>();
 
         var app = builder.Build();
 
