@@ -1,0 +1,289 @@
+﻿@using System.Text.RegularExpressions;
+@using ModulesApp.Models.ModulesPrograms
+@using ModulesApp.Services.Data
+@using System.Text
+
+@inject NavigationManager _navigationManager
+@inject ModuleProgramService _moduleProgramService
+@inject IJSRuntime JS
+
+@implements IAsyncDisposable
+
+@page "/modules/add"
+
+
+<PageTitle>Add module</PageTitle>
+
+<MudStack Spacing="4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
+            <MudText Typo="Typo.h4">Add module</MudText>
+        </MudStack>
+    </MudStack>
+
+    <MudDivider Class="mb-2" />
+
+    <MudStack Row="true" Spacing="8" Wrap="Wrap.Wrap" AlignItems="AlignItems.Baseline" StretchItems="StretchItems.None" Justify="Justify.FlexStart">
+        <MudText T="Status" Typo="Typo.h6">
+            @_status
+        </MudText>
+        <MudButton OnClick="Listen" Disabled="(_status != Status.None)" Variant="Variant.Outlined"  Color="Color.Primary">Listen</MudButton>
+        <MudButton OnClick="Connect" Disabled="(_status != Status.None)" Variant="Variant.Outlined" Color="Color.Primary">Connect</MudButton>
+        <MudButton OnClick="Disconnect" Disabled="(_status == Status.None)"  Variant="Variant.Outlined" Color="Color.Primary">Disconnect</MudButton>
+        <MudButton OnClick="CleanCocnsole" Variant="Variant.Outlined" Color="Color.Primary">Clean</MudButton>
+        @* <MudButton OnClick="HardReset" Variant="Variant.Outlined" Color="Color.Primary">Reset</MudButton> *@
+    </MudStack>
+
+    <MudStack Row="true" Spacing="8" Wrap="Wrap.Wrap" AlignItems="AlignItems.Baseline" StretchItems="StretchItems.None" Justify="Justify.FlexStart">
+        <MudButton OnClick="EraseFlash" Disabled="(_status != Status.Connected)" Variant="Variant.Outlined" Color="Color.Primary">Erase flash</MudButton>
+        <MudButton OnClick="FlashFiles" Disabled="(_status != Status.Connected)" Variant="Variant.Outlined" Color="Color.Primary">Flash files</MudButton>
+
+        <div>
+            <MudSelect T="DbModuleProgram" ValueChanged="SelectedProgramChanged" Disabled="((_status != Status.Connected) || _isCustoFilesChosen)" 
+            Variant="Variant.Outlined"
+            Margin="Margin.Dense" Style="max-width:300px;">
+                @foreach (var program in _programs)
+                {
+                    <MudSelectItem Value="@program">@program.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+
+        <MudSwitch T="bool" ValueChanged="CustomFilesSwitchChanged" Label="Custom files" Disabled="(_status != Status.Connected)" 
+        Color="Color.Primary" />
+
+        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFile" Disabled="(_status != Status.Connected)" Accept=".bin">
+            <ActivatorContent>
+                <MudButton Variant="Variant.Outlined"
+                Color="Color.Primary"
+                StartIcon="@Icons.Material.Filled.CloudUpload">
+                    Upload Files
+                </MudButton>
+            </ActivatorContent>
+        </MudFileUpload>
+
+    </MudStack>
+
+    <MudExpansionPanels>
+        <MudExpansionPanel Text="Files" Expanded="false">
+            <MudSimpleTable Elevation="0">
+                <tbody>
+                    @foreach (var f in _binFiles)
+                    {
+                        <tr>
+                            <td>@f.Name</td>
+                            <td>
+                                <MudNumericField @bind-Value="f.Address" Disabled="(!_isCustoFilesChosen)" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                Label="Flash address" Style="max-width:300px;" />
+                            </td>
+                            @if (_isCustoFilesChosen)
+                            {
+                                <td>
+                                    <MudButton Color="Color.Primary" Variant="Variant.Outlined">
+                                        Select file
+                                    </MudButton>
+                                </td>
+                                <td>
+                                    <MudIconButton Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteFile(f))" />
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+
+    <MudStack StretchItems="StretchItems.All">
+        <MudPaper Outlined="false">
+            <MudTextField T="string" ReadOnly="true" Variant="Variant.Outlined" Lines="30" Value="@_consoleText"/>
+        </MudPaper>
+    </MudStack>
+
+</MudStack>
+
+@code 
+{
+    public enum Status
+    {
+        None,
+        Connected,
+        Listening
+    }
+
+    private IJSObjectReference? _JSmodule;
+    private DotNetObjectReference<ModulesAdd>? _dotNetObjectRef;
+
+    private string _consoleText = string.Empty;
+
+    private Status _status;
+
+    private List<DbModuleProgram> _programs = [];
+    private DbModuleProgram? _selectedProgram;
+
+    private bool _isCustoFilesChosen = false;
+    private List<DbModuleProgram.ModuleBinFile> _customProgramBinFiles = [];
+
+    private List<DbModuleProgram.ModuleBinFile> _binFiles = [];
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeAsync<IJSObjectReference>("import", "./js/esptool_bundle.js");
+            _JSmodule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/esptool_connection.js");
+            _dotNetObjectRef = DotNetObjectReference.Create(this);
+            await _JSmodule.InvokeVoidAsync("registerDotNetObject", _dotNetObjectRef);
+
+            _programs = await _moduleProgramService.GetProgramsListAsync();
+            // _selectedProgram = _programs.FirstOrDefault();
+            // StateHasChanged();
+        }
+    }
+
+    public async Task Disconnect()
+    {
+        if (_JSmodule != null)
+        {
+            await _JSmodule.InvokeVoidAsync("disconnect");
+        }
+    }
+
+    public async Task Listen()
+    {
+        if (_JSmodule != null)
+        {
+            await _JSmodule.InvokeVoidAsync("startListening", 115200);
+        }
+    }
+
+    public async Task Connect()
+    {
+        if (_JSmodule != null)
+        {
+            await _JSmodule.InvokeVoidAsync("connect", 115200, 10000);
+        }
+    }
+
+    public async Task FlashFiles()
+    {
+        if(_JSmodule != null)
+        {
+            if(!_isCustoFilesChosen && _selectedProgram != null)
+            {
+                await _selectedProgram.LoadBinFilesData();
+            }
+            await _JSmodule.InvokeVoidAsync("flashFiles", _binFiles);
+        }
+    }
+
+    public async Task EraseFlash()
+    {
+        if (_JSmodule != null)
+        {
+            await _JSmodule.InvokeVoidAsync("eraseFlash");
+        }
+    }
+
+    // public async Task HardReset()
+    // {
+    //     if (module != null)
+    //     {
+    //         await module.InvokeVoidAsync("hardReset");
+    //     }
+    // }
+
+    [JSInvokable]
+    public void WriteToConsole(string message)
+    {
+        _consoleText += message;
+        InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public void WriteLineToConsole(string message)
+    {
+        _consoleText += message + "\n";
+        InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public void CleanCocnsole()
+    {
+        _consoleText = string.Empty;
+        InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public void SetStatus(Status status)
+    {
+        _status = status;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SelectedProgramChanged(DbModuleProgram program)
+    {
+        _selectedProgram = program;
+        _selectedProgram.LoadBinFiles();
+        _binFiles = _selectedProgram.BinFiles;
+    }
+
+    private void CustomFilesSwitchChanged(bool value)
+    {
+        _isCustoFilesChosen = value;
+        if (value)
+        {
+            _binFiles = _customProgramBinFiles;
+        }
+        else if(_selectedProgram != null)
+        {
+            _binFiles = _selectedProgram.BinFiles;
+        }
+    }
+
+    private async Task UploadFile(IBrowserFile file)
+    {
+        using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        byte[] byteData = memoryStream.ToArray();
+        var builder = new StringBuilder();
+        foreach (var b in byteData)
+        {
+            builder.Append((char)b);
+        }
+        _customProgramBinFiles.Add(new DbModuleProgram.ModuleBinFile()
+            {
+                Name = file.Name,
+                Address = 0x0,
+                Data = builder.ToString()
+            });
+    }
+
+    private void DeleteFile(DbModuleProgram.ModuleBinFile file)
+    {
+        _customProgramBinFiles.Remove(file);
+    }
+
+    private void GoBack()
+    {
+        _navigationManager.NavigateTo("/modules");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_JSmodule != null)
+        {
+            try
+            {
+                await _JSmodule.DisposeAsync();
+            }
+            catch
+            {
+            }
+        }
+        _dotNetObjectRef?.Dispose();
+    }
+}

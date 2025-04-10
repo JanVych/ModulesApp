@@ -25,7 +25,7 @@ public class FirmwareController : ControllerBase
             Console.WriteLine(p.Name);
             if (p.Name == program)
             {
-                var path = p.GetBinPath();
+                var path = p.GetProgramBinPath();
                 Console.WriteLine(path);
                 if (path == null)
                 {

@@ -62,6 +62,8 @@
     </RowTemplate>
 </MudTable>
 
+<MudButton OnClick="Add" Class="ma-2" Variant="Variant.Outlined" Color="Color.Primary">Add</MudButton>
+
 
 <MudMessageBox @ref="_mudMessageBox" Title="Warning" CancelText="Cancel">
     <MessageContent>
@@ -110,6 +112,11 @@
         {
             _moduleService.Delete(module);
         }
+    }
+
+    private void Add()
+    {
+        _navigationManager.NavigateTo("/modules/add");
     }
 
     public void Dispose()
