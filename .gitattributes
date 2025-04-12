@@ -61,3 +61,6 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+# Exclude esptool_bundle.js from language stats
+ModulesApp/wwwroot/js/esptool_bundle.js linguist-vendored
