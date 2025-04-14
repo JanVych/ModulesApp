@@ -1,4 +1,5 @@
 ﻿using ModulesApp.Models.BackgroundServices;
+using ModulesApp.Models.Dasboards;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,10 +10,12 @@ public enum TaskType
     OnMessageRecived,
 }
 
-public enum TaskTargetType
+public enum TriggerSourceType
 {
     Module,
     BackgroundService,
+    DashboardEntity,
+    None,
 }
 
 [Table("Task")]
@@ -23,7 +26,7 @@ public class DbTask
 
     public TaskType Type { get; set; }
 
-    public TaskTargetType TargetType { get; set; }
+    public TriggerSourceType TargetType { get; set; }
 
     public string Name { get; set; } = string.Empty;
 
@@ -37,6 +40,10 @@ public class DbTask
     public long? BackgroundServiceId { get; set; }
     [ForeignKey("BackgroundServiceId")]
     public DbBackgroundService? BackgroundService { get; set; }
+
+    public long? DashboardEntityId { get; set; }
+    [ForeignKey("DashboardEntityId")]
+    public DbDashboardEntity? DashboardEntity { get; set; }
 
     public ICollection<DbTaskNode> Nodes { get; set; } = [];
 }

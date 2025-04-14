@@ -1,6 +1,7 @@
 ﻿@using ModulesApp.Models.Dasboards
 @using System.Text.Json
 @using ModulesApp.Models.Dasboards.Entities
+@using ModulesApp.Services
 
 @if (EditMode)
 {
@@ -39,6 +40,8 @@ else
     public bool EditMode { get; set; } = false;
     [Parameter]
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    [Parameter, EditorRequired]
+    public ServerContextService ServerContext { get; set; } = default!;
 
     public string StringValue => Entity.Value ? "on" : "off";
 

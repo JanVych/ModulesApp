@@ -64,7 +64,7 @@
                     <MudTextField @bind-Value="_selectedTask.Name" Variant="Variant.Text" />
                     <MudSelect @bind-Value="_selectedTask.TargetType">
 
-                        @foreach (TaskTargetType type in Enum.GetValues(typeof(TaskTargetType)))
+                        @foreach (TriggerSourceType type in Enum.GetValues(typeof(TriggerSourceType)))
                         {
                             <MudSelectItem Value="type"></MudSelectItem>
                         }
@@ -75,7 +75,7 @@
                             <MudSelectItem Value="type"></MudSelectItem>
                         }
                     </MudSelect>
-                    @if (_selectedTask.TargetType == TaskTargetType.BackgroundService)
+                    @if (_selectedTask.TargetType == TriggerSourceType.BackgroundService)
                     {
                         <MudSelect @bind-Value="_selectedTask.BackgroundService">
                             @foreach (var service in _services)
@@ -84,7 +84,7 @@
                             }
                         </MudSelect>
                     }
-                    else if (_selectedTask.TargetType == TaskTargetType.Module)
+                    else if (_selectedTask.TargetType == TriggerSourceType.Module)
                     {
                         <MudSelect @bind-Value="_selectedTask.Module">
                             @foreach (var module in _modules)
@@ -374,12 +374,12 @@
     {
         if (_selectedTask != null && _currentDiagram != null)
         {
-            if (_selectedTask.TargetType == TaskTargetType.Module)
+            if (_selectedTask.TargetType == TriggerSourceType.Module)
             {
                 _selectedTask.BackgroundServiceId = null;
                 _selectedTask.BackgroundService = null;
             }
-            else if (_selectedTask.TargetType == TaskTargetType.BackgroundService)
+            else if (_selectedTask.TargetType == TriggerSourceType.BackgroundService)
             {
                 _selectedTask.ModuleId = null;
                 _selectedTask.Module = null;

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ModulesApp.Models.ServerTasks;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModulesApp.Models.Dasboards;
@@ -25,6 +26,8 @@ public abstract class DbDashboardEntity
     public long DashboardId { get; set; }
     [ForeignKey("DashboardId")]
     public DbDashboard Dashboard { get; private set; } = default!;
+
+    public ICollection<DbTask> ServerTasks { get; set; } = [];
 
     public abstract void UpdateData(Dictionary<string, object> data);
     public void UpdateData() => UpdateData(Data);
