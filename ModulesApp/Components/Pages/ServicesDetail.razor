@@ -6,6 +6,7 @@
 
 @inject NavigationManager _navigationManager
 @inject BackgroundServiceManager _backgroundServiceManager
+@inject BackgroundServiceService _backgroundServiceService
 
 @implements IDisposable
 
@@ -62,7 +63,7 @@
                         <tr>
                             <td>Status</td>
                             <td>
-                                <MudChip T="string" Color="@_service.StatusColor()">
+                                <MudChip T="string" Color="@_service.GetStatusColor()">
                                     @_service.Status
                                 </MudChip>
                             </td>
@@ -152,7 +153,7 @@
     protected override async Task OnInitializedAsync()
     {
         await UpdateData();
-        _backgroundServiceManager.BackgroundServiceChangedEvent += OnDataChanged;
+        _backgroundServiceService.BackgroundServiceChangedEvent += OnDataChanged;
     }
 
     private async void OnDataChanged()
@@ -163,7 +164,7 @@
 
     private async Task UpdateData()
     {
-        _service = await _backgroundServiceManager.GetAsync(ServiceId);
+        _service = await _backgroundServiceService.GetAsync(ServiceId);
         if(_service is not null)
         {
             _intervalSeconds = _service.Interval.TotalSeconds;
@@ -189,12 +190,12 @@
         if (_service is not null)
         {
             _service.Interval = TimeSpan.FromSeconds(_intervalSeconds);
-            await _backgroundServiceManager.Update(_service);
+            await _backgroundServiceManager.UpdateServiceAsync(_service);
         }
     }
 
     public void Dispose()
     {
-        _backgroundServiceManager.BackgroundServiceChangedEvent -= OnDataChanged;
+        _backgroundServiceService.BackgroundServiceChangedEvent -= OnDataChanged;
     }
 }

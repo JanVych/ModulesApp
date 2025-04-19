@@ -3,7 +3,10 @@
 @using ModulesApp.Interfaces
 @using MudBlazor
 
-<NodeWidget Node="Node" BoolOutputText="true" Header="@header">
+<NodeWidget Node="Node"
+            BoolOutputText="true"
+            Header="@Node.ConditionType.ToLongString()"
+            MainColor="var(--condition-node-color)">
 
     @if (Node.InputType == NodeInputType.Single)
     {
@@ -12,28 +15,11 @@
                          Variant="Variant.Outlined"
                          Margin="Margin.Dense"
                          Immediate="true" />
-        
-        @* <input id="valueInput" type="number" class="form-control" @bind=Node.DoubleVal1 /> *@
     }
 
 </NodeWidget>
 
-@code {
+@code
+{
     [Parameter] public ConditionNode Node { get; set; } = null!;
-
-    private string header = string.Empty;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            header = Node.ConditionType.ToLongString();
-        }
-    }
-
-    protected override void OnInitialized()
-    {
-       
-        base.OnInitialized();
-    }
 }

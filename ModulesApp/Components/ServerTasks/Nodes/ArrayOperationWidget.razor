@@ -3,9 +3,12 @@
 @using ModulesApp.Interfaces
 @using MudBlazor
 
-<NodeWidget Node="Node" BoolOutputText="false" Header="@header">
+<NodeWidget Node="Node"
+            BoolOutputText="false"
+            Header="@Node.OperationType.ToLongString()"
+            MainColor="var(--array-operation-node-color)">
 
-    @if(Node.OperationType == NodeArrayOperationType.ArraySlice)
+    @if (Node.OperationType == NodeArrayOperationType.ArraySlice)
     {
         <MudNumericField T="long"
                          @bind-Value="Node.LongVal1"
@@ -20,35 +23,19 @@
                          Immediate="true"
                          Label="Last index" />
     }
-    else if(Node.OperationType == NodeArrayOperationType.ArrayRemoveAt)
+    else if (Node.OperationType == NodeArrayOperationType.ArrayRemoveAt)
     {
         <MudNumericField T="long"
                          @bind-Value="Node.LongVal1"
                          Variant="Variant.Outlined"
                          Margin="Margin.Dense"
-                         Immediate="true" 
-                         Label="Index"/>
+                         Immediate="true"
+                         Label="Index" />
     }
 
 </NodeWidget>
 
-@code 
+@code
 {
     [Parameter] public ArrayOperationNode Node { get; set; } = null!;
-
-    private string header = string.Empty;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            header = Node.OperationType.ToLongString();
-        }
-    }
-
-    protected override void OnInitialized()
-    {
-
-        base.OnInitialized();
-    }
 }

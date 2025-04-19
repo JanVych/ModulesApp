@@ -6,6 +6,7 @@
 @page "/services"
 
 @inject BackgroundServiceManager _backgroundServiceManager
+@inject BackgroundServiceService _backgroundServiceService
 @inject NavigationManager _navigationManager
 
 @implements IDisposable
@@ -28,7 +29,7 @@
         <MudTd DataLabel="Program">@context.Type</MudTd>
 
         <MudTd DataLabel="Status">
-            <MudChip T="string" Color="context.StatusColor()">
+            <MudChip T="string" Color="context.GetStatusColor()">
                 @context.Status
             </MudChip>
         </MudTd>
@@ -78,7 +79,7 @@
     protected async override Task OnInitializedAsync()
     {
         await UpdateData();
-        _backgroundServiceManager.BackgroundServiceChangedEvent += OnDataChanged;
+        _backgroundServiceService.BackgroundServiceChangedEvent += OnDataChanged;
     }
 
     private async void OnDataChanged()
@@ -90,7 +91,7 @@
     private async Task UpdateData()
     {
         _servicesLoading = true;
-        _services = await _backgroundServiceManager.GetListAsync();
+        _services = await _backgroundServiceService.GetAllAsync();
         _servicesLoading = false;
     }
 
@@ -107,7 +108,7 @@
 
     private async Task Delete(DbBackgroundService service)
     {
-        await _backgroundServiceManager.Delete(service.Id);
+        await _backgroundServiceManager.UnregisterServiceAync(service.Id);
     }
 
     private void DetailService(DbBackgroundService service)
@@ -117,16 +118,16 @@
 
     private async Task PauseService(DbBackgroundService service)
     {
-        await _backgroundServiceManager.Stop(service.Id);
+        await _backgroundServiceManager.StopAsync(service.Id);
     }
 
     private void StartService(DbBackgroundService service)
     {
-        _backgroundServiceManager.Start(service.Id);
+        _backgroundServiceManager.StartAsync(service.Id);
     }
 
     public void Dispose()
     {
-        _backgroundServiceManager.BackgroundServiceChangedEvent -= OnDataChanged;
+        _backgroundServiceService.BackgroundServiceChangedEvent -= OnDataChanged;
     }
 }

@@ -2,9 +2,11 @@
 @using ModulesApp.Components.Dialog
 @using ModulesApp.Models.Dasboards
 @using ModulesApp.Models.Dasboards.Entities
+@using ModulesApp.Services
 @using ModulesApp.Services.Data
 
 @inject DashboardService _dashBoardService
+@inject ServerContextService _serverContextService
 @inject IDialogService DialogService
 
 @implements IDisposable
@@ -79,7 +81,8 @@
                     else if (e is DbBasicSwitchEntity se)
                     {
                         <BasicSwitchEntity EditMode="@EditMode" Entity="@se" 
-                                            DeleteButtonClick="DeleteDashBoardEntity"/>
+                                            DeleteButtonClick="DeleteDashBoardEntity"
+                                            ServerContextService="_serverContextService"/>
                     }
                 }
 

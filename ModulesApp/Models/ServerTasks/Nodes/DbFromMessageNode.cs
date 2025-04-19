@@ -40,10 +40,16 @@ public class DbFromMessageNode : DbTaskNode
             value = context.GetMessageFromModule(moduleId, StringVal1);
         }
 
-        if(Task.BackgroundServiceId is long backgroundServiceId)
+        else if(Task.BackgroundServiceId is long backgroundServiceId)
         {
             value = context.GetMessageFromService(backgroundServiceId, StringVal1);
         }
+
+        else if (Task.DashboardEntityId is long dashboardEntityId)
+        {
+            value = context.GetMessageFromDashBoardEntity(dashboardEntityId, StringVal1);
+        }
+
 
         if (value is null)
         {

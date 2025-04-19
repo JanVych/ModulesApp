@@ -34,4 +34,6 @@ public abstract class DbDashboardEntity
 
     public abstract void SaveData();
 
+    //public override string ToString() => $"{Name}, id: {Id}";
+    public override string ToString() => Name;
 }

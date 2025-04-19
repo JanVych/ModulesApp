@@ -80,7 +80,7 @@ public class ModulesController : ControllerBase
         _moduleService.Update(module);
 
         // process actions from module
-        await _serverTasksService.ProcessNodes(_serverContextService, module);
+        await _serverTasksService.ExecuteTasksAsync(_serverContextService, module);
 
         //get and delete all related actions
         var moduleActions = await _modulActionsService.GetListAndDeleteAsync(module);

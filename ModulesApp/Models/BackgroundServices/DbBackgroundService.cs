@@ -37,32 +37,33 @@ public abstract class DbBackgroundService
     public string IntervalString => Interval.TotalSeconds.ToString() + " s";
 
     [NotMapped]
-    protected CancellationTokenSource _cancellationToken = new();
+    protected CancellationTokenSource CancellationToken { get; private set; } = new();
     public DbBackgroundService() { }
     public override string ToString() => Name;
 
     public abstract Task ExecuteAsync();
 
-    public async Task StartAsync(BackgroundServiceManager backgroundServiceManager)
+    public async Task StartAsync(ServerContextService context)
     {
         Status = BackgroundServiceStatus.Running;
-        _cancellationToken = new CancellationTokenSource();
-        await backgroundServiceManager.UpdateFromService(this);
+        LastRun = DateTime.Now;
+        CancellationToken = new CancellationTokenSource();
+        await context.UpdateFromBackgroundService(this);
         Console.WriteLine("The Service has started");
         try
         {
-            while (!_cancellationToken.Token.IsCancellationRequested)
+            while (!CancellationToken.Token.IsCancellationRequested)
             {
-                Actions = await backgroundServiceManager.GetActions(this);
+                Actions = await context.GetActionsAsync(this);
                 LastRun = DateTime.Now;
 
                 await ExecuteAsync();
                 Actions.Clear();
 
-                await backgroundServiceManager.UpdateFromService(this);
-                await backgroundServiceManager.ExecuteServerTasks(this);
+                await context.UpdateFromBackgroundService(this);
+                await context.ExecuteServerTasksAsync(this);
 
-                await Task.Delay(Interval, _cancellationToken.Token);
+                await Task.Delay(Interval, CancellationToken.Token);
             }
         }
         catch (TaskCanceledException)
@@ -75,17 +76,17 @@ public abstract class DbBackgroundService
         }
         finally
         {
-            _cancellationToken.Dispose();
+            CancellationToken.Dispose();
             Status = BackgroundServiceStatus.Stopped;
-            await backgroundServiceManager.UpdateFromService(this);
+            await context.UpdateFromBackgroundService(this);
         }
     }
 
-    public async Task StopAsync(BackgroundServiceManager backgroundServiceManager)
+    public async Task StopAsync(ServerContextService serverContextService)
     {
         Status = BackgroundServiceStatus.Cancelling;
-        await backgroundServiceManager.UpdateFromService(this);
-        await _cancellationToken.CancelAsync();
+        await serverContextService.UpdateFromBackgroundService(this);
+        await CancellationToken.CancelAsync();
     }
 
     protected void AddMessage(string key, object? value)
@@ -96,7 +97,7 @@ public abstract class DbBackgroundService
         }
     }
 
-    public Color StatusColor()
+    public Color GetStatusColor()
     {
         return Status switch
         {

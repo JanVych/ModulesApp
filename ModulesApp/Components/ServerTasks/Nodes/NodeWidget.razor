@@ -5,7 +5,7 @@
 @using MudBlazor
 
 <div class="node">
-    <div class="node-header" style="@_headerStyle">
+    <div class="node-header" style="@GetBackgroundStyle()">
         @Header
     </div>
 
@@ -17,31 +17,31 @@
     {
         if (port.Input && port.Order == 0)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port in middle" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port in middle" Style="@GetPortStyle(port.Data)" />
         }
 
         else if (port.Input && port.Order == 1)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port in first" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port in first" Style="@GetPortStyle(port.Data)" />
         }
 
         else if (port.Input && port.Order == 2)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port in second" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port in second" Style="@GetPortStyle(port.Data)" />
         }
 
         else if (!port.Input && port.Order == 0)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port out middle" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port out middle" Style="@GetPortStyle(port.Data)" />
         }
 
         else if (!port.Input && port.Order == 1)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port out first" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port out first" Style="@GetPortStyle(port.Data)" />
         }
         else if (!port.Input && port.Order == 2)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port out second" Style="@(port.Data ? _dataPortStyle: _portStyle)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port out second" Style="@GetPortStyle(port.Data)" />
         }
     }
 
@@ -52,12 +52,8 @@
     }
 </div>
 
-<style>
-
-</style>
-
-
-@code {
+@code 
+{
     [Parameter]
     public TaskNode Node { get; set; } = null!;
 
@@ -70,37 +66,21 @@
     [Parameter]
     public string Header { get; set; } = string.Empty;
 
-    private string _headerStyle = string.Empty;
-    private string _dataPortStyle = string.Empty;
-    private string _portStyle = string.Empty;
+    [Parameter]
+    public string MainColor { get; set; } = "var(--data-display-node-color)";
 
-    protected override void OnInitialized()
+
+    private string GetPortStyle(bool dataPort)
     {
-
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        if (dataPort)
         {
-            var mainColor = string.Empty;
-            var secondaryColor = string.Empty;
-
-            (mainColor, secondaryColor) = Node.Type switch
-            {
-                NodeType.DataDisplay => ("var(--data-display-node-background)", "var(--node-color)"),
-                NodeType.FromMessage => ("var(--from-message-node-background)", "var(--node-color)"),
-                NodeType.Value => ("var(--from-message-node-background)", "var(--node-color)"),
-                NodeType.Condition => ("var(--condition-node-background)", "var(--node-color)"),
-                NodeType.SendMessage => ("var(--data-display-node-background)", "var(--node-color)"),
-                NodeType.ArrayOperation => ("var(--array-operation-node-background)", "var(--node-color)"),
-                NodeType.ArithmeticOperation => ("var(--arithmetic-operation-node-background)", "var(--node-color)"),
-                _ => ("transparent", "transparent")
-            };
-
-            _headerStyle = $"background-color: {mainColor};";
-            _dataPortStyle = $"background-color: {mainColor}; border-color: {mainColor};";
-            _portStyle = $"background-color: {secondaryColor}; border-color: {mainColor};";
+            return $"background-color: {MainColor}; border-color: {MainColor};";
+        }
+        else
+        {
+            return $"border-color: {MainColor};";
         }
     }
+
+    private string GetBackgroundStyle() => $"background-color: {MainColor};";
 }

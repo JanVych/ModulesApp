@@ -1,6 +1,8 @@
 ﻿@using MudBlazor
 
-<NodeWidget Node="Node" Header="From-Message">
+<NodeWidget Node="Node"
+            Header="From-Message"
+            MainColor="var(--from-message-node-color)">
 
     <MudSelect T="string"
                @bind-Value="Node.StringVal2"
@@ -22,6 +24,7 @@
 
 </NodeWidget>
 
-@code {
+@code
+{
     [Parameter] public FromMessageNode Node { get; set; } = null!;
 }

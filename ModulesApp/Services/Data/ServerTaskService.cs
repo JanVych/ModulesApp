@@ -7,6 +7,7 @@ using ModulesApp.Data;
 using ModulesApp.Interfaces;
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
+using ModulesApp.Models.Dasboards;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
 
@@ -14,32 +15,31 @@ namespace ModulesApp.Services.Data;
 
 public class ServerTaskService
 {
-    private readonly ServerContextService _serverContext;
     private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
 
-    public ServerTaskService(IDbContextFactory<SQLiteDb> dbContextFactory, ServerContextService serverContext)
+    public ServerTaskService(IDbContextFactory<SQLiteDb> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
-        _serverContext = serverContext;
     }
 
-    public async Task Delete(DbTask task)
+    public async Task DeleteAsync(DbTask task)
     {
         using var context = _dbContextFactory.CreateDbContext();
         context.Tasks.Remove(task);
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<DbTask>> GetListAsync()
+    public async Task<List<DbTask>> GetAllTaskaAsync()
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Tasks
             .Include(t => t.Module)
             .Include(t => t.BackgroundService)
+            .Include(t => t.DashboardEntity)
             .ToListAsync();
     }
 
-    public async Task<List<DbTask>> GetListAsync(DbModule module)
+    public async Task<List<DbTask>> GetTasksAsync(DbModule module)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Tasks
@@ -48,7 +48,7 @@ public class ServerTaskService
             .ToListAsync();
     }
 
-    public async Task<List<DbTask>> GetListAsync(DbBackgroundService service)
+    public async Task<List<DbTask>> GetTasksAsync(DbBackgroundService service)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.Tasks
@@ -57,7 +57,16 @@ public class ServerTaskService
             .ToListAsync();
     }
 
-    public async Task<List<DbTaskNode>> GetAllTaskNodes(DbTask task)
+    public async Task<List<DbTask>> GetTasksAsync(DbDashboardEntity entity)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.Tasks
+            .Where(t => t.DashboardEntityId == entity.Id)
+            .Include(t => t.DashboardEntity)
+            .ToListAsync();
+    }
+
+    public async Task<List<DbTaskNode>> GetNodesAsync(DbTask task)
     {
         using var context = _dbContextFactory.CreateDbContext();
         return await context.TaskNodes
@@ -68,11 +77,11 @@ public class ServerTaskService
             .ToListAsync();
     }
 
-    public async Task<List<DbTaskLink>> GetAllTaskLinks(long taskId)
+    public async Task<List<DbTaskLink>> GetLinksAsync(DbTask task)
     {
         using var context = _dbContextFactory.CreateDbContext();
         return await context.TaskLinks
-            .Where(l => l.Source.TaskId == taskId)
+            .Where(l => l.Source.TaskId == task.Id)
             .Include(l => l.Source)
             .Include(l => l.Target)
             .ToListAsync();
@@ -85,18 +94,15 @@ public class ServerTaskService
         await context.SaveChangesAsync();
     }
 
-    public async Task Update(DbTask task)
+    public async Task UpdateAsync(DbTask task)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-
+        using var context = await _dbContextFactory.CreateDbContextAsync();
         context.TaskNodes.RemoveRange(context.TaskNodes.Where(n => n.TaskId == task.Id));
-
         context.Tasks.Update(task);
-
         await context.SaveChangesAsync();
     }
 
-    public async Task Save(DbTask dbTask, BlazorDiagram diagram)
+    public async Task SaveDiagramAsync(DbTask task, BlazorDiagram diagram)
     {
         var nodes = diagram.Nodes;
         var links = diagram.Links;
@@ -149,15 +155,13 @@ public class ServerTaskService
                 }
             }
         }
-
-        dbTask.Nodes = dbNodes;
-        await Update(dbTask);
+        task.Nodes = dbNodes;
+        await UpdateAsync(task);
     }
 
-    public async Task ProcessNodes(IServerContext serverContext , DbTask task)
+    public async Task ExecuteTaskAsync(IServerContext serverContext , DbTask task)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var nodes = await GetAllTaskNodes(task);
+        var nodes = await GetNodesAsync(task);
 
         foreach (var node in nodes)
         {
@@ -170,44 +174,30 @@ public class ServerTaskService
         }
     }
 
-    public async Task ProcessNodes(IServerContext serverContext, DbModule module)
+    public async Task ExecuteTasksAsync(IServerContext serverContext, IEnumerable<DbTask> tasks)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var tasks  = await GetListAsync(module);
         foreach (var task in tasks)
         {
-            var nodes = await GetAllTaskNodes(task);
-
-            foreach (var node in nodes)
-            {
-                if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
-                {
-                    //node.Process(serverContext);
-                    var value = node.GetValue(null, serverContext);
-                    Console.WriteLine($"Node: {node.Order}, Value: {value}");
-                }
-            }
+            await ExecuteTaskAsync(serverContext, task);
         }
     }
 
-    public async Task ProcessNodes(DbBackgroundService service)
+    public async Task ExecuteTasksAsync(IServerContext serverContext, DbModule module)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var tasks = await GetListAsync(service);
-        foreach (var task in tasks)
-        {
-            var nodes = await GetAllTaskNodes(task);
+        var tasks  = await GetTasksAsync(module);
+        await ExecuteTasksAsync(serverContext, tasks);
+    }
 
-            foreach (var node in nodes)
-            {
-                if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
-                {
-                    //node.Process(serverContext);
-                    var value = node.GetValue(null, _serverContext);
-                    Console.WriteLine($"Node: {node.Order}, Value: {value}");
-                }
-            }
-        }
+    public async Task ExecuteTasksAsync(IServerContext serverContext, DbBackgroundService service)
+    {
+        var tasks = await GetTasksAsync(service);
+        await ExecuteTasksAsync(serverContext, tasks);
+    }
+
+    public async Task ExecuteTasksAsync(IServerContext serverContext, DbDashboardEntity entity)
+    {
+        var tasks = await GetTasksAsync(entity);
+        await ExecuteTasksAsync(serverContext, tasks);
     }
 }
 

@@ -56,6 +56,8 @@ public class Program
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 
+        app.Services.GetService<BackgroundServiceManager>();
+
         app.Run();
     }
 }

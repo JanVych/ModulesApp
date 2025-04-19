@@ -14,7 +14,6 @@ public enum NodeType
 
 public enum NodeConditionType
 {
-    None,
     Equal,
     NotEqual,
     Greater,
@@ -43,7 +42,6 @@ public static class NodeExtensions
     {
         return type switch
         {
-            NodeConditionType.None => "None",
             NodeConditionType.Equal => "==",
             NodeConditionType.NotEqual => "!=",
             NodeConditionType.Greater => ">",
@@ -58,7 +56,6 @@ public static class NodeExtensions
     {
         return type switch
         {
-            NodeConditionType.None => "None",
             NodeConditionType.Equal => "Equal",
             NodeConditionType.NotEqual => "Not Equal",
             NodeConditionType.Greater => "Greater",

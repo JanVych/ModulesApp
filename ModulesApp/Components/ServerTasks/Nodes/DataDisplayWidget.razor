@@ -1,25 +1,25 @@
 ﻿@using MudBlazor
 
-<NodeWidget Node="Node" Header="Data-Display">
+<NodeWidget Node="Node"
+            Header="Data-Display"
+            MainColor="var(--data-display-node-color)">
 
-    <MudSelect
-        T="long"
-        @bind-Value="Node.LongVal1"
-        Variant="Variant.Outlined" 
-        Label="Select card" 
-        Margin="Margin.Dense">
+    <MudSelect T="long"
+               @bind-Value="Node.LongVal1"
+               Variant="Variant.Outlined"
+               Label="Select card"
+               Margin="Margin.Dense">
         @foreach (var c in Node.Entities)
         {
             <MudSelectItem Value="@c.Id">@c.Name</MudSelectItem>
         }
     </MudSelect>
 
-    <MudTextField 
-        T="string"
-        @bind-Value="Node.StringVal1"
-        Label="Display name"
-        Variant="Variant.Outlined" 
-        Margin="Margin.Dense"/>
+    <MudTextField T="string"
+                  @bind-Value="Node.StringVal1"
+                  Label="Display name"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense" />
 
 </NodeWidget>
 

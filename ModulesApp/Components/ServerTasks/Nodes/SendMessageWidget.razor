@@ -1,7 +1,9 @@
 ﻿@using MudBlazor
 
 
-<NodeWidget Node="Node" Header="Send-Message">
+<NodeWidget Node="Node"
+            Header="Send-Message"
+            MainColor="var(--send-message-node-color)">
 
     <MudSelect T="long"
                @bind-Value="Node.LongVal1"
@@ -25,7 +27,7 @@
                Variant="Variant.Outlined"
                Label="Type"
                Margin="Margin.Dense">
-        <MudSelectItem Value="@("String")"/>
+        <MudSelectItem Value="@("String")" />
         <MudSelectItem Value="@("Number")" />
         <MudSelectItem Value="@("Boolean")" />
     </MudSelect>
@@ -36,9 +38,9 @@
                       @bind-Value="Node.StringVal3"
                       Label="Value"
                       Variant="Variant.Outlined"
-                      Margin="Margin.Dense"/>
+                      Margin="Margin.Dense" />
     }
-    else if(Node.StringVal2 == "Number")
+    else if (Node.StringVal2 == "Number")
     {
         <MudNumericField T="double"
                          @bind-Value="Node.DoubleVal1"
@@ -46,17 +48,18 @@
                          Variant="Variant.Outlined"
                          Margin="Margin.Dense" />
     }
-    else if(Node.StringVal2 == "Boolean")
+    else if (Node.StringVal2 == "Boolean")
     {
         <MudCheckBox T="bool"
                      Label="@Node.BoolVal1.ToString()"
                      @bind-value="@Node.BoolVal1"
                      Margin="Margin.Dense" />
     }
-    
+
 </NodeWidget>
 
-@code {
-    [Parameter] 
+@code
+{
+    [Parameter]
     public SendMessageNode Node { get; set; } = null!;
 }

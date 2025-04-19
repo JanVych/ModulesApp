@@ -3,7 +3,10 @@
 @using ModulesApp.Interfaces
 @using MudBlazor
 
-<NodeWidget Node="Node" BoolOutputText="false" Header="@Node.OperationType.ToString()">
+<NodeWidget Node="Node"
+            BoolOutputText="false"
+            Header="@Node.OperationType.ToString()"
+            MainColor="var(--arithmetic-operation-node-color)">
 
     @if (Node.InputType == NodeInputType.Single)
     {
@@ -16,22 +19,7 @@
 
 </NodeWidget>
 
-@code {
+@code
+{
     [Parameter] public ArithmeticOperationNode Node { get; set; } = null!;
-
-    // private string header = string.Empty;
-
-    // protected override void OnAfterRender(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         header = Node.OperationType.ToString();
-    //     }
-    // }
-
-    protected override void OnInitialized()
-    {
-
-        base.OnInitialized();
-    }
 }

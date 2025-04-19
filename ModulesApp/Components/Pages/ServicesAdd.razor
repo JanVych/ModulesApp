@@ -132,7 +132,7 @@
         if (_service is not null)
         {
             _service.Interval = TimeSpan.FromSeconds(_intervalSeconds);
-            await _backgroundServiceManager.Add(_service);
+            await _backgroundServiceManager.RegisterServiceAsync(_service);
             GoBack();
         }
     }

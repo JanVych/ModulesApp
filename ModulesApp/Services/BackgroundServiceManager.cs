@@ -1,31 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ModulesApp.Data;
-using ModulesApp.Models;
-using ModulesApp.Models.BackgroundServices;
+﻿using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Services.Data;
 
 namespace ModulesApp.Services;
 
 public class BackgroundServiceManager
 {
-    //private readonly ILogger<BackgroundServiceManager> _logger;
-    private readonly ServerTaskService _serverTaskService;
-    private readonly ActionService _actionService;
-
-    private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
-    public event Action? BackgroundServiceChangedEvent;
+    private readonly BackgroundServiceService _backgroundServiceService;
+    private readonly ServerContextService _serverContextService;
 
     private readonly List<DbBackgroundService> _backgroundServices;
     private readonly object _lock = new();
 
 
-    public BackgroundServiceManager( ServerTaskService serverTaskService, ActionService actionService, IDbContextFactory<SQLiteDb> dbContextFactory)
+    public BackgroundServiceManager(BackgroundServiceService backgroundServiceService , ServerContextService serverContextService)
     {
-        _serverTaskService = serverTaskService;
-        _actionService = actionService;
-        _dbContextFactory = dbContextFactory;   
+        _backgroundServiceService = backgroundServiceService;
+        _serverContextService = serverContextService;
 
-        _backgroundServices = GetList();
+        _backgroundServices = _backgroundServiceService.GetAll();
         Launch();
     }
 
@@ -37,17 +29,18 @@ public class BackgroundServiceManager
             {
                 if (backgroundService.Status == BackgroundServiceStatus.Running)
                 {
-                    Task.Run(() => backgroundService.StartAsync(this));
+                    Task.Run(() => backgroundService.StartAsync(_serverContextService));
                 }
                 else
                 {
                     backgroundService.Status = BackgroundServiceStatus.Stopped;
+                    _backgroundServiceService.UpdateAsync(backgroundService).Wait();
                 }
             }
         }
     }
 
-    public void Start(long serviceId)
+    public void StartAsync(long serviceId)
     {
         DbBackgroundService? service;
         lock (_lock)
@@ -56,11 +49,11 @@ public class BackgroundServiceManager
         }
         if (service is not null && service.Status == BackgroundServiceStatus.Stopped)
         {
-            Task.Run(() => service.StartAsync(this));
+            Task.Run(() => service.StartAsync(_serverContextService));
         }
     }
 
-    public async Task Stop(long serviceId)
+    public async Task StopAsync(long serviceId)
     {
         DbBackgroundService? service;
         lock (_lock)
@@ -69,62 +62,20 @@ public class BackgroundServiceManager
         }
         if (service is not null && service.Status == BackgroundServiceStatus.Running)
         {
-            await service.StopAsync(this);
+            await service.StopAsync(_serverContextService);
         }
     }
 
-    public async Task<List<DbAction>> GetActions(DbBackgroundService service)
+    public async Task RegisterServiceAsync(DbBackgroundService service)
     {
-        return await _actionService.GetListAndDeleteAsync(service);
-    }
-
-    public List<DbBackgroundService> GetList()
-    {
-        using var context = _dbContextFactory.CreateDbContext();
-        return context.BackgroundServices.ToList();
-    }
-
-    public async Task<List<DbBackgroundService>> GetListAsync()
-    {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
-        return await context.BackgroundServices.ToListAsync();
-    }
-
-    public async Task<DbBackgroundService?> GetAsync(long id)
-    {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
-        return await context.BackgroundServices
-            .Include(x => x.Actions)
-            .Include(x => x.ServerTasks)
-            .FirstOrDefaultAsync(x => x.Id == id);
-    }
-
-    public async Task UpdateFromService(DbBackgroundService service)
-    {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
-        context.BackgroundServices.Update(service);
-        await context.SaveChangesAsync();
-        BackgroundServiceChangedEvent?.Invoke();
-    }
-
-    public async Task ExecuteServerTasks(DbBackgroundService service)
-    {
-        await _serverTaskService.ProcessNodes(service);
-    }
-
-    public async Task Add(DbBackgroundService service)
-    {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
-        db.BackgroundServices.Add(service);
-        await db.SaveChangesAsync();
+        await _backgroundServiceService.AddAsync(service);
         lock (_lock)
         {
             _backgroundServices.Add(service);
         }
-        BackgroundServiceChangedEvent?.Invoke();
     }
 
-    public async Task Delete(long taskId)
+    public async Task UnregisterServiceAync(long taskId)
     {
         var service = _backgroundServices.FirstOrDefault(x => x.Id == taskId);
         if (service is not null && service.Status == BackgroundServiceStatus.Stopped)
@@ -139,14 +90,11 @@ public class BackgroundServiceManager
             {
                 _backgroundServices.Remove(service);
             }
-            using var db = await _dbContextFactory.CreateDbContextAsync();
-            db.BackgroundServices.Remove(service);
-            await db.SaveChangesAsync();
-            BackgroundServiceChangedEvent?.Invoke();
+            await _backgroundServiceService.DeleteAsync(service);
         }
     }
 
-    public async Task Update(DbBackgroundService service)
+    public async Task UpdateServiceAsync(DbBackgroundService service)
     {
         var index = -1;
         if (service.Status == BackgroundServiceStatus.Stopped)
@@ -161,9 +109,7 @@ public class BackgroundServiceManager
             }
             if (index != -1)
             {
-                using var db = await _dbContextFactory.CreateDbContextAsync();
-                db.BackgroundServices.Update(service);
-                await db.SaveChangesAsync();
+                await _backgroundServiceService.UpdateAsync(service);
             }
         }
     }

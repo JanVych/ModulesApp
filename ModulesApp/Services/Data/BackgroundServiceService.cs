@@ -8,11 +8,17 @@ public class BackgroundServiceService
 {
     private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
 
-    public event Action<DbBackgroundService>? BackgroundServiceChangedEvent;
+    public event Action? BackgroundServiceChangedEvent;
 
     public BackgroundServiceService(IDbContextFactory<SQLiteDb> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
+    }
+
+    private async Task SaveChangesAsync(SQLiteDb context)
+    {
+        await context.SaveChangesAsync();
+        BackgroundServiceChangedEvent?.Invoke();
     }
 
     public DbBackgroundService? Get(long id)
@@ -22,10 +28,45 @@ public class BackgroundServiceService
             .FirstOrDefault(x => x.Id == id);
     }
 
-    public async Task<List<DbBackgroundService>> GetListAsync()
+    public async Task<DbBackgroundService?> GetAsync(long id)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.BackgroundServices
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<List<DbBackgroundService>> GetAllAsync()
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.BackgroundServices
             .ToListAsync();
+    }
+
+    public List<DbBackgroundService> GetAll()
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        return context.BackgroundServices
+            .ToList();
+    }
+
+    public async Task AddAsync(DbBackgroundService service)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        context.BackgroundServices.Add(service);
+        await SaveChangesAsync(context);
+    }
+
+    public async Task UpdateAsync(DbBackgroundService service)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        context.BackgroundServices.Update(service);
+        await SaveChangesAsync(context);
+    }
+
+    public async Task DeleteAsync(DbBackgroundService service)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        context.BackgroundServices.Remove(service);
+        await SaveChangesAsync(context);
     }
 }

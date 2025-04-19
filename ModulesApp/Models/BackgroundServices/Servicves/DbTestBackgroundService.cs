@@ -14,7 +14,7 @@ public class DbTestBackgroundService: DbBackgroundService
         }
 
         Console.WriteLine("Test Service Test waiting 4s");
-        await Task.Delay(4000, _cancellationToken.Token);
+        await Task.Delay(4000, CancellationToken.Token);
         AddMessage("Test1", "Test");
         Console.WriteLine("Test Service Test waiting 6s, without cancellation token");
         await Task.Delay(6000);

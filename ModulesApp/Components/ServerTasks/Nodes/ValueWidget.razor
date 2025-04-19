@@ -1,6 +1,8 @@
 ﻿@using MudBlazor
 
-<NodeWidget Node="Node" Header="Value">
+<NodeWidget Node="Node"
+            Header="Value"
+            MainColor="var(--value-node-color )">
 
     <MudSelect T="string"
                @bind-Value="Node.StringVal2"
@@ -38,6 +40,7 @@
 
 </NodeWidget>
 
-@code {
+@code
+{
     [Parameter] public ValueNode Node { get; set; } = null!;
 }

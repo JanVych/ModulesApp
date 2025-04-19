@@ -13,7 +13,6 @@ public class DashboardService
     public DashboardService(IDbContextFactory<SQLiteDb> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
-
     }
 
     public void Add(DbDashboard dashboard)
@@ -61,7 +60,7 @@ public class DashboardService
 
     public void EntityDataChanged(long entityId, Dictionary<string, object> data)
     {
-        var entity = Update(entityId, data);
+        var entity = UpdateAsync(entityId, data);
         if (entity != null)
         {
             DashboardEntityDataEvent?.Invoke(entity);
@@ -76,7 +75,7 @@ public class DashboardService
         context.SaveChanges();
     }
 
-    public DbDashboardEntity? Update(long entityId, Dictionary<string, object> data)
+    public DbDashboardEntity? UpdateAsync(long entityId, Dictionary<string, object> data)
     {
         using var context = _dbContextFactory.CreateDbContext();
         var entity = context.DashboardEntities.FirstOrDefault(x => x.Id == entityId);
@@ -109,5 +108,20 @@ public class DashboardService
         using var context = _dbContextFactory.CreateDbContext();
         return context.DashboardEntities
             .ToList();
+    }
+
+    public async Task<List<DbDashboardEntity>> GetAllDashBoardEntitiesAsync()
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.DashboardEntities
+            .ToListAsync();
+    }
+
+    public DbDashboardEntity? GetDashBoardEntity(long id)
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        return context.DashboardEntities
+            .Include(x => x.Dashboard)
+            .FirstOrDefault(x => x.Id == id);
     }
 }
