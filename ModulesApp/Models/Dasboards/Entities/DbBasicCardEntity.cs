@@ -4,18 +4,8 @@ namespace ModulesApp.Models.Dasboards.Entities;
 
 public class DbBasicCardEntity: DbDashboardEntity  
 {
-    private string _title = string.Empty;
     [NotMapped]
-    public string Title
-    {
-        get => _title;
-        set
-        {
-            _title = value;
-            Data["Title"] = value;
-        }
-
-    }
+    public string Title { get; set; } = string.Empty;
 
     [NotMapped]
     public string Value { get; set; } = string.Empty;

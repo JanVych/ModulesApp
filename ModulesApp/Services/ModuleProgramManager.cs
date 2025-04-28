@@ -39,7 +39,7 @@ public class ModuleProgramManager
         var programPath = _configuration["AppSettings:ProgramPath"];
         if (string.IsNullOrEmpty(programPath))
         {
-            Console.WriteLine($"Config: AppSettings:FirmwarePath, does not exist in appsettings.json");
+            Console.WriteLine($"Config: AppSettings:ProgramPath, does not exist in appsettings.json");
             return null;
         }
         program.FirmwareId = firmware.Id;

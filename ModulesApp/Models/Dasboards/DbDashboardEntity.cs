@@ -7,8 +7,11 @@ namespace ModulesApp.Models.Dasboards;
 public enum DashboardEntityType
 {
     BasicCard,
-    DataListCard,
-    BasicSwitch,
+    DataList,
+    Switch,
+    TemperatureList,
+    Button,
+    ValueSetter,
 }
 
 [Table("DashBoardEntity")]

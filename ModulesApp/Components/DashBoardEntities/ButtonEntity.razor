@@ -5,58 +5,55 @@
 
 @if (EditMode)
 {
-    <MudPaper Class="pa-4" Style="width: 150px;">
+    <MudPaper Class="pa-4" Style="width: 200px;">
         <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
-            <MudTextField @bind-Value="@Entity.Name" Label="Name" />
-            <MudSwitch T="bool" @bind-value="@Entity.Value" Color="Color.Primary">
-                @StringValue
-            </MudSwitch>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="pa-2" Style="width: 150px;">
+                <MudTextField @bind-Value="@Entity.Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudButton>
             @if (DeleteButtonClick != null)
             {
                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                Color="Color.Error"
-                OnClick="OnDeleteButtonClick" />
+                               Color="Color.Error"
+                               OnClick="OnDeleteButtonClick" />
             }
         </MudStack>
     </MudPaper>
 }
 else
 {
-    <MudPaper Class="pa-4" Style="width: 150px;">
-        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
-            <MudText Typo="Typo.h6">@Entity?.Name</MudText>
-            <MudSwitch T="bool" Value="Entity.Value" ValueChanged="SwitchValueChanged" Color="Color.Primary">
-                @StringValue
-            </MudSwitch>
-        </MudStack>
-    </MudPaper>
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="pa-2" Style="width: 150px;"
+               Disabled="_disabled" OnClick="OnButtonClick">
+        <MudText Typo="Typo.h6">@Entity.Name</MudText>
+    </MudButton>
 }
 
 @code
 {
     [Parameter, EditorRequired]
-    public DbBasicSwitchEntity Entity { get; set; } = default!;
+    public DbButtonEntity Entity { get; set; } = default!;
     [Parameter]
     public bool EditMode { get; set; } = false;
     [Parameter]
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
 
+    private bool _disabled = false;
+
     [Parameter]
     public ServerContextService? ServerContextService { get; set; }
-
-    public string StringValue => Entity.Value ? "on" : "off";
 
     private void OnDeleteButtonClick()
     {
         DeleteButtonClick?.Invoke(Entity);
     }
 
-    private async Task SwitchValueChanged(bool value)
+    private async Task OnButtonClick()
     {
-        Entity.Value = value;
         if (ServerContextService != null)
         {
+            _disabled = true;
             await ServerContextService.DashboardEntityUserTrigger(Entity);
+            await Task.Delay(1000);
+            _disabled = false;
         }
     }
 }

@@ -31,7 +31,7 @@ public class DbDataDisplayNode : DbTaskNode
             Dictionary<string, object> data = [];
             if (Value is NodeValue.ArrayValue array)
             {
-                data["Values"] = array.ToStringList();
+                data["Column2"] = array.ToStringList();
             }
             else
             {

@@ -19,12 +19,12 @@
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardContent>
-            <MudTable T="DbDataListCardEntity.TableItem" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0" Dense="true">
+            <MudTable T="DbDataListEntity.TableItem" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0" Dense="true">
                 <RowTemplate>
                     <MudTd>
-                        <MudTextField @bind-Value="context.Title" Margin="Margin.Dense" Variant="Variant.Outlined"/>
+                        <MudTextField @bind-Value="context.Column1" Margin="Margin.Dense" Variant="Variant.Outlined"/>
                     </MudTd>
-                    <MudTd DataLabel="Value">@context.Value</MudTd>
+                    <MudTd DataLabel="Value">@context.Column2</MudTd>
                     <MudTd>
                         <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
                         OnClick="(() => Entity.TableData.Remove(context))" />
@@ -48,10 +48,10 @@ else
             </MudCardHeader>
         }
         <MudCardContent>
-            <MudTable T="DbDataListCardEntity.TableItem" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0">
+            <MudTable T="DbDataListEntity.TableItem" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0">
                 <RowTemplate>
-                    <MudTd DataLabel="Label">@context.Title</MudTd>
-                    <MudTd DataLabel="Value">@context.Value</MudTd>
+                    <MudTd DataLabel="Label">@context.Column1</MudTd>
+                    <MudTd DataLabel="Value">@context.Column2</MudTd>
                 </RowTemplate>
             </MudTable>
         </MudCardContent>
@@ -61,7 +61,7 @@ else
 @code
 {
     [Parameter, EditorRequired]
-    public DbDataListCardEntity Entity { get; set; } = default!;
+    public DbDataListEntity Entity { get; set; } = default!;
     [Parameter]
     public bool EditMode { get; set; } = false;
     [Parameter]
@@ -74,9 +74,9 @@ else
 
     private void AddNewRow()
     {
-        Entity.TableData.Add(new DbDataListCardEntity.TableItem()
+        Entity.TableData.Add(new DbDataListEntity.TableItem()
             {
-                Value = "..."
+                Column2 = "..."
             });
     }
 }

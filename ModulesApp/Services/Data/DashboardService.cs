@@ -60,7 +60,7 @@ public class DashboardService
 
     public void EntityDataChanged(long entityId, Dictionary<string, object> data)
     {
-        var entity = UpdateAsync(entityId, data);
+        var entity = UpdateFromTaskAsync(entityId, data);
         if (entity != null)
         {
             DashboardEntityDataEvent?.Invoke(entity);
@@ -75,7 +75,7 @@ public class DashboardService
         context.SaveChanges();
     }
 
-    public DbDashboardEntity? UpdateAsync(long entityId, Dictionary<string, object> data)
+    public DbDashboardEntity? UpdateFromTaskAsync(long entityId, Dictionary<string, object> data)
     {
         using var context = _dbContextFactory.CreateDbContext();
         var entity = context.DashboardEntities.FirstOrDefault(x => x.Id == entityId);

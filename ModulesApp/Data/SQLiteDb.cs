@@ -108,8 +108,11 @@ public class SQLiteDb : DbContext
         builder.Entity<DbDashboardEntity>()
             .HasDiscriminator<DashboardEntityType>(nameof(DbDashboardEntity.Type))
             .HasValue<DbBasicCardEntity>(DashboardEntityType.BasicCard)
-            .HasValue<DbDataListCardEntity>(DashboardEntityType.DataListCard)
-            .HasValue<DbBasicSwitchEntity>(DashboardEntityType.BasicSwitch);
+            .HasValue<DbDataListEntity>(DashboardEntityType.DataList)
+            .HasValue<DbSwitchEntity>(DashboardEntityType.Switch)
+            .HasValue<DbTemperaturesListEntity>(DashboardEntityType.TemperatureList)
+            .HasValue<DbButtonEntity>(DashboardEntityType.Button)
+            .HasValue<DbValueSetterEntity>(DashboardEntityType.ValueSetter);
 
         base.OnModelCreating(builder);
     }

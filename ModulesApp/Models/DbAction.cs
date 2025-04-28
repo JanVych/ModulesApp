@@ -13,11 +13,11 @@ public class DbAction
     public string Key { get; set; } = default!;
     public object Value { get; set; } = default!;
 
-    public long ModuleId { get; set; }
+    public long? ModuleId { get; set; }
     [ForeignKey("ModuleId")]
     public DbModule? Module { get; set; }
 
-    public long BackgroundServiceId { get; set; }
+    public long? BackgroundServiceId { get; set; }
     [ForeignKey("BackgroundServiceId")]
     public DbBackgroundService? BackgroundService { get; set; }
 }

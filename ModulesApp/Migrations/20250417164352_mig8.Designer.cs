@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ModulesApp.Data;
 
@@ -10,9 +11,11 @@ using ModulesApp.Data;
 namespace ModulesApp.Migrations
 {
     [DbContext(typeof(SQLiteDb))]
-    partial class SQLiteDbModelSnapshot : ModelSnapshot
+    [Migration("20250417164352_mig8")]
+    partial class mig8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.13");
@@ -107,14 +110,14 @@ namespace ModulesApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<long?>("BackgroundServiceId")
+                    b.Property<long>("BackgroundServiceId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<long?>("ModuleId")
+                    b.Property<long>("ModuleId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Value")
@@ -460,25 +463,7 @@ namespace ModulesApp.Migrations
                     b.HasDiscriminator().HasValue(0);
                 });
 
-            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbButtonEntity", b =>
-                {
-                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
-
-                    b.ToTable("DashBoardEntity");
-
-                    b.HasDiscriminator().HasValue(4);
-                });
-
-            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbDataListEntity", b =>
-                {
-                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
-
-                    b.ToTable("DashBoardEntity");
-
-                    b.HasDiscriminator().HasValue(1);
-                });
-
-            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbSwitchEntity", b =>
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbBasicSwitchEntity", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
 
@@ -487,13 +472,13 @@ namespace ModulesApp.Migrations
                     b.HasDiscriminator().HasValue(2);
                 });
 
-            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbTemperaturesListEntity", b =>
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbDataListCardEntity", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
 
                     b.ToTable("DashBoardEntity");
 
-                    b.HasDiscriminator().HasValue(3);
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbArithmeticOperationNode", b =>
@@ -574,11 +559,15 @@ namespace ModulesApp.Migrations
                 {
                     b.HasOne("ModulesApp.Models.BackgroundServices.DbBackgroundService", "BackgroundService")
                         .WithMany("Actions")
-                        .HasForeignKey("BackgroundServiceId");
+                        .HasForeignKey("BackgroundServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ModulesApp.Models.DbModule", "Module")
                         .WithMany("Actions")
-                        .HasForeignKey("ModuleId");
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BackgroundService");
 

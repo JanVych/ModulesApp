@@ -1,0 +1,62 @@
+﻿@using ModulesApp.Models.Dasboards
+@using System.Text.Json
+@using ModulesApp.Models.Dasboards.Entities
+@using ModulesApp.Services
+
+@if (EditMode)
+{
+    <MudPaper Class="pa-4" Style="width: 150px;">
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudTextField @bind-Value="@Entity.Name" Label="Name" />
+            <MudSwitch T="bool" @bind-value="@Entity.Value" Color="Color.Primary">
+                @_state
+            </MudSwitch>
+            @if (DeleteButtonClick != null)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                Color="Color.Error"
+                OnClick="OnDeleteButtonClick" />
+            }
+        </MudStack>
+    </MudPaper>
+}
+else
+{
+    <MudPaper Class="pa-4" Style="width: 150px;">
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">@Entity?.Name</MudText>
+            <MudSwitch T="bool" Value="Entity.Value" ValueChanged="SwitchValueChanged" Color="Color.Primary">
+                @_state
+            </MudSwitch>
+        </MudStack>
+    </MudPaper>
+}
+
+@code
+{
+    [Parameter, EditorRequired]
+    public DbSwitchEntity Entity { get; set; } = default!;
+    [Parameter]
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+
+    [Parameter]
+    public ServerContextService? ServerContextService { get; set; }
+
+    public string _state => Entity.Value ? "on" : "off";
+
+    private void OnDeleteButtonClick()
+    {
+        DeleteButtonClick?.Invoke(Entity);
+    }
+
+    private async Task SwitchValueChanged(bool value)
+    {
+        Entity.Value = value;
+        if (ServerContextService != null)
+        {
+            await ServerContextService.DashboardEntityUserTrigger(Entity);
+        }
+    }
+}

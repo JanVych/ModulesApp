@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using ModulesApp.Helpers;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModulesApp.Models.Dasboards.Entities;
 
-public class DbBasicSwitchEntity : DbDashboardEntity
+public class DbSwitchEntity : DbDashboardEntity
 {
     private bool _value = false;
     [NotMapped]
@@ -18,10 +19,10 @@ public class DbBasicSwitchEntity : DbDashboardEntity
 
     public override void UpdateData(Dictionary<string, object> data)
     {
-        var result = Data.TryGetValue("Value", out var v);
-        if (result && v is bool bv)
+        Data = data;
+        if( Data.TryGetValue("Value", out var v))
         {
-            Value = bv;
+            _value = DataConvertor.ToBool(v);
         }
     }
 

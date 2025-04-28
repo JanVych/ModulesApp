@@ -17,17 +17,33 @@
                     }
                 </MudSelect>
 
-                @if (Entity is DbBasicCardEntity be)
+                @if (Entity is DbBasicCardEntity bce)
                 {
-                    <BasicCardEntity EditMode="true" Entity="@be" />
+                    <BasicCardEntity EditMode="true" Entity="@bce" />
                 }
-                else if (Entity is DbDataListCardEntity de)
+                else if (Entity is DbDataListEntity dle)
                 {
-                    <DataListCardEntity EditMode="true" Entity="@de" />
+                    <DataListEntity EditMode="true" Entity="@dle" />
                 }
-                else if (Entity is DbBasicSwitchEntity se)
+                else if (Entity is DbSwitchEntity se)
                 {
-                    <BasicSwitchEntity EditMode="true" Entity="@se" />
+                    <SwitchEntity EditMode="true" Entity="@se" />
+                }
+                else if(Entity is DbTemperaturesListEntity tle)
+                {
+                    <TemperaturesListEntity EditMode="true" Entity="@tle" />
+                }
+                else if(Entity is DbButtonEntity be)
+                {
+                    <ButtonEntity EditMode="true" Entity="@be" />
+                }
+                else if (Entity is DbValueSetterEntity vse)
+                {
+                    <ValueSetterEntity EditMode="true" Entity="@vse" />
+                }
+                else
+                {
+                    <MudText>Unknown entity type</MudText>
                 }
             </MudStack>
         </div>
@@ -54,8 +70,11 @@
         EntityType = type;
         Entity = type switch
         {
-            DashboardEntityType.DataListCard => new DbDataListCardEntity(),
-            DashboardEntityType.BasicSwitch => new DbBasicSwitchEntity(),
+            DashboardEntityType.DataList => new DbDataListEntity(),
+            DashboardEntityType.Switch => new DbSwitchEntity(),
+            DashboardEntityType.TemperatureList => new DbTemperaturesListEntity(),
+            DashboardEntityType.Button => new DbButtonEntity(),
+            DashboardEntityType.ValueSetter => new DbValueSetterEntity(),
             _ => new DbBasicCardEntity()
         };
     }

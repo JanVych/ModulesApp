@@ -68,21 +68,39 @@
             <div class="d-flex align-start justify-center flex-wrap gap-8">
                 @foreach (var e in _selectedDashboard.Entities)
                 {
-                    if (e is DbBasicCardEntity be)
+                    if (e is DbBasicCardEntity bce)
                     {
-                        <BasicCardEntity EditMode="@EditMode" Entity="@be"
+                        <BasicCardEntity EditMode="@EditMode" Entity="@bce"
                                          DeleteButtonClick="DeleteDashBoardEntity" />
                     }
-                    else if (e is DbDataListCardEntity de)
+                    else if (e is DbDataListEntity dle)
                     {
-                        <DataListCardEntity EditMode="@EditMode" Entity="@de"
+                        <DataListEntity EditMode="@EditMode" Entity="@dle"
                                             DeleteButtonClick="DeleteDashBoardEntity" />
                     }
-                    else if (e is DbBasicSwitchEntity se)
+                    else if (e is DbSwitchEntity se)
                     {
-                        <BasicSwitchEntity EditMode="@EditMode" Entity="@se" 
+                        <SwitchEntity EditMode="@EditMode" Entity="@se" 
                                             DeleteButtonClick="DeleteDashBoardEntity"
                                             ServerContextService="_serverContextService"/>
+                    }
+                    else if(e is DbTemperaturesListEntity tle)
+                    {
+                        <TemperaturesListEntity EditMode="@EditMode" Entity="@tle"
+                                            DeleteButtonClick="DeleteDashBoardEntity"
+                                            ServerContextService="_serverContextService"/>
+                    }
+                    else if(e is DbButtonEntity be)
+                    {
+                        <ButtonEntity EditMode="@EditMode" Entity="@be"
+                                            DeleteButtonClick="DeleteDashBoardEntity"
+                                            ServerContextService="_serverContextService"/>
+                    }
+                    else if (e is DbValueSetterEntity vse)
+                    {
+                        <ValueSetterEntity EditMode="@EditMode" Entity="@vse"
+                                           DeleteButtonClick="DeleteDashBoardEntity"
+                                           ServerContextService="_serverContextService" />
                     }
                 }
 
@@ -177,7 +195,7 @@
 
     private void OnDashBoardEntityDataChanged(DbDashboardEntity entity)
     {
-        if (_selectedDashboard != null)
+        if (_selectedDashboard != null && !_editMode)
         {
             var index = _selectedDashboard.Entities.FindIndex(e => e.Id == entity.Id);
             if (index >= 0)

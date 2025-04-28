@@ -1,0 +1,118 @@
+﻿@using ModulesApp.Models.Dasboards
+@using System.Text.Json
+@using ModulesApp.Models.Dasboards.Entities
+@using ModulesApp.Services
+
+@if (EditMode)
+{
+    <MudCard Style="width: 350px;">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Id: @Entity.Id</MudText>
+                <MudTextField @bind-Value="@Entity.Name" Label="Name" />
+            </CardHeaderContent>
+            <CardHeaderActions>
+                @if (DeleteButtonClick != null)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                    OnClick="OnDeleteButtonClick" />
+                }
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudTable T="DbTemperaturesListEntity.TableItem" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0" Dense="true">
+                <HeaderContent>
+                    @if (Entity.Headers.Count == 3)
+                    {
+                        <MudTextField @bind-Value="Entity.Headers[0]" Margin="Margin.Dense" Label="header 1" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="Entity.Headers[1]" Margin="Margin.Dense" Label="header 2" Variant="Variant.Outlined" />
+                        <MudTextField @bind-Value="Entity.Headers[2]" Margin="Margin.Dense" Label="header 3" Variant="Variant.Outlined" />
+                    }
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="name">
+                        <MudTextField @bind-Value="context.Name" Margin="Margin.Dense" Variant="Variant.Outlined"/>
+                    </MudTd>
+                    <MudTd DataLabel="current">@context.CurrentTemp</MudTd>
+                    <MudTd DataLabel="target">@context.TargetTemp</MudTd>
+                    <MudTd>
+                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" Color="Color.Error"
+                        OnClick="(() => Entity.TableData.Remove(context))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary"
+            OnClick="AddNewRow" />
+        </MudCardContent>
+    </MudCard>
+}
+else
+{
+    <MudCard Style="width: 350px;">
+        @if (!string.IsNullOrEmpty(Entity.Name))
+        {
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4">@Entity.Name</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+        }
+        <MudCardContent>
+            <MudTable T="DbTemperaturesListEntity.TableItem" Items="@Entity.TableData" Bordered="true" Hover="true" Elevation="0">
+                <HeaderContent>
+                    @foreach (var header in Entity.Headers)
+                    {
+                        <MudTh>@header</MudTh>
+                    }
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="name">
+                        <MudText>@context.Name</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="current">
+                        <MudText>@context.CurrentTemp  °C</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="target">
+                        <MudNumericField @bind-Value="context.TargetTemp" Margin="Margin.Dense" Variant="Variant.Outlined" HideSpinButtons="true"
+                                         Adornment="Adornment.End" AdornmentText="°C" Style="width: 70px" Max="32" Min="0" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudCardContent>
+        <MudButton Color="Color.Primary" OnClick="SaveChanges" Disabled="_saveDisabled">
+            Save
+        </MudButton>
+    </MudCard>
+}
+
+@code
+{
+    [Parameter, EditorRequired]
+    public DbTemperaturesListEntity Entity { get; set; } = default!;
+    [Parameter]
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    [Parameter]
+    public ServerContextService ServerContextService { get; set; } = default!;
+
+    private bool _saveDisabled = false;
+
+    private void OnDeleteButtonClick()
+    {
+        DeleteButtonClick?.Invoke(Entity);
+    }
+
+    private async Task SaveChanges()
+    {
+        _saveDisabled = true;  
+        await ServerContextService.DashboardEntityUserTrigger(Entity);
+        await Task.Delay(1000);
+        _saveDisabled = false;
+    }
+
+    private void AddNewRow()
+    {
+        Entity.TableData.Add(new DbTemperaturesListEntity.TableItem(){});
+    }
+}

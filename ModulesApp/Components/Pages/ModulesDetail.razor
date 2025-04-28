@@ -191,7 +191,7 @@
             saveAction.Key = "SetModuleName";
             saveAction.Value = _module.Name;
             saveAction.ModuleId = _module.Id;
-            saveAction.Module = _module;
+            saveAction.BackgroundServiceId = null;
             _module.Actions.Add(saveAction);
             await _moduleService.UpdateAsync(_module);
         }

@@ -1,6 +1,7 @@
 ﻿@using ModulesApp.Models.Dasboards
 @using System.Text.Json
 @using ModulesApp.Models.Dasboards.Entities
+@using ModulesApp.Services
 
 @if (EditMode)
 {
@@ -21,42 +22,56 @@
         </MudCardHeader>
         <MudCardContent>
             <MudStack Row="false">
-                <MudTextField @bind-Value="@Entity.Title" Label="Title" />
-                <MudText Typo="Typo.h6">@Entity.Value</MudText>
+                <MudTextField @bind-Value="@Entity.Title" Label="title" />
+                <MudTextField @bind-Value="@Entity.DisplayValue" Label="current" ReadOnly="true" />
+                <MudTextField @bind-Value="@Entity.InputValue" Label="target" ReadOnly="true" />
             </MudStack>
         </MudCardContent>
     </MudCard>
 }
 else
 {
-    <MudCard Style="width: 300px; min-height: 110px">
-        @if (!string.IsNullOrEmpty(Entity.Name))
-        {
-        }
+    <MudCard Style="width: 300px;">
         <MudCardContent>
             <MudStack Row="false">
-                @if(!string.IsNullOrEmpty(Entity.Name))
+                @if (!string.IsNullOrEmpty(Entity.Name))
                 {
-                    <MudText Typo="Typo.h4" Color="Color.Primary">@Entity.Name</MudText>
+                    <MudText Typo="Typo.h4">@Entity?.Name</MudText>
                 }
-                <MudText Typo="Typo.h6" >@Entity.Title</MudText>
-                <MudText Typo="Typo.h6">@Entity.Value</MudText>
+                <MudText Typo="Typo.h6">@Entity.Title</MudText>
+                <MudTextField @bind-Value="@Entity.DisplayValue" Label="current" ReadOnly="true"/>
+                <MudTextField @bind-Value="@Entity.InputValue" Label="target" />
             </MudStack>
         </MudCardContent>
+        <MudButton Color="Color.Primary" OnClick="SaveChanges" Disabled="_saveDisabled">
+            Save
+        </MudButton>
     </MudCard>
 }
 
 @code
 {
+    private bool _saveDisabled = false;
+
     [Parameter, EditorRequired]
-    public DbBasicCardEntity Entity { get; set; } = default!;
+    public DbValueSetterEntity Entity { get; set; } = default!;
     [Parameter]
     public bool EditMode { get; set; } = false;
     [Parameter]
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    [Parameter]
+    public ServerContextService ServerContextService { get; set; } = default!;
 
     private void OnDeleteButtonClick()
     {
         DeleteButtonClick?.Invoke(Entity);
+    }
+
+    private async Task SaveChanges()
+    {
+        _saveDisabled = true;
+        await ServerContextService.DashboardEntityUserTrigger(Entity);
+        await Task.Delay(1000);
+        _saveDisabled = false;
     }
 }

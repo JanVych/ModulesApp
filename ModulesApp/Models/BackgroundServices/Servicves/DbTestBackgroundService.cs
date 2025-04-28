@@ -20,5 +20,7 @@ public class DbTestBackgroundService: DbBackgroundService
         await Task.Delay(6000);
         AddMessage("Test2", 123456789);
         AddMessage("Test3", true);
+        AddMessage("Test4", 123.456);
+        AddMessage("Test5", new List<string> { "Test1", "Test2", "Test3" });
     }
 }
