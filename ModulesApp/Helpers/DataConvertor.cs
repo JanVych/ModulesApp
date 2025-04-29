@@ -92,9 +92,20 @@ public class DataConvertor
             {
                 return false;
             }
-            if (json.ValueKind == JsonValueKind.String && bool.TryParse(json.GetString(), out var parsed))
+            else if (json.ValueKind == JsonValueKind.String && bool.TryParse(json.GetString(), out var parsed))
             {
                 return parsed;
+            }
+            else if (json.ValueKind == JsonValueKind.Number)
+            {
+                if (json.GetDouble() == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
         return false;

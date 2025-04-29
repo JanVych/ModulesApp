@@ -1,6 +1,8 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
+using ModulesApp.Helpers;
 using ModulesApp.Interfaces;
 using System.Text.Json;
+using static MudBlazor.CategoryTypes;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
@@ -61,7 +63,14 @@ public class DbFromMessageNode : DbTaskNode
 
         if (!IsValidType(Value, StringVal2))
         {
-            Value = new NodeValue.InvalidValue($"Value is not {StringVal2}, from module: {Task.ModuleId}, in node: {Order}");
+            if(StringVal2 == "number")
+            {
+                Value = new NodeValue.NumberValue(DataConvertor.ToDouble(value));
+            }
+            else
+            {
+                Value = new NodeValue.InvalidValue($"Value is not {StringVal2}, from module: {Task.ModuleId}, in node: {Order}");
+            }
         }
     }
 

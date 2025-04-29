@@ -32,6 +32,8 @@ public class BackgroundServiceService
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.BackgroundServices
+            .Include(x => x.Actions)
+            .Include(x => x.ServerTasks)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
@@ -68,5 +70,12 @@ public class BackgroundServiceService
         using var context = await _dbContextFactory.CreateDbContextAsync();
         context.BackgroundServices.Remove(service);
         await SaveChangesAsync(context);
+    }
+
+    public bool Exist(long id)
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        return context.BackgroundServices
+            .Any(x => x.Id == id);
     }
 }

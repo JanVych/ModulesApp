@@ -1,4 +1,5 @@
 ﻿using ModulesApp.Models;
+using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.Dasboards;
 using System.Text.Json;
 
@@ -6,15 +7,19 @@ namespace ModulesApp.Interfaces;
 
 public interface IServerContext
 {
-    public void SendToModule(long moduleId, string key, object value);
+    public void SendToModule(long moduleId, string key, object? value);
+    public void SendToBackgroundService(long serviceId, string key, object? value);
+    public void SendToDashboardEntity(long entityId, string key, object? value);
     public JsonElement? GetMessageFromModule(long moduleId, string messageKey);
     public JsonElement? GetMessageFromService(long serviceId, string messageKey);
     public JsonElement? GetMessageFromDashBoardEntity(long entityId, string messageKey);
 
-    public void DisplayValue(long dashboardEntityId, Dictionary<string, object> data);
-
     public List<DbModule> GetAllModules();
+    public Task<List<DbModule>> GetAllModulesAsync();
     public List<DbDashboardEntity> GetAllDashBoardEntities();
+    public Task<List<DbDashboardEntity>> GetAllDashBoardEntitiesAsync();
+    public List<DbBackgroundService> GetAllBackgroundServices();
+    public Task<List<DbBackgroundService>> GetAllBackgroundServicesAsync();
 }
 
 //public class FakeContext : IServerContext

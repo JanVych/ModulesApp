@@ -50,9 +50,9 @@
     <MudItem xs="12" md="10" Class="pl-4">
         @if (_selectedTask != null)
         {
-            <MudPaper Class="pa-4 mb-2">
+            <MudPaper Class="pa-4">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                    <MudText Typo="Typo.h5">
+                     <MudText Typo="Typo.h5">
                         @_selectedTask.Name
                     </MudText>
                     <MudStack Row="true">
@@ -64,9 +64,9 @@
 
                 <MudStack Row="true" Wrap="Wrap.Wrap">
                     <MudTextField @bind-Value="_selectedTask.Name" Variant="Variant.Text" />
-                    <MudSelect @bind-Value="_selectedTask.TargetType">
+                    <MudSelect @bind-Value="_selectedTask.TriggerSourceType">
 
-                        @foreach (TriggerSourceType type in Enum.GetValues(typeof(TriggerSourceType)))
+                        @foreach (TargetType type in Enum.GetValues(typeof(TargetType)))
                         {
                             <MudSelectItem Value="type"></MudSelectItem>
                         }
@@ -77,7 +77,7 @@
                             <MudSelectItem Value="type"></MudSelectItem>
                         }
                     </MudSelect>
-                    @if (_selectedTask.TargetType == TriggerSourceType.BackgroundService)
+                    @if (_selectedTask.TriggerSourceType == TargetType.Service)
                     {
                         <MudSelect @bind-Value="_selectedTask.BackgroundService">
                             @foreach (var service in _services)
@@ -86,7 +86,7 @@
                             }
                         </MudSelect>
                     }
-                    else if (_selectedTask.TargetType == TriggerSourceType.Module)
+                    else if (_selectedTask.TriggerSourceType == TargetType.Module)
                     {
                         <MudSelect @bind-Value="_selectedTask.Module">
                             @foreach (var module in _modules)
@@ -95,7 +95,7 @@
                             }
                         </MudSelect>
                     }
-                    else if (_selectedTask.TargetType == TriggerSourceType.DashboardEntity)
+                    else if (_selectedTask.TriggerSourceType == TargetType.DashboardEntity)
                     {
                         <MudSelect @bind-Value="_selectedTask.DashboardEntity">
                             @foreach (var entity in _entities)
@@ -104,7 +104,6 @@
                             }
                         </MudSelect>
                     }
-                    
                 </MudStack>
             </MudPaper>
         }
@@ -143,22 +142,6 @@
                                 @condition.ToLongString()
                             </MudMenuItem>
                         }
-
-                    </MudMenu>
-
-                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                             Label="@_selectedConditionInputType.ToString()"
-                             Class="custom-menu-label custom-menu-icon"
-                             Style="background-color: var(--condition-node-color);">
-
-                        <MudMenuItem Style="background-color: var(--condition-node-color); color: var(--node-background-color);"
-                                     @onclick="() => ChangeInputType(NodeInputType.Double)">
-                            Double
-                        </MudMenuItem>
-                        <MudMenuItem Style="background-color: var(--condition-node-color); color: var(--node-background-color);"
-                                     @onclick="() => ChangeInputType(NodeInputType.Single)">
-                            Single
-                        </MudMenuItem>
 
                     </MudMenu>
                 </MudButtonGroup>
@@ -216,22 +199,6 @@
                             </MudMenuItem>
                         }
                     </MudMenu>
-
-                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                             Label="@_selectedOperationInputType.ToString()"
-                             Class="custom-menu-label custom-menu-icon"
-                             Style="background-color: var(--arithmetic-operation-node-color);">
-
-                        <MudMenuItem Style="background-color: var(--arithmetic-operation-node-color); color: var(--node-background-color);"
-                                     @onclick="() => _selectedOperationInputType = NodeInputType.Double">
-                            Double
-                        </MudMenuItem>
-                        <MudMenuItem Style="background-color: var(--arithmetic-operation-node-color); color: var(--node-background-color);"
-                                     @onclick="() => _selectedOperationInputType = NodeInputType.Single">
-                            Single
-                        </MudMenuItem>
-
-                    </MudMenu>
                 </MudButtonGroup>
             </MudStack>
         </MudPaper>
@@ -267,8 +234,8 @@
 <style>
     .diagram-container {
         width: 100%;
-        height: 70vh;
-/*         border: 2px solid var(--mud-palette-drawer-text); */
+        height: 64vh;
+        /*         border: 2px solid var(--mud-palette-drawer-text); */
     }
 
     .custom-menu-icon .mud-icon-root {
@@ -292,11 +259,9 @@
     private BlazorDiagram? _currentDiagram;
 
     private NodeConditionType _selectedCondition = NodeConditionType.Equal;
-    private NodeInputType _selectedConditionInputType = NodeInputType.Single;
     private NodeArrayOperationType _selectedOperation = NodeArrayOperationType.ArraySlice;
 
     private NodeArithmeticOperationType _selectedArithmeticOperation = NodeArithmeticOperationType.Add;
-    private NodeInputType _selectedOperationInputType = NodeInputType.Single;
 
     private List<DbModule> _modules = [];
     private List<DbBackgroundService> _services = [];
@@ -339,7 +304,6 @@
 
             await ChangeSelectedTask(_tasks?.FirstOrDefault());
             // _tasksLoading = false;
-
             StateHasChanged();
         }
     }
@@ -388,7 +352,7 @@
     {
         if (_selectedTask != null && _currentDiagram != null)
         {
-            if (_selectedTask.TargetType == TriggerSourceType.Module)
+            if (_selectedTask.TriggerSourceType == TargetType.Module)
             {
                 _selectedTask.BackgroundServiceId = null;
                 _selectedTask.BackgroundService = null;
@@ -396,29 +360,29 @@
                 _selectedTask.DashboardEntity = null;
 
             }
-            else if (_selectedTask.TargetType == TriggerSourceType.BackgroundService)
+            else if (_selectedTask.TriggerSourceType == TargetType.Service)
             {
                 _selectedTask.ModuleId = null;
                 _selectedTask.Module = null;
                 _selectedTask.DashboardEntityId = null;
                 _selectedTask.DashboardEntity = null;
             }
-            else if (_selectedTask.TargetType == TriggerSourceType.DashboardEntity)
+            else if (_selectedTask.TriggerSourceType == TargetType.DashboardEntity)
             {
                 _selectedTask.ModuleId = null;
                 _selectedTask.Module = null;
                 _selectedTask.BackgroundServiceId = null;
                 _selectedTask.BackgroundService = null;
             }
-            else if (_selectedTask.TargetType == TriggerSourceType.None)
-            {
-                _selectedTask.ModuleId = null;
-                _selectedTask.Module = null;
-                _selectedTask.BackgroundServiceId = null;
-                _selectedTask.BackgroundService = null;
-                _selectedTask.DashboardEntityId = null;
-                _selectedTask.DashboardEntity = null;
-            }
+            // else if (_selectedTask.TriggerSourceType == TargetType.None)
+            // {
+            //     _selectedTask.ModuleId = null;
+            //     _selectedTask.Module = null;
+            //     _selectedTask.BackgroundServiceId = null;
+            //     _selectedTask.BackgroundService = null;
+            //     _selectedTask.DashboardEntityId = null;
+            //     _selectedTask.DashboardEntity = null;
+            // }
             await _serverTaskService.SaveDiagramAsync(_selectedTask, _currentDiagram);
         }
     }
@@ -444,17 +408,6 @@
         _selectedOperation = condition;
     }
 
-
-    private void ChangeInputType(NodeInputType type)
-    {
-        _selectedConditionInputType = type;
-    }
-
-    private void ChangeAritmeticOperationInputType(NodeInputType type)
-    {
-        _selectedOperationInputType = type;
-    }
-
     private void AddNode(NodeType type)
     {
         if (_currentDiagram?.Container != null)
@@ -473,7 +426,7 @@
 
             if (type == NodeType.Condition)
             {
-                _currentDiagram.Nodes.Add(new ConditionNode(_serverContextService, _selectedCondition, point, input: _selectedConditionInputType) { Order = smallestOrder });
+                _currentDiagram.Nodes.Add(new ConditionNode(_serverContextService, _selectedCondition, point) { Order = smallestOrder });
             }
             else if (type == NodeType.FromMessage)
             {
@@ -497,7 +450,7 @@
             }
             else if (type == NodeType.ArithmeticOperation)
             {
-                _currentDiagram.Nodes.Add(new ArithmeticOperationNode(_serverContextService, _selectedArithmeticOperation, point, input: _selectedOperationInputType) { Order = smallestOrder });
+                _currentDiagram.Nodes.Add(new ArithmeticOperationNode(_serverContextService, _selectedArithmeticOperation, point) { Order = smallestOrder });
             }
         }
     }

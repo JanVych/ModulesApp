@@ -13,16 +13,19 @@ public class DbValueSetterEntity: DbDashboardEntity
 
     public override void UpdateData(Dictionary<string, object> data)
     {
-        Data = data;
-        DisplayValue = Data.TryGetValue("Value", out var vv) == true ? vv?.ToString() ?? "" : "";
-        InputValue = Data.TryGetValue("InputValue", out var iv) == true ? iv?.ToString() ?? "" : "";
-        Title = Data.TryGetValue("Title", out var title) == true ? title?.ToString() ?? "" : "";
+        foreach (var (key, value) in data)
+        {
+            Data[key] = value;
+        }
+        DisplayValue = Data.TryGetValue("Value", out var vv) == true ? vv?.ToString() ?? "" : DisplayValue;
+        InputValue = Data.TryGetValue("InputValue", out var iv) == true ? iv?.ToString() ?? "" : InputValue;
+        Title = Data.TryGetValue("Title", out var title) == true ? title?.ToString() ?? "" : Title;
     }
 
     public override void SaveData()
     {
         Data["InputValue"] = InputValue;
-        Data["DisplayValue"] = DisplayValue;
+        Data["Value"] = DisplayValue;
         Data["Title"] = Title;
     }
 }

@@ -14,11 +14,30 @@ public class DataDisplayNode : TaskNode
         Type = NodeType.DataDisplay;
         Entities = context.GetAllDashBoardEntities();
         LongVal1 = Entities.FirstOrDefault()?.Id ?? 0;
-        AddPort(new TaskPort(this, true, 0, data: true));
+        AddPorts(NodeInputType.Single);
     }
+
     public DataDisplayNode(IServerContext context, DbTaskNode dbNode) : base(context, dbNode)
     {
-        AddPort(new TaskPort(this, true, 0, data: true));
+        AddPorts(InputType);
         Entities = context.GetAllDashBoardEntities();
+    }
+
+    public void AddPorts(NodeInputType type)
+    {
+        InputType = type;
+        RemoveAllInputPorts();
+        if (type == NodeInputType.Single)
+        {
+            //Trigger and data port
+            AddPort(new TaskPort(this, true, 0, data: true));
+        }
+        else
+        {
+            //Trigger port
+            AddPort(new TaskPort(this, true, 1, data: false));
+            //Data port
+            AddPort(new TaskPort(this, true, 2, data: true));
+        }
     }
 }

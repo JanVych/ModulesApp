@@ -48,7 +48,7 @@ public class ModuleProgramManager
         program.Path = Path.Combine(programPath, program.Id.ToString());
         await Task.Run(() => CopyAllFromDirectory(firmware.NormalizedPath, program.Path));
 
-        var programFilesPath = Path.Combine(program.Path, "components\\program");
+        var programFilesPath = Path.Combine(program.Path, "components","program");
         foreach (var f in Directory.GetFiles(programFilesPath))
         {
             program.Files.Add(new()

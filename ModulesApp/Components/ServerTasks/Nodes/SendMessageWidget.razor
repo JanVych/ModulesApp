@@ -1,60 +1,71 @@
-﻿@using MudBlazor
-
+﻿@using ModulesApp.Interfaces
+@using ModulesApp.Models.ServerTasks
+@using MudBlazor
 
 <NodeWidget Node="Node"
             Header="Send-Message"
             MainColor="var(--send-message-node-color)">
 
     <MudSelect T="long"
-               @bind-Value="Node.LongVal1"
+               ValueChanged="OnTypeChanged"
+               Value="@Node.LongVal2"
                Variant="Variant.Outlined"
-               Label="Module"
+               Label="Target"
                Margin="Margin.Dense">
-        @foreach (var m in Node.Modules)
+        @foreach (TargetType targetType in Enum.GetValues(typeof(TargetType)))
         {
-            <MudSelectItem Value="@m.Id">@m.Name</MudSelectItem>
+            <MudSelectItem Value="@ToLong(targetType)">@targetType</MudSelectItem>
         }
     </MudSelect>
+
+    @if (Node.LongVal2 == (long)TargetType.Module && Node.Modules != null)
+    {
+        <MudSelect T="long"
+                   @bind-Value="Node.LongVal1"
+                   Variant="Variant.Outlined"
+                   Label="Module"
+                   Margin="Margin.Dense">
+            @foreach (var m in Node.Modules)
+            {
+                <MudSelectItem Value="@m.Id">@m.Name</MudSelectItem>
+            }
+        </MudSelect>
+    }
+    else if (Node.LongVal2 == (long)TargetType.Service && Node.Services != null)
+    {
+        <MudSelect T="long"
+                   @bind-Value="Node.LongVal1"
+                   Variant="Variant.Outlined"
+                   Label="Service"
+                   Margin="Margin.Dense">
+            @foreach (var u in Node.Services)
+            {
+                <MudSelectItem Value="@u.Id">@u.Name</MudSelectItem>
+            }
+        </MudSelect>
+    }
+    else if (Node.LongVal2 == (long)TargetType.DashboardEntity && Node.Entities != null)
+    {
+        <MudSelect T="long"
+                   @bind-Value="Node.LongVal1"
+                   Variant="Variant.Outlined"
+                   Label="Entity"
+                   Margin="Margin.Dense">
+            @foreach (var e in Node.Entities)
+            {
+                <MudSelectItem Value="@e.Id">@e.Name | @e.Id</MudSelectItem>
+            }
+        </MudSelect>
+    }
 
     <MudTextField T="string"
                   @bind-Value="Node.StringVal1"
                   Label="Key"
                   Variant="Variant.Outlined"
                   Margin="Margin.Dense" />
-
-    <MudSelect T="string"
-               @bind-Value="Node.StringVal2"
-               Variant="Variant.Outlined"
-               Label="Type"
-               Margin="Margin.Dense">
-        <MudSelectItem Value="@("String")" />
-        <MudSelectItem Value="@("Number")" />
-        <MudSelectItem Value="@("Boolean")" />
-    </MudSelect>
-
-    @if (Node.StringVal2 == "String")
-    {
-        <MudTextField T="string"
-                      @bind-Value="Node.StringVal3"
-                      Label="Value"
-                      Variant="Variant.Outlined"
-                      Margin="Margin.Dense" />
-    }
-    else if (Node.StringVal2 == "Number")
-    {
-        <MudNumericField T="double"
-                         @bind-Value="Node.DoubleVal1"
-                         Label="Value"
-                         Variant="Variant.Outlined"
-                         Margin="Margin.Dense" />
-    }
-    else if (Node.StringVal2 == "Boolean")
-    {
-        <MudCheckBox T="bool"
-                     Label="@Node.BoolVal1.ToString()"
-                     @bind-value="@Node.BoolVal1"
-                     Margin="Margin.Dense" />
-    }
+    <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="ToBool(Node.InputType)">
+        @Node.InputType input
+    </MudSwitch>
 
 </NodeWidget>
 
@@ -62,4 +73,43 @@
 {
     [Parameter]
     public SendMessageNode Node { get; set; } = null!;
+
+    private async Task OnTypeChanged(long type)
+    {
+        if (type == (long)TargetType.Module)
+        {
+            Node.Modules ??= await Node._context.GetAllModulesAsync();
+            Node.LongVal1 = Node.Modules.FirstOrDefault()?.Id ?? 0;
+        }
+        else if (type == (long)TargetType.Service)
+        {
+            Node.Services ??= await Node._context.GetAllBackgroundServicesAsync();
+            Node.LongVal1 = Node.Services.FirstOrDefault()?.Id ?? 0;
+        }
+        else if (type == (long)TargetType.DashboardEntity)
+        {
+            Node.Entities ??= await Node._context.GetAllDashBoardEntitiesAsync();
+            Node.LongVal1 = Node.Entities.FirstOrDefault()?.Id ?? 0;
+        }
+        Node.LongVal2 = type;
+    }
+
+    private long ToLong(TargetType value)
+    {
+        return (long)value;
+    }
+
+    private void SwitchInputType(bool inputType)
+    {
+        if (inputType)
+        {
+            Node.AddPorts(NodeInputType.Double);
+        }
+        else
+        {
+            Node.AddPorts(NodeInputType.Single);
+        }
+    }
+
+    private bool ToBool(NodeInputType type) => type == NodeInputType.Double;
 }

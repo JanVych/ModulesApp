@@ -8,13 +8,12 @@ namespace ModulesApp.Components.ServerTasks.Nodes;
 public class ConditionNode : TaskNode
 {
     public NodeConditionType ConditionType => (NodeConditionType)SubType;
-    public ConditionNode(IServerContext context, NodeConditionType condition, Point? position = null, NodeInputType input = NodeInputType.Single)
+    public ConditionNode(IServerContext context, NodeConditionType condition, Point? position = null)
         : base(context, position)
     {
         Type = NodeType.Condition;
         SubType = (int)condition;
-        InputType = input;
-        AddPorts(input);
+        AddPorts(NodeInputType.Single);
 
     }
 
@@ -25,12 +24,17 @@ public class ConditionNode : TaskNode
 
     private void AddPorts(NodeInputType input)
     {
+        AddInputPorts(input);
         //Output data port True
         AddPort(new TaskPort(this, false, 1, data: true));
         //Output data port False
         AddPort(new TaskPort(this, false, 2, data: true));
+    }
 
-        //Input secondary port
+    public void AddInputPorts(NodeInputType input)
+    {
+        InputType = input;
+        RemoveAllInputPorts();
         if (input == NodeInputType.Double)
         {
             AddPort(new TaskPort(this, true, 1, data: true));

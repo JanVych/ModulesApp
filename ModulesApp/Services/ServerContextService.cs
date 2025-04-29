@@ -4,6 +4,7 @@ using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.Dasboards;
 using ModulesApp.Services.Data;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModulesApp.Services;
 
@@ -25,14 +26,24 @@ public class ServerContextService : IServerContext
         _serverTaskService = serverTaskService;
     }
 
-    public void DisplayValue(long dashboardEntityId, Dictionary<string, object> data)
-    {
-        _dashboardService.EntityDataChanged(dashboardEntityId, data);
-    }
-
     public List<DbDashboardEntity> GetAllDashBoardEntities()
     {
         return _dashboardService.GetAllDashBoardEntities();
+    }
+
+    public async Task<List<DbDashboardEntity>> GetAllDashBoardEntitiesAsync()
+    {
+        return await _dashboardService.GetAllDashBoardEntitiesAsync();
+    }
+
+    public List<DbBackgroundService> GetAllBackgroundServices()
+    {
+        return _backgroundServiceService.GetAll();
+    }
+
+    public async Task<List<DbBackgroundService>> GetAllBackgroundServicesAsync()
+    {
+        return await _backgroundServiceService.GetAllAsync();
     }
 
     public List<DbModule> GetAllModules()
@@ -93,9 +104,9 @@ public class ServerContextService : IServerContext
         return null;
     }
 
-    public void SendToModule(long moduleId, string key, object value)
+    public void SendToModule(long moduleId, string key, object? value)
     {
-        if (_modulesService.IsRegistrated(moduleId))
+        if (_modulesService.Exist(moduleId))
         {
             var action = new DbAction
             {
@@ -105,6 +116,27 @@ public class ServerContextService : IServerContext
             };
             _moduleActionService.Add(action);
         }
+    }
+
+    public void SendToBackgroundService(long serviceId, string key, object? value)
+    {
+        if (_backgroundServiceService.Exist(serviceId))
+        {
+            var action = new DbAction
+            {
+                BackgroundServiceId = serviceId,
+                Key = key,
+                Value = value
+            };
+            _moduleActionService.Add(action);
+        }
+    }
+
+    public void SendToDashboardEntity(long entityId, string key, object? value)
+    {
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(value));
+        var element = document.RootElement.Clone();
+        _dashboardService.EntityDataChanged(entityId, new Dictionary<string, object> { { key, element } });
     }
 
     public async Task DashboardEntityUserTrigger(DbDashboardEntity entity)

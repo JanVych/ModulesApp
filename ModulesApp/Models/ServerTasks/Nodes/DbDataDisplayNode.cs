@@ -24,22 +24,22 @@ public class DbDataDisplayNode : DbTaskNode
 
     public override void Process(IServerContext context)
     {
-        Value = TargetLinks.FirstOrDefault(l => l.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no input");
-
+        NodeValue conditional;
+        if (InputType == NodeInputType.Double)
+        {
+            conditional = TargetLinks.FirstOrDefault(n => !n.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order},had no input");
+            if (conditional.Type == NodeValueType.Invalid)
+            {
+                Value = conditional;
+            }
+        }
         if (Value.Type != NodeValueType.Invalid)
         {
-            Dictionary<string, object> data = [];
-            if (Value is NodeValue.ArrayValue array)
+            Value = TargetLinks.FirstOrDefault(l => l.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no input");
+            if (Value.Type != NodeValueType.Invalid)
             {
-                data["Column2"] = array.ToStringList();
+                context.SendToDashboardEntity(LongVal1, "Value", Value.GetValue());
             }
-            else
-            {
-                data["Title"] = StringVal1;
-                data["Value"] = Value.ToString() ?? string.Empty;
-            }
-            
-            context.DisplayValue(LongVal1, data);
         }
         else
         {

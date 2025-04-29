@@ -1,28 +1,43 @@
-﻿@using MudBlazor
+﻿@using ModulesApp.Interfaces
+@using MudBlazor
 
 <NodeWidget Node="Node"
             Header="Data-Display"
             MainColor="var(--data-display-node-color)">
 
     <MudSelect T="long"
+               Style="min-width:175px"
                @bind-Value="Node.LongVal1"
                Variant="Variant.Outlined"
                Label="Select card"
                Margin="Margin.Dense">
-        @foreach (var c in Node.Entities)
+        @foreach (var e in Node.Entities)
         {
-            <MudSelectItem Value="@c.Id">@c.Name</MudSelectItem>
+            <MudSelectItem Value="@e.Id">@e.Name | @e.Id</MudSelectItem>
         }
     </MudSelect>
 
-    <MudTextField T="string"
-                  @bind-Value="Node.StringVal1"
-                  Label="Display name"
-                  Variant="Variant.Outlined"
-                  Margin="Margin.Dense" />
+    <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="ToBool(Node.InputType) ">
+        @Node.InputType input
+    </MudSwitch>
 
 </NodeWidget>
 
-@code {
+@code 
+{
     [Parameter] public DataDisplayNode Node { get; set; } = null!;
+
+    private void SwitchInputType(bool inputType)
+    {
+        if (inputType)
+        {
+            Node.AddPorts(NodeInputType.Double);
+        }
+        else
+        {
+            Node.AddPorts(NodeInputType.Single);
+        }
+    }
+
+    private bool ToBool(NodeInputType type) => type == NodeInputType.Double;
 }

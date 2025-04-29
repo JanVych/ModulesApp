@@ -56,4 +56,12 @@ public class TaskPort : PortModel
     //        }
     //    }
     //}
+
+    public void RemoveAllLinks()
+    {
+        foreach (var link in Links.ToList())
+        {
+            link.Diagram?.Links.Remove(link);
+        }
+    }
 }

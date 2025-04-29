@@ -2,7 +2,6 @@
 
 public enum NodeType
 {
-    None,
     Condition,
     FromMessage,
     DataDisplay,
@@ -70,21 +69,12 @@ public static class NodeExtensions
     {
         return type switch
         {
-            NodeArrayOperationType.ArraySlice => "Array Slice",
-            NodeArrayOperationType.ArrayRemoveAt => "Array Remove At",
+            NodeArrayOperationType.ArraySlice => "Slice",
+            NodeArrayOperationType.ArrayRemoveAt => "Remove At",
             _ => type.ToString()
         };
     }
 }
-
-//public enum NodeOperationType
-//{
-//    None,
-//    Add,
-//    Subtract,
-//    Multiply,
-//    Divide
-//}
 
 public enum NodeInputType
 {
@@ -106,6 +96,7 @@ public interface IDbNode
     public double DoubleVal1 { get; set; }
     public long LongVal1 { get; set; }
     public long LongVal2 { get; set; }
+    public long LongVal3 { get; set; }
     public bool BoolVal1 { get; set; }
 
     public int Order { get; set; }

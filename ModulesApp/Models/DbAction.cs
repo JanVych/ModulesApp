@@ -11,7 +11,7 @@ public class DbAction
     public long Id { get; set; }
 
     public string Key { get; set; } = default!;
-    public object Value { get; set; } = default!;
+    public object? Value { get; set; } = default!;
 
     public long? ModuleId { get; set; }
     [ForeignKey("ModuleId")]

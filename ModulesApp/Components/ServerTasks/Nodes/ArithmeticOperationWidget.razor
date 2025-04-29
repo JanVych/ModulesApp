@@ -16,10 +16,26 @@
                          Margin="Margin.Dense"
                          Immediate="true" />
     }
-
+    <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="ToBool(Node.InputType)">
+        @Node.InputType input
+    </MudSwitch>
 </NodeWidget>
 
 @code
 {
     [Parameter] public ArithmeticOperationNode Node { get; set; } = null!;
+
+    private void SwitchInputType(bool inputType)
+    {
+        if (inputType)
+        {
+            Node.AddInputPorts(NodeInputType.Double);
+        }
+        else
+        {
+            Node.AddInputPorts(NodeInputType.Single);
+        }
+    }
+
+    private bool ToBool(NodeInputType type) => type == NodeInputType.Double;
 }

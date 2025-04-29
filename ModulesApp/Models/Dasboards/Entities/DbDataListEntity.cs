@@ -22,7 +22,7 @@ public class DbDataListEntity : DbDashboardEntity
         }
         if (Data.TryGetValue("Column1", out var titles))
         {
-            Data.TryGetValue("Column2", out var values);
+            Data.TryGetValue("Value", out var values);
             var titlesList = DataConvertor.ToList<string>(titles);
             var valuesList = DataConvertor.ToList<string>(values);
 
@@ -39,6 +39,6 @@ public class DbDataListEntity : DbDashboardEntity
     public override void SaveData()
     {
         Data["Column1"] = TableData.Select(i => i.Column1).ToList();
-        Data["Column2"] = TableData.Select(i => i.Column2).ToList();
+        Data["Value"] = TableData.Select(i => i.Column2).ToList();
     }
 }

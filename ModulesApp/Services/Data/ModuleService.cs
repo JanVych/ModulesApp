@@ -94,7 +94,7 @@ public class ModuleService
         return context.Modules.Any(x => x.Id == id && x.Key == key);
     }
 
-    public bool IsRegistrated(long id)
+    public bool Exist(long id)
     {
         using var context = _dbContextFactory.CreateDbContext();
         return context.Modules.Any(x => x.Id == id);

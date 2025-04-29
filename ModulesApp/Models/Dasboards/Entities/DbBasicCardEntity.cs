@@ -12,9 +12,12 @@ public class DbBasicCardEntity: DbDashboardEntity
 
     public override void UpdateData(Dictionary<string, object> data)
     {
-        Data = data;
-        Title = Data.TryGetValue("Title", out var tv) == true ? tv?.ToString() ?? "" : "";
-        Value = Data.TryGetValue("Value", out var vv) == true ? vv?.ToString() ?? "" : "";
+        foreach (var (key, value) in data)
+        {
+            Data[key] = value;
+        }
+        Title = Data.TryGetValue("Title", out var tv) == true ? tv?.ToString() ?? "" : Title;
+        Value = Data.TryGetValue("Value", out var vv) == true ? vv?.ToString() ?? "" : Value;
     }
 
     public override void SaveData()

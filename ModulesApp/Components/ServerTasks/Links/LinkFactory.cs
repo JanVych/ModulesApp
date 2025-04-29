@@ -21,10 +21,9 @@ public class LinkFactory
 
     public static LinkModel CustomLinkFactory(Diagram diagram, ILinkable source, Anchor targetAnchor)
     {
-        Console.WriteLine(targetAnchor);
         Anchor source2;
         string color;
-        int widht = 1;
+        int widht = 2;
 
         if (source is not TaskPort port2)
         {

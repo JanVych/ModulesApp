@@ -24,34 +24,42 @@ public class DbSendMessageNode : DbTaskNode
 
     public override void Process(IServerContext context)
     {
-        Value = TargetLinks.FirstOrDefault()?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order},had no input");
-        if (Value.Type != NodeValueType.Invalid)
+        NodeValue conditional;
+        if (InputType == NodeInputType.Double)
         {
-            if (StringVal2 == "String")
+            conditional = TargetLinks.FirstOrDefault(n => !n.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order},had no input");
+            if (conditional.Type == NodeValueType.Invalid)
             {
-                Value = new NodeValue.StringValue(StringVal3);
-                context.SendToModule(LongVal1, StringVal1, StringVal3);
-            }
-            else if (StringVal2 == "Number")
-            {
-                Value = new NodeValue.NumberValue(DoubleVal1);
-                context.SendToModule(LongVal1, StringVal1, DoubleVal1);
-            }
-            else if (StringVal2 == "Boolean")
-            {
-                Value = new NodeValue.BooleanValue(BoolVal1);
-                context.SendToModule(LongVal1, StringVal1, BoolVal1);
-            }
-            else
-            {
-                Value = new NodeValue.InvalidValue($"Invalid type: {StringVal2}, in node: {Order}");
+                Value = conditional;
             }
         }
+        if (Value.Type != NodeValueType.Invalid)
+        {
+            Value = TargetLinks.FirstOrDefault(n => n.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order},had no data input");
+            if (Value.Type != NodeValueType.Invalid)
+            {
+                if (LongVal2 == (long)TargetType.Module)
+                {
+                    context.SendToModule(LongVal1, StringVal1, Value.GetValue());
+                }
+                else if (LongVal2 == (long)TargetType.Service)
+                {
+                    context.SendToBackgroundService(LongVal1, StringVal1, Value.GetValue());
+                }
+                else if (LongVal2 == (long)TargetType.DashboardEntity)
+                {
+                    context.SendToDashboardEntity(LongVal1, StringVal1, Value.GetValue());
+                }
+                else
+                {
+                    Value = new NodeValue.InvalidValue($"Invalid type: {(TargetType)LongVal2}, in node: {Order}");
+                }
+            }
+        }
+
         if (Value.Type == NodeValueType.Invalid)
         {
             Console.WriteLine(Value.ToString());
         }
-
-        //Debug.WriteLine($"GetValue SendMessage: {Value.Type}, value: {Value}, key: {StringVal1}");
     }
 }

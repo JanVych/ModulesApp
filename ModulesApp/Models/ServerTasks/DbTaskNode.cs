@@ -11,7 +11,7 @@ public class DbTaskNode : IDbNode
     [Key]
     public long Id { get; set; }
 
-    public NodeType Type { get; set; } = NodeType.None;
+    public NodeType Type { get; set; }
     public int SubType { get; set; }
     public NodeInputType InputType { get; set; } = NodeInputType.None;
 
@@ -21,6 +21,7 @@ public class DbTaskNode : IDbNode
     public double DoubleVal1 { get; set; }
     public long LongVal1 { get; set; }
     public long LongVal2 { get; set; }
+    public long LongVal3 { get; set; } = 0;
     public bool BoolVal1 { get; set; }
 
     public double PositionX { get; set; } = 0;
@@ -52,6 +53,7 @@ public class DbTaskNode : IDbNode
         DoubleVal1 = node.DoubleVal1;
         LongVal1 = node.LongVal1;
         LongVal2 = node.LongVal2;
+        LongVal3 = node.LongVal3;
         BoolVal1 = node.BoolVal1;
 
         PositionX = node.PositionX;

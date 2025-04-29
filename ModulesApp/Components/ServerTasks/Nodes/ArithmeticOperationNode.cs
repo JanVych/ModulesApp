@@ -9,13 +9,12 @@ public class ArithmeticOperationNode : TaskNode
 {
     public NodeArithmeticOperationType OperationType => (NodeArithmeticOperationType)SubType;
 
-    public ArithmeticOperationNode(IServerContext context, NodeArithmeticOperationType operationType, Point? position = null, NodeInputType input = NodeInputType.Single)
+    public ArithmeticOperationNode(IServerContext context, NodeArithmeticOperationType operationType, Point? position = null)
         : base(context, position)
     {
         Type = NodeType.ArithmeticOperation;
         SubType = (int)operationType;
-        InputType = input;
-        AddPorts(InputType);
+        AddPorts(NodeInputType.Single);
     }
 
     public ArithmeticOperationNode(IServerContext context, DbTaskNode dbNode) : base(context, dbNode)
@@ -25,10 +24,15 @@ public class ArithmeticOperationNode : TaskNode
 
     private void AddPorts(NodeInputType input)
     {
+        AddInputPorts(input);
         //Output data port
         AddPort(new TaskPort(this, false, 0, data: true));
+    }
 
-        
+    public void AddInputPorts(NodeInputType input)
+    {
+        InputType = input;
+        RemoveAllInputPorts();
         if (input == NodeInputType.Double)
         {
             //Input right operation port

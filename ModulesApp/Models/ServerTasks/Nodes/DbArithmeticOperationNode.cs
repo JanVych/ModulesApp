@@ -6,7 +6,7 @@ namespace ModulesApp.Models.ServerTasks.Nodes;
 public class DbArithmeticOperationNode : DbTaskNode
 {
     public NodeArithmeticOperationType OperationType => (NodeArithmeticOperationType)SubType;
-    private DbTaskLink? Left => TargetLinks.FirstOrDefault();
+    private DbTaskLink? Left => TargetLinks.FirstOrDefault(l => l.TargetOrder == 1);
     private DbTaskLink? Right => TargetLinks.FirstOrDefault(l => l.TargetOrder == 2);
 
     public DbArithmeticOperationNode(TaskNode node) : base(node)
@@ -27,7 +27,16 @@ public class DbArithmeticOperationNode : DbTaskNode
 
     public override void Process(IServerContext context)
     {
-        NodeValue leftValue = Left?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no left input");
+        NodeValue leftValue;
+        if (InputType == NodeInputType.Single)
+        {
+            leftValue = TargetLinks.FirstOrDefault()?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no left input");
+        }
+        else
+        {
+            leftValue = Left?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no left input");
+        }
+        
         if(leftValue.Type == NodeValueType.Invalid)
         {
             Value = leftValue;

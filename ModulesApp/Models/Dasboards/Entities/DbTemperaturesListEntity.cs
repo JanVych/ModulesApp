@@ -21,7 +21,7 @@ namespace ModulesApp.Models.Dasboards.Entities
         public override void SaveData()
         {
             Data["Column1"] = TableData.Select(i => i.Name).ToList();
-            Data["Column2"] = TableData.Select(i => i.CurrentTemp).ToList();
+            Data["Value"] = TableData.Select(i => i.CurrentTemp).ToList();
             Data["Column3"] = TableData.Select(i => i.TargetTemp).ToList();
 
             Data["Headers"] = Headers;
@@ -47,7 +47,7 @@ namespace ModulesApp.Models.Dasboards.Entities
             }
             if (Data.TryGetValue("Column1", out var names))
             {
-                Data.TryGetValue("Column2", out var currentTemps);
+                Data.TryGetValue("Value", out var currentTemps);
                 Data.TryGetValue("Column3", out var targetTemps);
 
                 var namesList = DataConvertor.ToList<string>(names);

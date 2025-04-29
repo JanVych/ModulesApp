@@ -10,12 +10,12 @@ public enum TaskType
     OnMessageRecived,
 }
 
-public enum TriggerSourceType
+public enum TargetType
 {
     Module,
-    BackgroundService,
+    Service,
     DashboardEntity,
-    None,
+    //None,
 }
 
 [Table("Task")]
@@ -26,7 +26,7 @@ public class DbTask
 
     public TaskType Type { get; set; }
 
-    public TriggerSourceType TargetType { get; set; }
+    public TargetType TriggerSourceType { get; set; }
 
     public string Name { get; set; } = string.Empty;
 
