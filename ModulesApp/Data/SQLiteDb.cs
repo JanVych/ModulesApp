@@ -71,7 +71,8 @@ public class SQLiteDb : DbContext
             .HasValue<DbValueNode>("StaticData")
             .HasValue<DbSendMessageNode>("SendMessage")
             .HasValue<DbArrayOperationNode>("ArrayOperation")
-            .HasValue<DbArithmeticOperationNode>("ArithmeticOperation");
+            .HasValue<DbArithmeticOperationNode>("ArithmeticOperation")
+            .HasValue<DbConvertToNode>("ConvertTo");
 
 
         builder.Entity<DbAction>()

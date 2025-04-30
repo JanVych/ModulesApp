@@ -4,17 +4,17 @@ namespace ModulesApp.Helpers;
 
 public class DataConvertor
 {
-    public static List<T>? ToList<T>(object? value)
+    public static List<T?> ToList<T>(object? value)
     {
-        if (value is List<T> list)
+        var targetType = typeof(T);
+        if (value is List<T?> list)
         {
             return list;
         }
         if (value is JsonElement json && json.ValueKind == JsonValueKind.Array)
         {
-            var result = new List<T>(json.GetArrayLength());
-            var targetType = typeof(T);
-
+            var result = new List<T?>(json.GetArrayLength());
+            
             foreach (var element in json.EnumerateArray())
             {
                 if (targetType == typeof(string))
@@ -31,12 +31,12 @@ public class DataConvertor
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Unsupported list element type {typeof(T)}");
+                    result.Add(default);
                 }
             }
             return result;
         }
-        return null;
+        return [];
     }
 
     public static string ToString(object? value)
@@ -53,7 +53,7 @@ public class DataConvertor
             }
             return json.ToString();
         }
-        return string.Empty;
+        return value?.ToString() ?? string.Empty;
     }
 
     public static double ToDouble(object? value)
@@ -73,7 +73,11 @@ public class DataConvertor
                 return parsed;
             }
         }
-        return 0;
+        if (value is string str && double.TryParse(str, out var parsedValue))
+        {
+            return parsedValue;
+        }
+        return default;
     }
 
     public static bool ToBool(object? value)
@@ -108,6 +112,34 @@ public class DataConvertor
                 }
             }
         }
+        if (value is string str && bool.TryParse(str, out var parsedValue))
+        {
+            return parsedValue;
+        }
+        if (value is double i)
+        {
+            return i != 0;
+        }
         return false;
     }
+
+    //public static JsonElement ToJsonArray(object? value)
+    //{
+    //    if (value is JsonElement json)
+    //    {
+    //        if (json.ValueKind == JsonValueKind.Array)
+    //        {
+    //            return json;
+    //        }
+    //        else
+    //        {
+    //            return JsonSerializer.SerializeToElement(new List<object?> { value });
+    //        }
+    //    }
+    //    if (value is List<object?> list)
+    //    { 
+    //        return JsonSerializer.SerializeToElement(list);
+    //    }
+    //    return JsonSerializer.SerializeToElement(new List<object?> { value });
+    //}
 }

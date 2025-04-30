@@ -1,6 +1,5 @@
 ﻿:root {
     --node-background-color: var(--mud-palette-surface);
-
     --condition-node-color: var(--mud-palette-info-darken);
     --from-message-node-color: var(--mud-palette-primary-darken);
     --data-display-node-color: var(--mud-palette-success-darken);
@@ -8,4 +7,5 @@
     --array-operation-node-color: var(--mud-palette-tertiary-darken);
     --arithmetic-operation-node-color: var(--mud-palette-tertiary-darken);
     --value-node-color: var(--mud-palette-primary-darken);
+    --convert-to-color: var(--mud-palette-tertiary-darken);
 }

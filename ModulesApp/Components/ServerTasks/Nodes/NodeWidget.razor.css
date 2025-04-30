@@ -3,7 +3,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 250px;
+    width: 225px;
     border: 1px solid var(--mud-palette-background-gray);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     background-color: var(--node-background-color);
@@ -25,7 +25,7 @@
 
 .node-content {
     padding: 25px;
-    min-height: 80px;
+    min-height: 60px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -44,13 +44,13 @@
 }
 
 
-.output-text.true {
-    top: 50%;
-}
+    .output-text.true {
+        top: calc((100% - 47px) * 0.25 + 47px);
+    }
 
-.output-text.false {
-    top: 80%;
-}
+    .output-text.false {
+        top: calc((100% - 47px) * 0.75 + 47px);
+    }
 
 
 ::deep .diagram-port {
@@ -64,31 +64,31 @@
 }
 
     ::deep .diagram-port.in.first {
-        left: -0px;
-        top: 50%;
+        left: 0;
+        top: calc((100% - 47px) * 0.25 + 47px);
     }
 
     ::deep .diagram-port.in.middle {
-        left: -0px;
-        top: 55%;
+        left: 0;
+        top: calc((100% - 47px) * 0.5 + 47px);
     }
 
     ::deep .diagram-port.in.second {
-        left: -0px;
-        top: 80%;
+        left: 0;
+        top: calc((100% - 47px) * 0.75 + 47px);
     }
 
     ::deep .diagram-port.out.first {
         right: -25px;
-        top: 50%;
+        top: calc((100% - 47px) * 0.25 + 47px);
     }
 
     ::deep .diagram-port.out.second {
         right: -25px;
-        top: 80%;
+        top: calc((100% - 47px) * 0.75 + 47px);
     }
 
     ::deep .diagram-port.out.middle {
         right: -25px;
-        top: 55%;
+        top: calc((100% - 47px) * 0.5 + 47px);
     }

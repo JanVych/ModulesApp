@@ -21,8 +21,6 @@ public class DbArrayOperationNode : DbTaskNode
         {
             Process(context);
         }
-
-        //Debug.WriteLine($"GetValue Condition: {value.Type}, value: {value}");
         return Value;
     }
 
@@ -34,35 +32,37 @@ public class DbArrayOperationNode : DbTaskNode
         {
             return;
         }
-        if (Value.Type != NodeValueType.Array)
+        if(Value is NodeValue.ArrayValue array)
+        {
+            List<NodeValue> arrayCLone = array.GetValueClone();
+
+            if (OperationType == NodeArrayOperationType.ArrayRemoveAt)
+            {
+                if (LongVal1 < 0 && LongVal1 > array.Value.Count - 1)
+                {
+                    Value = new NodeValue.InvalidValue($"node: {Order}, index out of range, index:{LongVal1}");
+                }
+                else
+                {
+                    arrayCLone.RemoveAt((int)LongVal1);
+                   Value = new NodeValue.ArrayValue(arrayCLone);
+                }
+            }
+            else if (OperationType == NodeArrayOperationType.ArraySlice)
+            {
+                if (LongVal1 < 0 || LongVal2 < 0 || LongVal1 > array.Value.Count - 1 || LongVal2 > array.Value.Count - 1 || LongVal1 > LongVal2)
+                {
+                    Value = new NodeValue.InvalidValue($"node: {Order}, index out of range, index1:{LongVal1}, index2:{LongVal2}");
+                }
+                else
+                {
+                    Value = new NodeValue.ArrayValue(arrayCLone.GetRange((int)LongVal1, (int)(LongVal2 - LongVal1 + 1)));
+                }
+            }
+        }
+        else
         {
             Value = new NodeValue.InvalidValue($"node: {Order}, value is not array, type: {Value.Type}");
-            return;
-        }
-        var array = (NodeValue.ArrayValue)Value;
-
-        if (OperationType == NodeArrayOperationType.ArrayRemoveAt)
-        {
-            if (LongVal1 < 0 && LongVal1 > array.Value.Count - 1)
-            {
-                Value = new NodeValue.InvalidValue($"node: {Order}, index out of range, index:{LongVal1}");
-            }
-            else
-            {
-                array.Value.RemoveAt((int)LongVal1);
-            }
-        }
-        else if (OperationType == NodeArrayOperationType.ArraySlice)
-        {
-            if (LongVal1 < 0 || LongVal2 < 0 || LongVal1 > array.Value.Count - 1 || LongVal2 > array.Value.Count - 1 || LongVal1 > LongVal2)
-            {
-                Value = new NodeValue.InvalidValue($"node: {Order}, index out of range, index1:{LongVal1}, index2:{LongVal2}");
-            }
-            else
-            {
-                Value = new NodeValue.ArrayValue(array.Value.GetRange((int)LongVal1, (int)(LongVal2 - LongVal1 + 1)));
-            }
-
         }
     }
 }

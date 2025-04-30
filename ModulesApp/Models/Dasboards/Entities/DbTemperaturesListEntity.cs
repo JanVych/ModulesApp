@@ -7,7 +7,7 @@ namespace ModulesApp.Models.Dasboards.Entities
     {
         public class TableItem
         {
-            public string Name { get; set; } = string.Empty;
+            public string? Name { get; set; } = string.Empty;
             public double CurrentTemp { get; set; }
             public double TargetTemp { get; set; }
         }
@@ -16,7 +16,7 @@ namespace ModulesApp.Models.Dasboards.Entities
         public List<TableItem> TableData = [];
 
         [NotMapped]
-        public List<string> Headers = [string.Empty, string.Empty, string.Empty];
+        public List<string?> Headers = [string.Empty, string.Empty, string.Empty];
 
         public override void SaveData()
         {
@@ -27,7 +27,7 @@ namespace ModulesApp.Models.Dasboards.Entities
             Data["Headers"] = Headers;
         }
 
-        public override void UpdateData(Dictionary<string, object> data)
+        public override void UpdateData(Dictionary<string, object?> data)
         {
             foreach (var (key, value) in data)
             {

@@ -16,10 +16,19 @@ public abstract class NodeValue
     public abstract NodeValueType Type { get; }
     public abstract object? GetValue();
 
+
     public class Waiting() : NodeValue
     {
         public override NodeValueType Type => NodeValueType.Waiting;
         public override object? GetValue() => null;
+    }
+
+    public class InvalidValue(string Reason) : NodeValue
+    {
+        public string Value { get; init; } = Reason;
+        public override object? GetValue() => null;
+        public override string? ToString() => Value;
+        public override NodeValueType Type => NodeValueType.Invalid;
     }
 
     public class StringValue(string Value) : NodeValue
@@ -46,28 +55,48 @@ public abstract class NodeValue
         public override NodeValueType Type => NodeValueType.Boolean;
     }
 
-    public class ArrayValue(List<NodeValue> Value) : NodeValue
+    public class ArrayValue(List<NodeValue> value) : NodeValue
     {
-        public List<NodeValue> Value { get; init; } = Value;
-        public override object? GetValue() => Value.Select(v => v.GetValue()).ToList();
+        public IReadOnlyList<NodeValue> Value { get; init; } = value;
+        public override List<object?> GetValue() => Value.Select(v => v.GetValue()).ToList();
         public override string? ToString() => string.Join(", ", Value.Select(v => v.ToString()));
-        public List<string?> ToStringList() => Value.Select(v => v.ToString()).ToList();
         public override NodeValueType Type => NodeValueType.Array;
+        public List<NodeValue> GetValueClone()
+        {
+            List<NodeValue> clone = [];
+            foreach (var v in Value)
+            {
+                if (v is ArrayValue array)
+                {
+                    clone.Add(new ArrayValue(array.GetValueClone()));
+                }
+                else if (v is ObjectValue obj)
+                {
+                    clone.Add(new ObjectValue(obj.Value));
+                }
+                else if (v is StringValue str)
+                {
+                    clone.Add(new StringValue(str.Value));
+                }
+                else if (v is NumberValue num)
+                {
+                    clone.Add(new NumberValue(num.Value));
+                }
+                else if (v is BooleanValue boolean)
+                {
+                    clone.Add(new BooleanValue(boolean.Value));
+                }
+            }
+            return clone;
+        }
     }
 
-    public class ObjectValue(Dictionary<string, object> Value) : NodeValue
+    // TODO
+    public class ObjectValue(Dictionary<string, object?> Value) : NodeValue
     {
-        public Dictionary<string, object> Value { get; init; } = Value;
-        public override object? GetValue() => Value;
+        public Dictionary<string, object?> Value { get; init; } = Value;
+        public override Dictionary<string, object?> GetValue() => Value;
         public override string? ToString() => Value.ToString() ?? string.Empty;
         public override NodeValueType Type => NodeValueType.Object;
-    }
-
-    public class InvalidValue(string Reason) : NodeValue
-    {
-        public string Value { get; init; } = Reason;
-        public override object? GetValue() => null;
-        public override string? ToString() => Value;
-        public override NodeValueType Type => NodeValueType.Invalid;
     }
 }

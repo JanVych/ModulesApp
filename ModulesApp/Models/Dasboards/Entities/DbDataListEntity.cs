@@ -7,14 +7,14 @@ public class DbDataListEntity : DbDashboardEntity
 {
     public class TableItem
     {
-        public string Column1 { get; set; } = string.Empty;
-        public string Column2 { get; set; } = string.Empty;
+        public string? Column1 { get; set; } = string.Empty;
+        public string? Column2 { get; set; } = string.Empty;
     }
 
     [NotMapped]
     public List<TableItem> TableData = [];
 
-    public override void UpdateData(Dictionary<string, object> data)
+    public override void UpdateData(Dictionary<string, object?> data)
     {
         foreach(var (key, value) in data)
         {

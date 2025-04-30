@@ -17,7 +17,7 @@ public class DbSwitchEntity : DbDashboardEntity
         }
     }
 
-    public override void UpdateData(Dictionary<string, object> data)
+    public override void UpdateData(Dictionary<string, object?> data)
     {
         Data = data;
         if( Data.TryGetValue("Value", out var v))

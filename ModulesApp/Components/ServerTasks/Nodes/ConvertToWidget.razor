@@ -1,0 +1,21 @@
+﻿@using Blazor.Diagrams.Components.Renderers;
+@using Blazor.Diagrams.Core.Models
+@using ModulesApp.Interfaces
+@using MudBlazor
+
+<NodeWidget Node="Node"
+            BoolOutputText="false"
+            Header="@GetHeader()"
+            MainColor="var(--convert-to-color)">
+
+</NodeWidget>
+
+@code
+{
+    [Parameter] public ConvertToNode Node { get; set; } = null!;
+
+    private string GetHeader()
+    {
+        return $"To {Node.ConvertToType}";
+    }
+}

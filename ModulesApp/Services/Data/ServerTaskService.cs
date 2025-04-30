@@ -121,6 +121,7 @@ public class ServerTaskService
                 NodeType.SendMessage => new DbSendMessageNode((SendMessageNode)node),
                 NodeType.ArrayOperation => new DbArrayOperationNode((ArrayOperationNode)node),
                 NodeType.ArithmeticOperation => new DbArithmeticOperationNode(node),
+                NodeType.ConvertTo => new DbConvertToNode((ConvertToNode)node),
                 _ => throw new ArgumentException($"Unsupported node type: {node.Type}")
             });
         }

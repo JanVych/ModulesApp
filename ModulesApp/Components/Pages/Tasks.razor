@@ -122,7 +122,7 @@
                            Variant="Variant.Filled"
                            Style="background-color: var(--value-node-color); color: var(--node-background-color);"
                            OnClick="() => AddNode(NodeType.Value)">
-                    Static Data
+                    Static Value
                 </MudButton>
 
                 <MudButtonGroup Variant="Variant.Filled">
@@ -163,7 +163,7 @@
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--array-operation-node-color); color: var(--node-background-color);"
                                OnClick="() => AddNode(NodeType.ArrayOperation)">
-                        Array Operation
+                        Array
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
                              Label="@_selectedOperation.ToLongString()"
@@ -184,7 +184,7 @@
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--arithmetic-operation-node-color); color: var(--node-background-color);"
                                OnClick="() => AddNode(NodeType.ArithmeticOperation)">
-                        Arithmetic Operation
+                        Arithmetic
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
                              Label="@_selectedArithmeticOperation.ToString()"
@@ -200,6 +200,27 @@
                         }
                     </MudMenu>
                 </MudButtonGroup>
+
+                <MudButtonGroup Variant="Variant.Filled">
+                    <MudButton Style="background-color: var(--convert-to-color); color: var(--node-background-color);"
+                               OnClick="() => AddNode(NodeType.ConvertTo)">
+                        To
+                    </MudButton>
+                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                             Label="@_selectedConvertTo.ToString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--convert-to-color);">
+
+                        @foreach (NodeConvertToType operation in Enum.GetValues(typeof(NodeConvertToType)))
+                        {
+                            <MudMenuItem Style="background-color: var(--convert-to-color); color: var(--node-background-color);"
+                                         @onclick="() => _selectedConvertTo = operation">
+                                @operation.ToString()
+                            </MudMenuItem>
+                        }
+                    </MudMenu>
+                </MudButtonGroup>
+
             </MudStack>
         </MudPaper>
 
@@ -234,7 +255,7 @@
 <style>
     .diagram-container {
         width: 100%;
-        height: 64vh;
+        height: 65vh;
         /*         border: 2px solid var(--mud-palette-drawer-text); */
     }
 
@@ -262,6 +283,7 @@
     private NodeArrayOperationType _selectedOperation = NodeArrayOperationType.ArraySlice;
 
     private NodeArithmeticOperationType _selectedArithmeticOperation = NodeArithmeticOperationType.Add;
+    private NodeConvertToType _selectedConvertTo = NodeConvertToType.String;
 
     private List<DbModule> _modules = [];
     private List<DbBackgroundService> _services = [];
@@ -295,6 +317,7 @@
             _currentDiagram.RegisterComponent<SendMessageNode, SendMessageWidget>();
             _currentDiagram.RegisterComponent<ArrayOperationNode, ArrayOperationWidget>();
             _currentDiagram.RegisterComponent<ArithmeticOperationNode, ArithmeticOperationWidget>();
+            _currentDiagram.RegisterComponent<ConvertToNode, ConvertToWidget>();
 
             _modules = await _moduleService.GetAllAsync();
             _services = await _backgroundServiceService.GetAllAsync();
@@ -452,6 +475,10 @@
             {
                 _currentDiagram.Nodes.Add(new ArithmeticOperationNode(_serverContextService, _selectedArithmeticOperation, point) { Order = smallestOrder });
             }
+            else if (type == NodeType.ConvertTo)
+            {
+                _currentDiagram.Nodes.Add(new ConvertToNode(_serverContextService, _selectedConvertTo , point) { Order = smallestOrder });
+            }
         }
     }
 
@@ -504,6 +531,10 @@
                 else if (node.Type == NodeType.ArithmeticOperation)
                 {
                     _currentDiagram.Nodes.Add(new ArithmeticOperationNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.ConvertTo)
+                {
+                    _currentDiagram.Nodes.Add(new ConvertToNode(_serverContextService, node));
                 }
             }
 

@@ -11,7 +11,7 @@
 
 <PageTitle>Module Dteail</PageTitle>
 
-<div >
+<div>
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
@@ -23,11 +23,11 @@
         <MudIconButton Icon="@Icons.Material.Filled.Refresh" Size="Size.Large" OnClick="OnModulesChanged" />
     </MudStack>
 
-    <MudDivider Class="mb-2"/>
+    <MudDivider Class="mb-2" />
 
-    @if(_module is null)
+    @if (_module == null)
     {
-        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true"/>
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
     }
     else
     {
@@ -35,7 +35,7 @@
             <div>
                 <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
                     <MudText Typo="Typo.h5">Module detail</MudText>
-                    <MudDivider Class="mt-2"/>
+                    <MudDivider Class="mt-2" />
                 </MudPaper>
                 <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
                     <tbody>
@@ -51,8 +51,8 @@
                             <td>Name</td>
                             <td>
                                 <MudStack Row="true" AlignItems="AlignItems.Baseline">
-                                    <MudTextField @bind-Value="_module.Name" Variant="Variant.Text" Margin="Margin.Dense"/>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="SaveModule"/>
+                                    <MudTextField @bind-Value="_module.Name" Variant="Variant.Text" Margin="Margin.Dense" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="SaveModule" />
                                 </MudStack>
                             </td>
                         </tr>
@@ -149,7 +149,7 @@
 </div>
 
 
-@code 
+@code
 {
     [Parameter]
     [SupplyParameterFromQuery(Name = "id")]
@@ -185,7 +185,7 @@
 
     private async Task SaveModule()
     {
-        if(_module is not null)
+        if (_module is not null)
         {
             var saveAction = _module.Actions.FirstOrDefault(x => x.Key == "SetModuleName") ?? new();
             saveAction.Key = "SetModuleName";

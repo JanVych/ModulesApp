@@ -10,7 +10,7 @@ public class DbBasicCardEntity: DbDashboardEntity
     [NotMapped]
     public string Value { get; set; } = string.Empty;
 
-    public override void UpdateData(Dictionary<string, object> data)
+    public override void UpdateData(Dictionary<string, object?> data)
     {
         foreach (var (key, value) in data)
         {

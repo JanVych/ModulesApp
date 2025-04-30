@@ -134,9 +134,7 @@ public class ServerContextService : IServerContext
 
     public void SendToDashboardEntity(long entityId, string key, object? value)
     {
-        using var document = JsonDocument.Parse(JsonSerializer.Serialize(value));
-        var element = document.RootElement.Clone();
-        _dashboardService.EntityDataChanged(entityId, new Dictionary<string, object> { { key, element } });
+        _dashboardService.EntityDataChanged(entityId, new Dictionary<string, object?> { { key, value } });
     }
 
     public async Task DashboardEntityUserTrigger(DbDashboardEntity entity)

@@ -24,7 +24,7 @@ public abstract class DbDashboardEntity
 
     public string Name { get; set; } = string.Empty;
     
-    public Dictionary<string, object> Data { get; set; } = [];
+    public Dictionary<string, object?> Data { get; set; } = [];
 
     public long DashboardId { get; set; }
     [ForeignKey("DashboardId")]
@@ -32,7 +32,7 @@ public abstract class DbDashboardEntity
 
     public ICollection<DbTask> ServerTasks { get; set; } = [];
 
-    public abstract void UpdateData(Dictionary<string, object> data);
+    public abstract void UpdateData(Dictionary<string, object?> data);
     public void UpdateData() => UpdateData(Data);
 
     public abstract void SaveData();

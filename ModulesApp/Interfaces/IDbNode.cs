@@ -9,6 +9,7 @@ public enum NodeType
     SendMessage,
     ArrayOperation,
     ArithmeticOperation,
+    ConvertTo,
 }
 
 public enum NodeConditionType
@@ -33,6 +34,14 @@ public enum NodeArithmeticOperationType
     Subtract,
     Multiply,
     Divide
+}
+
+public enum NodeConvertToType
+{
+    String,
+    Number,
+    Boolean,
+    Array,
 }
 
 public static class NodeExtensions
