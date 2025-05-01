@@ -11,9 +11,8 @@ using System.Text.Json;
 
 namespace ModulesApp.Data;
 
-public class SQLiteDb : DbContext
+public class SQLiteDb(DbContextOptions options) : DbContext(options)
 {
-    protected readonly IConfiguration _configuration;
 
     public DbSet<DbModule> Modules { get; set; }
 
@@ -33,17 +32,6 @@ public class SQLiteDb : DbContext
     public DbSet<DbModuleProgram> Programs { get; set; }
     public DbSet<DbModuleProgramFile> ProgramsFiles { get; set; }
 
-    public SQLiteDb(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder
-            //.UseLazyLoadingProxies()
-            .UseSqlite(NormalizePath(_configuration.GetConnectionString("SQLiteDb")));
-    }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         var SerializerOptions = new JsonSerializerOptions
@@ -116,10 +104,5 @@ public class SQLiteDb : DbContext
             .HasValue<DbValueSetterEntity>(DashboardEntityType.ValueSetter);
 
         base.OnModelCreating(builder);
-    }
-
-    static string? NormalizePath(string? connectionString)
-    {
-        return connectionString?.Replace("\\", Path.DirectorySeparatorChar.ToString());
-    }
+    }  
 }

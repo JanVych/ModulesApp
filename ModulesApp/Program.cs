@@ -13,8 +13,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        
-
         // Add MudBlazor services
         builder.Services.AddMudServices();
 
@@ -22,8 +20,7 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
-        var connectionString = builder.Configuration.GetConnectionString("SQLiteDb");
+        var connectionString = NormalizePath(builder.Configuration.GetConnectionString("SQLiteDb"));
         builder.Services.AddDbContextFactory<SQLiteDb>(options =>
         {
             options.UseSqlite(connectionString); 
@@ -68,5 +65,10 @@ public class Program
         app.Services.GetService<BackgroundServiceManager>();
 
         app.Run();
+    }
+
+    static string? NormalizePath(string? connectionString)
+    {
+        return connectionString?.Replace("\\", Path.DirectorySeparatorChar.ToString());
     }
 }
