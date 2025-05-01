@@ -8,24 +8,25 @@ public class ModuleService
 {
     private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
 
-    public event Action? ModulesDbChangedEvent;
+    private readonly NotifyService _notifyService;
 
-    public ModuleService(IDbContextFactory<SQLiteDb> dbContextFactory)
+    public ModuleService(IDbContextFactory<SQLiteDb> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
+        _notifyService = notifyService;
     }
 
     private int SaveChanges(SQLiteDb context)
     {
         var result = context.SaveChanges();
-        ModulesDbChangedEvent?.Invoke();
+        _notifyService.NotifyModulesChanged();
         return result;
     }
 
     private async Task<int> SaveChangesAsync(SQLiteDb context)
     {
         var result = await context.SaveChangesAsync();
-        ModulesDbChangedEvent?.Invoke();
+        _notifyService.NotifyModulesChanged();
         return result;
     }
 

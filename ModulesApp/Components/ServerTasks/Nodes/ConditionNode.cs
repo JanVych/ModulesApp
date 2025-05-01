@@ -2,13 +2,14 @@
 using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Models.ServerTasks;
+using ModulesApp.Services;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
 public class ConditionNode : TaskNode
 {
     public NodeConditionType ConditionType => (NodeConditionType)SubType;
-    public ConditionNode(IServerContext context, NodeConditionType condition, Point? position = null)
+    public ConditionNode(ContextService context, NodeConditionType condition, Point? position = null)
         : base(context, position)
     {
         Type = NodeType.Condition;
@@ -17,7 +18,7 @@ public class ConditionNode : TaskNode
 
     }
 
-    public ConditionNode(IServerContext context, DbTaskNode dbNode) : base(context, dbNode)
+    public ConditionNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         AddPorts(dbNode.InputType);
     }

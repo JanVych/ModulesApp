@@ -1,6 +1,7 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Helpers;
 using ModulesApp.Interfaces;
+using ModulesApp.Services;
 using System.Text.Json;
 using static MudBlazor.CategoryTypes;
 
@@ -16,7 +17,7 @@ public class DbFromMessageNode : DbTaskNode
     {
     }
 
-    public override NodeValue GetValue(DbTaskLink dbLink, IServerContext context)
+    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
     {
         if (Value.Type == NodeValueType.Waiting)
         {
@@ -25,7 +26,7 @@ public class DbFromMessageNode : DbTaskNode
         return Value;
     }
 
-    public override void Process(IServerContext context)
+    public override void Process(ContextService context)
     {
         //Value = TargetLinks.FirstOrDefault()?.GetValue(context)
         //        ?? new NodeValue.InvalidValue($"node: {Order}, had no input");

@@ -2,6 +2,7 @@
 using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Models.ServerTasks;
+using ModulesApp.Services;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
@@ -9,7 +10,7 @@ public class ArithmeticOperationNode : TaskNode
 {
     public NodeArithmeticOperationType OperationType => (NodeArithmeticOperationType)SubType;
 
-    public ArithmeticOperationNode(IServerContext context, NodeArithmeticOperationType operationType, Point? position = null)
+    public ArithmeticOperationNode(ContextService context, NodeArithmeticOperationType operationType, Point? position = null)
         : base(context, position)
     {
         Type = NodeType.ArithmeticOperation;
@@ -17,7 +18,7 @@ public class ArithmeticOperationNode : TaskNode
         AddPorts(NodeInputType.Single);
     }
 
-    public ArithmeticOperationNode(IServerContext context, DbTaskNode dbNode) : base(context, dbNode)
+    public ArithmeticOperationNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         AddPorts(dbNode.InputType);
     }

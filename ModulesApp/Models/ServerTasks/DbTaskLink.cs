@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using ModulesApp.Interfaces;
 using ModulesApp.Components.ServerTasks.Ports;
+using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks;
 
@@ -44,7 +45,7 @@ public class DbTaskLink
     {
     }
 
-    public NodeValue GetValue(IServerContext context)
+    public NodeValue GetValue(ContextService context)
     {
         return Source.GetValue(this, context);
     }

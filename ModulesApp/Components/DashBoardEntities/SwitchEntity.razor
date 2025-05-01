@@ -42,7 +42,7 @@ else
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
 
     [Parameter]
-    public ServerContextService? ServerContextService { get; set; }
+    public ContextService? ServerContextService { get; set; }
 
     public string _state => Entity.Value ? "on" : "off";
 

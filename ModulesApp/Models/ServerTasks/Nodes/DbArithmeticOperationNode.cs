@@ -1,5 +1,6 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Interfaces;
+using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
@@ -16,7 +17,7 @@ public class DbArithmeticOperationNode : DbTaskNode
     {
     }
 
-    public override NodeValue GetValue(DbTaskLink dbLink, IServerContext context)
+    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
     {
         if (Value.Type == NodeValueType.Waiting)
         {
@@ -25,7 +26,7 @@ public class DbArithmeticOperationNode : DbTaskNode
         return Value;
     }
 
-    public override void Process(IServerContext context)
+    public override void Process(ContextService context)
     {
         NodeValue leftValue;
         if (InputType == NodeInputType.Single)

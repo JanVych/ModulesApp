@@ -1,5 +1,6 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Interfaces;
+using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
@@ -18,7 +19,7 @@ public class DbConditionNode : DbTaskNode
     {
     }
 
-    public override NodeValue GetValue(DbTaskLink dbLink, IServerContext context)
+    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
     {
         if (Value.Type == NodeValueType.Waiting)
         {
@@ -35,7 +36,7 @@ public class DbConditionNode : DbTaskNode
         return value;
     }
 
-    public override void Process(IServerContext context)
+    public override void Process(ContextService context)
     {
         NodeValue leftValue = Left?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no left input");
         Value = leftValue;

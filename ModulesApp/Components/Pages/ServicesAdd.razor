@@ -7,6 +7,7 @@
 
 @inject NavigationManager _navigationManager
 @inject BackgroundServiceManager _backgroundServiceManager
+@inject BackgroundServiceService _backgroundServiceService
 
 @page "/services/add"
 
@@ -132,7 +133,7 @@
         if (_service is not null)
         {
             _service.Interval = TimeSpan.FromSeconds(_intervalSeconds);
-            await _backgroundServiceManager.RegisterServiceAsync(_service);
+            await _backgroundServiceManager.RegisterServiceAsync(_service, _backgroundServiceService);
             GoBack();
         }
     }

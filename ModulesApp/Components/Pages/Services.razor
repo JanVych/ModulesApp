@@ -8,6 +8,7 @@
 @inject BackgroundServiceManager _backgroundServiceManager
 @inject BackgroundServiceService _backgroundServiceService
 @inject NavigationManager _navigationManager
+@inject NotifyService _notifyService
 
 @implements IDisposable
 
@@ -79,7 +80,7 @@
     protected async override Task OnInitializedAsync()
     {
         await UpdateData();
-        _backgroundServiceService.BackgroundServiceChangedEvent += OnDataChanged;
+        _notifyService.BackgroundServiceChangedEvent += OnDataChanged;
     }
 
     private async void OnDataChanged()
@@ -98,17 +99,11 @@
     private void Add()
     {
         _navigationManager.NavigateTo("/services/add");
-        // var service = new DbTestBackgroundService()
-        //     {
-        //         Name = "New service",
-        //         Interval = TimeSpan.FromSeconds(10)
-        //     };
-        // await _backgroundServiceManager.Add(service);
     }
 
     private async Task Delete(DbBackgroundService service)
     {
-        await _backgroundServiceManager.UnregisterServiceAync(service.Id);
+        await _backgroundServiceManager.UnregisterServiceAync(service.Id, _backgroundServiceService);
     }
 
     private void DetailService(DbBackgroundService service)
@@ -128,6 +123,6 @@
 
     public void Dispose()
     {
-        _backgroundServiceService.BackgroundServiceChangedEvent -= OnDataChanged;
+        _notifyService.BackgroundServiceChangedEvent -= OnDataChanged;
     }
 }

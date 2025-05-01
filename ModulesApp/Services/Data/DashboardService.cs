@@ -8,11 +8,12 @@ public class DashboardService
 {
     private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
 
-    public event Action<DbDashboardEntity>? DashboardEntityDataEvent;
+    private readonly NotifyService _notifyService;
 
-    public DashboardService(IDbContextFactory<SQLiteDb> dbContextFactory)
+    public DashboardService(IDbContextFactory<SQLiteDb> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
+        _notifyService = notifyService;
     }
 
     public void Add(DbDashboard dashboard)
@@ -63,7 +64,7 @@ public class DashboardService
         var entity = UpdateFromTaskAsync(entityId, data);
         if (entity != null)
         {
-            DashboardEntityDataEvent?.Invoke(entity);
+            _notifyService.NotifyDashboardEntityDataChanged(entity);
         }
     }
 

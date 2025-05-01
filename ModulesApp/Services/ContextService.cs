@@ -1,14 +1,12 @@
-﻿using ModulesApp.Interfaces;
-using ModulesApp.Models;
+﻿using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.Dasboards;
 using ModulesApp.Services.Data;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModulesApp.Services;
 
-public class ServerContextService : IServerContext
+public class ContextService
 {
     private readonly ModuleService _modulesService;
     private readonly DashboardService _dashboardService;
@@ -17,7 +15,7 @@ public class ServerContextService : IServerContext
     private readonly ServerTaskService _serverTaskService;
 
 
-    public ServerContextService(ModuleService moduleService, DashboardService dashboardService, ActionService moduleActionService, BackgroundServiceService backgroundServiceService, ServerTaskService serverTaskService)
+    public ContextService(ModuleService moduleService, DashboardService dashboardService, ActionService moduleActionService, BackgroundServiceService backgroundServiceService, ServerTaskService serverTaskService)
     {
         _modulesService = moduleService;
         _dashboardService = dashboardService;

@@ -14,9 +14,9 @@ public class ModulesController : ControllerBase
     private readonly ActionService _modulActionsService;
     private readonly ServerTaskService _serverTasksService;
 
-    private readonly ServerContextService _serverContextService;
+    private readonly ContextService _serverContextService;
 
-    public ModulesController(ModuleService modulesService, ActionService moduleActionsService, ServerTaskService serverTaskService, ServerContextService serverContextService)
+    public ModulesController(ModuleService modulesService, ActionService moduleActionsService, ServerTaskService serverTaskService, ContextService serverContextService)
     {
         _moduleService = modulesService;
         _modulActionsService = moduleActionsService;

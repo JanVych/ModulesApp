@@ -1,5 +1,6 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Interfaces;
+using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
@@ -15,7 +16,7 @@ public class DbArrayOperationNode : DbTaskNode
     {
     }
 
-    public override NodeValue GetValue(DbTaskLink dbLink, IServerContext context)
+    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
     {
         if (Value.Type == NodeValueType.Waiting)
         {
@@ -25,7 +26,7 @@ public class DbArrayOperationNode : DbTaskNode
     }
 
 
-    public override void Process(IServerContext context)
+    public override void Process(ContextService context)
     {
         Value = TargetLinks.FirstOrDefault(l => l.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no input");
         if (Value.Type == NodeValueType.Invalid)

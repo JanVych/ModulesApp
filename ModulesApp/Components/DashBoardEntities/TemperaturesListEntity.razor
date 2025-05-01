@@ -94,7 +94,7 @@ else
     [Parameter]
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
     [Parameter]
-    public ServerContextService ServerContextService { get; set; } = default!;
+    public ContextService ServerContextService { get; set; } = default!;
 
     private bool _saveDisabled = false;
 

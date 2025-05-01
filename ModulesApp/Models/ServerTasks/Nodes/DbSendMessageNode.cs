@@ -1,5 +1,6 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Interfaces;
+using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
@@ -13,7 +14,7 @@ public class DbSendMessageNode : DbTaskNode
     {
     }
 
-    public override NodeValue GetValue(DbTaskLink dbLink, IServerContext context)
+    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
     {
         if (Value.Type == NodeValueType.Waiting)
         {
@@ -22,7 +23,7 @@ public class DbSendMessageNode : DbTaskNode
         return Value;
     }
 
-    public override void Process(IServerContext context)
+    public override void Process(ContextService context)
     {
         NodeValue conditional;
         if (InputType == NodeInputType.Double)

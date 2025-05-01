@@ -2,13 +2,14 @@
 using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Models.ServerTasks;
+using ModulesApp.Services;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
 public class ConvertToNode : TaskNode
 {
     public NodeConvertToType ConvertToType => (NodeConvertToType)SubType;
-    public ConvertToNode(IServerContext context, NodeConvertToType type, Point? position = null)
+    public ConvertToNode(ContextService context, NodeConvertToType type, Point? position = null)
         : base(context, position)
     {
         Type = NodeType.ConvertTo;
@@ -18,7 +19,7 @@ public class ConvertToNode : TaskNode
 
     }
 
-    public ConvertToNode(IServerContext context, DbTaskNode dbNode) : base(context, dbNode)
+    public ConvertToNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         AddPorts();
     }

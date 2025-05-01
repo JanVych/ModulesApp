@@ -3,6 +3,7 @@ using ModulesApp.Components;
 using ModulesApp.Data;
 using ModulesApp.Services;
 using ModulesApp.Services.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ModulesApp;
 
@@ -12,6 +13,8 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        
+
         // Add MudBlazor services
         builder.Services.AddMudServices();
 
@@ -19,22 +22,28 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        builder.Services.AddDbContextFactory<SQLiteDb>();
+        builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+        var connectionString = builder.Configuration.GetConnectionString("SQLiteDb");
+        builder.Services.AddDbContextFactory<SQLiteDb>(options =>
+        {
+            options.UseSqlite(connectionString); 
+        });
 
         builder.Services.AddControllers();
 
-        builder.Services.AddSingleton<ModuleService>();
-        builder.Services.AddSingleton<ActionService>();
-        builder.Services.AddSingleton<DashboardService>();
-        builder.Services.AddSingleton<ServerTaskService>();
-        builder.Services.AddSingleton<BackgroundServiceService>();
-        builder.Services.AddSingleton<ModuleProgramService>();
+        builder.Services.AddScoped<ModuleService>();
+        builder.Services.AddScoped<ActionService>();
+        builder.Services.AddScoped<DashboardService>();
+        builder.Services.AddScoped<ServerTaskService>();
+        builder.Services.AddScoped<BackgroundServiceService>();
+        builder.Services.AddScoped<ModuleProgramService>();
 
-        builder.Services.AddSingleton<ServerContextService>();
+        builder.Services.AddScoped<ContextService>();
+
+        builder.Services.AddScoped<ModuleProgramManager>();
 
         builder.Services.AddSingleton<BackgroundServiceManager>();
-
-        builder.Services.AddSingleton<ModuleProgramManager>();
+        builder.Services.AddSingleton<NotifyService>();
 
         var app = builder.Build();
 

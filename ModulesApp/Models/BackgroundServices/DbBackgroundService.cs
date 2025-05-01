@@ -43,8 +43,11 @@ public abstract class DbBackgroundService
 
     public abstract Task ExecuteAsync();
 
-    public async Task StartAsync(ServerContextService context)
+    public async Task StartAsync(IServiceProvider provider)
     {
+        using var scope = provider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ContextService>();
+
         Status = BackgroundServiceStatus.Running;
         LastRun = DateTime.Now;
         CancellationToken = new CancellationTokenSource();
@@ -82,8 +85,10 @@ public abstract class DbBackgroundService
         }
     }
 
-    public async Task StopAsync(ServerContextService serverContextService)
+    public async Task StopAsync(IServiceProvider provider)
     {
+        using var scope = provider.CreateScope();
+        var serverContextService = scope.ServiceProvider.GetRequiredService<ContextService>();
         Status = BackgroundServiceStatus.Cancelling;
         await serverContextService.UpdateFromBackgroundService(this);
         await CancellationToken.CancelAsync();

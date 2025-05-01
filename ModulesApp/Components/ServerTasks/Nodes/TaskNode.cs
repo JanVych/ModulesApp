@@ -13,7 +13,7 @@ public abstract class TaskNode : NodeModel, IDbNode
     public int SubType { get; set; }
     public NodeInputType InputType { get; set; } = NodeInputType.None;
 
-    public readonly IServerContext _context;
+    public readonly ContextService _context;
 
     public double PositionX => Position.X;
     public double PositionY => Position.Y;
@@ -27,12 +27,12 @@ public abstract class TaskNode : NodeModel, IDbNode
     public long LongVal2 { get; set; }
     public long LongVal3 { get; set; }
 
-    public TaskNode(IServerContext context, Point? position = null) : base(position)
+    public TaskNode(ContextService context, Point? position = null) : base(position)
     {
         _context = context;
     }
 
-    public TaskNode(IServerContext context, DbTaskNode dbNode) :base(new Point(dbNode.PositionX, dbNode.PositionY))
+    public TaskNode(ContextService context, DbTaskNode dbNode) :base(new Point(dbNode.PositionX, dbNode.PositionY))
     {
         _context = context;
         Order = dbNode.Order;

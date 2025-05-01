@@ -6,6 +6,7 @@ using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.Dasboards;
 using ModulesApp.Models.ServerTasks;
+using ModulesApp.Services;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
@@ -14,7 +15,7 @@ public class SendMessageNode : TaskNode
     public List<DbModule>? Modules { get; set; }
     public List<DbDashboardEntity>? Entities { get; set; }
     public List<DbBackgroundService>? Services { get; set; }
-    public SendMessageNode(IServerContext context, Point? position = null) : base(context, position)
+    public SendMessageNode(ContextService context, Point? position = null) : base(context, position)
     {
         Type = NodeType.SendMessage;
 
@@ -24,7 +25,7 @@ public class SendMessageNode : TaskNode
 
         AddPorts(NodeInputType.Single);
     }
-    public SendMessageNode(IServerContext context, DbTaskNode dbNode) : base(context, dbNode)
+    public SendMessageNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         if (LongVal2 == (long)TargetType.Module)
         {

@@ -3,13 +3,14 @@ using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Models.Dasboards;
 using ModulesApp.Models.ServerTasks;
+using ModulesApp.Services;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
 public class DataDisplayNode : TaskNode
 {
     public List<DbDashboardEntity> Entities { get; set; } = [];
-    public DataDisplayNode(IServerContext context, Point? position = null) : base(context, position)
+    public DataDisplayNode(ContextService context, Point? position = null) : base(context, position)
     {
         Type = NodeType.DataDisplay;
         Entities = context.GetAllDashBoardEntities();
@@ -17,7 +18,7 @@ public class DataDisplayNode : TaskNode
         AddPorts(NodeInputType.Single);
     }
 
-    public DataDisplayNode(IServerContext context, DbTaskNode dbNode) : base(context, dbNode)
+    public DataDisplayNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         AddPorts(InputType);
         Entities = context.GetAllDashBoardEntities();

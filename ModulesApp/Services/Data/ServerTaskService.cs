@@ -160,7 +160,7 @@ public class ServerTaskService
         await UpdateAsync(task);
     }
 
-    public async Task ExecuteTaskAsync(IServerContext serverContext , DbTask task)
+    public async Task ExecuteTaskAsync(ContextService serverContext , DbTask task)
     {
         var nodes = await GetNodesAsync(task);
 
@@ -175,7 +175,7 @@ public class ServerTaskService
         }
     }
 
-    public async Task ExecuteTasksAsync(IServerContext serverContext, IEnumerable<DbTask> tasks)
+    public async Task ExecuteTasksAsync(ContextService serverContext, IEnumerable<DbTask> tasks)
     {
         foreach (var task in tasks)
         {
@@ -183,19 +183,19 @@ public class ServerTaskService
         }
     }
 
-    public async Task ExecuteTasksAsync(IServerContext serverContext, DbModule module)
+    public async Task ExecuteTasksAsync(ContextService serverContext, DbModule module)
     {
         var tasks  = await GetTasksAsync(module);
         await ExecuteTasksAsync(serverContext, tasks);
     }
 
-    public async Task ExecuteTasksAsync(IServerContext serverContext, DbBackgroundService service)
+    public async Task ExecuteTasksAsync(ContextService serverContext, DbBackgroundService service)
     {
         var tasks = await GetTasksAsync(service);
         await ExecuteTasksAsync(serverContext, tasks);
     }
 
-    public async Task ExecuteTasksAsync(IServerContext serverContext, DbDashboardEntity entity)
+    public async Task ExecuteTasksAsync(ContextService serverContext, DbDashboardEntity entity)
     {
         var tasks = await GetTasksAsync(entity);
         await ExecuteTasksAsync(serverContext, tasks);

@@ -2,6 +2,7 @@
 using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Models.ServerTasks;
+using ModulesApp.Services;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
@@ -9,7 +10,7 @@ public class ArrayOperationNode :TaskNode
 {
     public NodeArrayOperationType OperationType => (NodeArrayOperationType)SubType;
 
-    public ArrayOperationNode(IServerContext context, NodeArrayOperationType operationType, Point? position = null)
+    public ArrayOperationNode(ContextService context, NodeArrayOperationType operationType, Point? position = null)
         : base(context, position)
     {
         Type = NodeType.ArrayOperation;
@@ -17,7 +18,7 @@ public class ArrayOperationNode :TaskNode
         AddPorts();
     }
 
-    public ArrayOperationNode(IServerContext context, DbTaskNode dbNode) : base(context, dbNode)
+    public ArrayOperationNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         AddPorts();
     }

@@ -58,6 +58,7 @@ public class DbGoodweBackgroundService : DbBackgroundService
             //    _flag1 = true;
             //    _flag2 = false;
             //}
+            await Task.Delay(100);
             AddMessage("PV1 Power", GetPV1Power());
             AddMessage("Grid Power", GetGridPower());
             AddMessage("Backup Power", GetBackupPower());

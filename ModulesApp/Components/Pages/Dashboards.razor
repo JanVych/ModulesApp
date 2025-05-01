@@ -6,8 +6,9 @@
 @using ModulesApp.Services.Data
 
 @inject DashboardService _dashBoardService
-@inject ServerContextService _serverContextService
+@inject ContextService _serverContextService
 @inject IDialogService DialogService
+@inject NotifyService _notifyService
 
 @implements IDisposable
 
@@ -134,7 +135,7 @@
 
     protected override void OnInitialized()
     {
-        _dashBoardService.DashboardEntityDataEvent += OnDashBoardEntityDataChanged;
+        _notifyService.DashboardEntityDataEvent += OnDashBoardEntityDataChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -244,6 +245,6 @@
 
     public void Dispose()
     {
-        _dashBoardService.DashboardEntityDataEvent -= OnDashBoardEntityDataChanged;
+        _notifyService.DashboardEntityDataEvent -= OnDashBoardEntityDataChanged;
     }
 }

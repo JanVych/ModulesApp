@@ -8,17 +8,18 @@ public class BackgroundServiceService
 {
     private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
 
-    public event Action? BackgroundServiceChangedEvent;
+    private readonly NotifyService _notifyService;
 
-    public BackgroundServiceService(IDbContextFactory<SQLiteDb> dbContextFactory)
+    public BackgroundServiceService(IDbContextFactory<SQLiteDb> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
+        _notifyService = notifyService;
     }
 
     private async Task SaveChangesAsync(SQLiteDb context)
     {
         await context.SaveChangesAsync();
-        BackgroundServiceChangedEvent?.Invoke();
+        _notifyService.NotifyBackgroundServiceChanged();
     }
 
     public DbBackgroundService? Get(long id)

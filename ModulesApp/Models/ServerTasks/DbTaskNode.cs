@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using ModulesApp.Interfaces;
 using ModulesApp.Components.ServerTasks.Nodes;
+using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks;
 
@@ -33,7 +34,7 @@ public class DbTaskNode : IDbNode
 
     public long TaskId { get; set; }
     [ForeignKey("TaskId")]
-    public DbTask Task { get; set; }
+    public DbTask Task { get; set; } = default!;
 
     [NotMapped]
     public NodeValue Value { get; set; } = new NodeValue.Waiting();
@@ -65,12 +66,12 @@ public class DbTaskNode : IDbNode
     {
     }
 
-    public virtual NodeValue GetValue(DbTaskLink link, IServerContext context)
+    public virtual NodeValue GetValue(DbTaskLink link, ContextService context)
     {
         throw new NotImplementedException();
     }
 
-    public virtual void Process(IServerContext context)
+    public virtual void Process(ContextService context)
     {
         throw new NotImplementedException();
     }

@@ -1,9 +1,11 @@
 ﻿@using ModulesApp.Models
+@using ModulesApp.Services
 @using ModulesApp.Services.Data
 
 @inject ModuleService _moduleService
 @inject IDialogService _dialogService
 @inject NavigationManager _navigationManager
+@inject NotifyService _notifyService
 
 @implements IDisposable
 
@@ -84,7 +86,7 @@
     protected override async Task OnInitializedAsync()
     {
         await UpdateData();
-        _moduleService.ModulesDbChangedEvent += OnModulesChanged;
+        _notifyService.ModulesDbChangedEvent += OnModulesChanged;
     }
 
     private async void OnModulesChanged()
@@ -121,6 +123,6 @@
 
     public void Dispose()
     {
-        _moduleService.ModulesDbChangedEvent -= OnModulesChanged;
+        _notifyService.ModulesDbChangedEvent -= OnModulesChanged;
     }
 }

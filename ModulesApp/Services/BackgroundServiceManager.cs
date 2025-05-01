@@ -5,36 +5,35 @@ namespace ModulesApp.Services;
 
 public class BackgroundServiceManager
 {
-    private readonly BackgroundServiceService _backgroundServiceService;
-    private readonly ServerContextService _serverContextService;
+    private readonly IServiceProvider _serviceProvider;
 
-    private readonly List<DbBackgroundService> _backgroundServices;
+    private List<DbBackgroundService> _backgroundServices = default!;
     private readonly object _lock = new();
 
-
-    public BackgroundServiceManager(BackgroundServiceService backgroundServiceService , ServerContextService serverContextService)
+    public BackgroundServiceManager(IServiceProvider serviceProvider)
     {
-        _backgroundServiceService = backgroundServiceService;
-        _serverContextService = serverContextService;
-
-        _backgroundServices = _backgroundServiceService.GetAll();
+        _serviceProvider = serviceProvider;
         Launch();
     }
 
-    private void Launch()
+    public void Launch()
     {
+        using var scoop = _serviceProvider.CreateScope();
+        var backgroundServiceService = scoop.ServiceProvider.GetRequiredService<BackgroundServiceService>();
+        _backgroundServices = backgroundServiceService.GetAll();
+
         lock (_lock)
         {
             foreach (var backgroundService in _backgroundServices)
             {
                 if (backgroundService.Status == BackgroundServiceStatus.Running)
                 {
-                    Task.Run(() => backgroundService.StartAsync(_serverContextService));
+                    Task.Run(() => backgroundService.StartAsync(_serviceProvider));
                 }
                 else
                 {
                     backgroundService.Status = BackgroundServiceStatus.Stopped;
-                    _backgroundServiceService.UpdateAsync(backgroundService).Wait();
+                    backgroundServiceService.UpdateAsync(backgroundService).Wait();
                 }
             }
         }
@@ -49,7 +48,7 @@ public class BackgroundServiceManager
         }
         if (service is not null && service.Status == BackgroundServiceStatus.Stopped)
         {
-            Task.Run(() => service.StartAsync(_serverContextService));
+            Task.Run(() => service.StartAsync(_serviceProvider));
         }
     }
 
@@ -62,20 +61,20 @@ public class BackgroundServiceManager
         }
         if (service is not null && service.Status == BackgroundServiceStatus.Running)
         {
-            await service.StopAsync(_serverContextService);
+            await service.StopAsync(_serviceProvider);
         }
     }
 
-    public async Task RegisterServiceAsync(DbBackgroundService service)
+    public async Task RegisterServiceAsync(DbBackgroundService service, BackgroundServiceService backgroundServiceService)
     {
-        await _backgroundServiceService.AddAsync(service);
+        await backgroundServiceService.AddAsync(service);
         lock (_lock)
         {
             _backgroundServices.Add(service);
         }
     }
 
-    public async Task UnregisterServiceAync(long taskId)
+    public async Task UnregisterServiceAync(long taskId, BackgroundServiceService backgroundServiceService)
     {
         var service = _backgroundServices.FirstOrDefault(x => x.Id == taskId);
         if (service is not null && service.Status == BackgroundServiceStatus.Stopped)
@@ -90,11 +89,11 @@ public class BackgroundServiceManager
             {
                 _backgroundServices.Remove(service);
             }
-            await _backgroundServiceService.DeleteAsync(service);
+            await backgroundServiceService.DeleteAsync(service);
         }
     }
 
-    public async Task UpdateServiceAsync(DbBackgroundService service)
+    public async Task UpdateServiceAsync(DbBackgroundService service, BackgroundServiceService backgroundServiceService)
     {
         var index = -1;
         if (service.Status == BackgroundServiceStatus.Stopped)
@@ -109,7 +108,7 @@ public class BackgroundServiceManager
             }
             if (index != -1)
             {
-                await _backgroundServiceService.UpdateAsync(service);
+                await backgroundServiceService.UpdateAsync(service);
             }
         }
     }

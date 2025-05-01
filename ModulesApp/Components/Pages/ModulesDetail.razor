@@ -1,9 +1,11 @@
 ﻿@using ModulesApp.Models
+@using ModulesApp.Services
 @using ModulesApp.Services.Data
 @using System.Text.Json
 
 @inject ModuleService _moduleService
 @inject NavigationManager _navigationManager
+@inject NotifyService _notifyService
 
 @implements IDisposable
 
@@ -159,7 +161,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _moduleService.ModulesDbChangedEvent += OnModulesChanged;
+        _notifyService.ModulesDbChangedEvent += OnModulesChanged;
         _module = await _moduleService.GetAsyncIncludeAll(ModuleId);
     }
 
@@ -199,6 +201,6 @@
 
     public void Dispose()
     {
-        _moduleService.ModulesDbChangedEvent -= OnModulesChanged;
+        _notifyService.ModulesDbChangedEvent -= OnModulesChanged;
     }
 }
