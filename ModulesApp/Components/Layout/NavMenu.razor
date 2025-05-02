@@ -1,10 +1,20 @@
-﻿
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
 <MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-    <MudNavLink Href="modules" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Monitor">Modules</MudNavLink>
-    <MudNavLink Href="services" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DesignServices">Services</MudNavLink>
-    <MudNavLink Href="tasks" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Task">Tasks</MudNavLink>
-    <MudNavLink Href="programs" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Code">Programs</MudNavLink>
+    <AuthorizeView>
+        <Authorized>
+            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="modules" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Monitor">Modules</MudNavLink>
+            <MudNavLink Href="services" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DesignServices">Services</MudNavLink>
+            <MudNavLink Href="tasks" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Task">Tasks</MudNavLink>
+            <MudNavLink Href="programs" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Code">Programs</MudNavLink>
+        </Authorized>
+        <NotAuthorized>
+            @* <MudNavLink Href="account/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Login</MudNavLink> *@
+            @* <MudNavLink Href="account/register" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PersonAdd">Register</MudNavLink> *@
+        </NotAuthorized>
+    </AuthorizeView>
+
 </MudNavMenu>
 
 

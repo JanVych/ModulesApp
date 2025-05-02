@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using MudBlazor
+
+@inject SignInManager<IdentityUser> _singManager
+@inject NavigationManager _navigationManager
+
+@page "/account/login"
+
+<PageTitle>Login</PageTitle>
+
+<MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="6">
+    <MudText Typo="Typo.h4" Class="mb-4">Login</MudText>
+    <MudTextField @bind-Value="_name" Label="Name"/>
+    <MudTextField @bind-Value="_password" Label="Password" InputType="InputType.Password"/>
+    <MudButton OnClick="UserLogin" Color="Color.Primary" Disabled="@_disableButton">
+        Login
+    </MudButton>
+</MudStack>
+
+@code
+{
+    private string _name = string.Empty;
+    private string _password = string.Empty;
+
+    private bool _disableButton = false;
+
+    public async Task UserLogin()
+    {
+        _disableButton = true;
+        Console.WriteLine($"Login: Name: {_name}, Password: {_password}");
+
+        var result = await _singManager.PasswordSignInAsync(_name, _password, false, false);
+        _disableButton = false;
+        _navigationManager.NavigateTo("/");
+
+        
+    }
+}

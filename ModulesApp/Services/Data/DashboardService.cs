@@ -6,11 +6,11 @@ namespace ModulesApp.Services.Data;
 
 public class DashboardService
 {
-    private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
+    private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
     private readonly NotifyService _notifyService;
 
-    public DashboardService(IDbContextFactory<SQLiteDb> dbContextFactory, NotifyService notifyService)
+    public DashboardService(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
         _notifyService = notifyService;

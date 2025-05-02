@@ -1,4 +1,5 @@
-﻿@using ModulesApp.Components.DashBoardEntities
+﻿@using Microsoft.AspNetCore.Authorization
+@using ModulesApp.Components.DashBoardEntities
 @using ModulesApp.Components.Dialog
 @using ModulesApp.Models.Dasboards
 @using ModulesApp.Models.Dasboards.Entities
@@ -13,12 +14,9 @@
 @implements IDisposable
 
 @page "/"
+@attribute [Authorize]
 
 <PageTitle>Dashboard</PageTitle>
-
-<MudStack Justify="Justify.FlexStart">
-
-</MudStack>
 
 <MudGrid>
     @if (_dashboards == null || _selectedDashboard == null)

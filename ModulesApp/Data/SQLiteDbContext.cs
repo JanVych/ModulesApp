@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.BackgroundServices.Servicves;
@@ -11,9 +13,8 @@ using System.Text.Json;
 
 namespace ModulesApp.Data;
 
-public class SQLiteDb(DbContextOptions options) : DbContext(options)
+public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(options)
 {
-
     public DbSet<DbModule> Modules { get; set; }
 
     public DbSet<DbDashboard> Dashboards { get; set; }

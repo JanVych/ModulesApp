@@ -1,4 +1,5 @@
-﻿@using ModulesApp.Components.ServerTasks.Links
+﻿@using Microsoft.AspNetCore.Authorization
+@using ModulesApp.Components.ServerTasks.Links
 @using ModulesApp.Components.ServerTasks.Nodes
 @using ModulesApp.Components.ServerTasks.Ports
 @using ModulesApp.Models
@@ -22,9 +23,8 @@
 @inject DashboardService _dashboardService
 @inject ContextService _serverContextService
 
-@* @implements IDisposable *@
-
 @page "/tasks"
+@attribute [Authorize]
 
 <PageTitle>Tasks</PageTitle>
 

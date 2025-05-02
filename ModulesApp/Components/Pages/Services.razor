@@ -1,9 +1,8 @@
-﻿@using ModulesApp.Models.BackgroundServices.Servicves
+﻿@using Microsoft.AspNetCore.Authorization
+@using ModulesApp.Models.BackgroundServices.Servicves
 @using ModulesApp.Services
 @using ModulesApp.Models.BackgroundServices
 @using ModulesApp.Services.Data
-
-@page "/services"
 
 @inject BackgroundServiceManager _backgroundServiceManager
 @inject BackgroundServiceService _backgroundServiceService
@@ -11,6 +10,9 @@
 @inject NotifyService _notifyService
 
 @implements IDisposable
+
+@page "/services"
+@attribute [Authorize]
 
 <PageTitle>Services</PageTitle>
 

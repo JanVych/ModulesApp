@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using MudBlazor
+
+@inject SignInManager<IdentityUser> _singManager
+@inject UserManager<IdentityUser> _userManager
+@inject NavigationManager _navigationManager    
+
+@page "/account/register"
+
+<PageTitle>Register</PageTitle>
+
+<MudStack AlignItems="AlignItems.Center" Style="max-width:400px">
+    <MudTextField @bind-Value="_name" Label="Name" />
+    <MudTextField @bind-Value="_email" Label="Email" InputType="InputType.Email" />
+    <MudTextField @bind-Value="_password" Label="Password" InputType="InputType.Password" />
+    <MudButton OnClick="UserLogin" Color="Color.Primary" Disabled="@_disableButton">Login</MudButton>
+</MudStack>
+
+@code
+{
+    private string _name = string.Empty;
+    private string _email = string.Empty;
+    private string _password = string.Empty;
+
+    private bool _disableButton = false;
+
+    public async Task UserLogin()
+    {
+        _disableButton = true;
+        Console.WriteLine($"Register: Name: {_name}, Email: {_email}, Password: {_password}");
+        var identity = new IdentityUser
+            {
+                UserName = _name,
+                Email = _email
+            };
+        var result = await _userManager.CreateAsync(identity, _password);
+
+        if (result.Succeeded)
+        {
+            await _singManager.PasswordSignInAsync(identity, _password, false, false);
+            _navigationManager.NavigateTo("/");
+        }
+        else
+        {
+            foreach (var error in result.Errors)
+            {
+                Console.WriteLine($"Error: {error.Description}");
+            }
+        }
+
+        _disableButton = false;
+    }
+}

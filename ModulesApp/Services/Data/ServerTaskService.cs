@@ -15,9 +15,9 @@ namespace ModulesApp.Services.Data;
 
 public class ServerTaskService
 {
-    private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
+    private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
-    public ServerTaskService(IDbContextFactory<SQLiteDb> dbContextFactory)
+    public ServerTaskService(IDbContextFactory<SQLiteDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }

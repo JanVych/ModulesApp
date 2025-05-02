@@ -4,6 +4,7 @@ using ModulesApp.Data;
 using ModulesApp.Services;
 using ModulesApp.Services.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace ModulesApp;
 
@@ -13,21 +14,43 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add MudBlazor services
         builder.Services.AddMudServices();
 
-        // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
+        // database
         var connectionString = NormalizePath(builder.Configuration.GetConnectionString("SQLiteDb"));
-        builder.Services.AddDbContextFactory<SQLiteDb>(options =>
+        builder.Services.AddDbContextFactory<SQLiteDbContext>(options =>
         {
             options.UseSqlite(connectionString); 
+        });
+        builder.Services.AddDbContext<SQLiteDbContext>(options =>
+        {
+            options.UseSqlite(connectionString);
         });
 
         builder.Services.AddControllers();
 
+        // identity
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+        {
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireDigit = false;
+            options.Password.RequiredLength = 8;
+            options.SignIn.RequireConfirmedAccount = false;
+        }).AddEntityFrameworkStores<SQLiteDbContext>();
+
+        //
+        //builder.Services.AddCascadingAuthenticationState();
+        //builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+        //builder.Services.AddAuthorization();
+        //builder.Services.AddAuthentication()
+        //    .AddCookie("AuthCookie");
+
+        //data services
         builder.Services.AddScoped<ModuleService>();
         builder.Services.AddScoped<ActionService>();
         builder.Services.AddScoped<DashboardService>();
@@ -36,7 +59,7 @@ public class Program
         builder.Services.AddScoped<ModuleProgramService>();
 
         builder.Services.AddScoped<ContextService>();
-
+        
         builder.Services.AddScoped<ModuleProgramManager>();
 
         builder.Services.AddSingleton<BackgroundServiceManager>();
@@ -49,14 +72,18 @@ public class Program
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
-            app.UseExceptionHandler("/Error");
+            app.UseExceptionHandler("/error");
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
         app.UseHttpsRedirection();
-
         app.UseStaticFiles();
+
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         app.UseAntiforgery();
 
         app.MapRazorComponents<App>()
