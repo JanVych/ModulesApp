@@ -1,53 +1,117 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using MudBlazor
-
-@inject SignInManager<IdentityUser> _singManager
+﻿@inject SignInManager<IdentityUser> _signInManager
+@inject NavigationManager _navigationManager
 @inject UserManager<IdentityUser> _userManager
-@inject NavigationManager _navigationManager    
+@inject IUserStore<IdentityUser> _userStore
 
 @page "/account/register"
 
 <PageTitle>Register</PageTitle>
 
-<MudStack AlignItems="AlignItems.Center" Style="max-width:400px">
-    <MudTextField @bind-Value="_name" Label="Name" />
-    <MudTextField @bind-Value="_email" Label="Email" InputType="InputType.Email" />
-    <MudTextField @bind-Value="_password" Label="Password" InputType="InputType.Password" />
-    <MudButton OnClick="UserLogin" Color="Color.Primary" Disabled="@_disableButton">Login</MudButton>
-</MudStack>
+<MudText Typo="Typo.h3" GutterBottom="true">Register</MudText>
 
-@code
-{
-    private string _name = string.Empty;
-    private string _email = string.Empty;
-    private string _password = string.Empty;
+<MudGrid>
+    <MudItem md="6">
+        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+            <DataAnnotationsValidator />
 
-    private bool _disableButton = false;
+            <MudText Typo="Typo.body1" GutterBottom="true">Create a new account.</MudText>
 
-    public async Task UserLogin()
+            <MudGrid>
+                <MudItem md="12">
+                    <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
+                    Label="Email" Placeholder="name@example.com"
+                    UserAttributes="@(new() { { "autocomplete", "username" }, { "aria-required", "true" } } )" />
+                </MudItem>
+                <MudItem md="12">
+                    <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
+                    Label="Password" InputType="InputType.Password" Placeholder="password"
+                    UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } } )" />
+                </MudItem>
+                <MudItem md="12">
+                    <MudStaticTextField For="@(() => Input.ConfirmPassword)" @bind-Value="Input.ConfirmPassword"
+                    Label="Confirm Password" InputType="InputType.Password" Placeholder="confirm password"
+                    UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } } )" />
+                </MudItem>
+                <MudItem md="12">
+                    <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Register</MudStaticButton>
+                </MudItem>
+            </MudGrid>
+        </EditForm>
+    </MudItem>
+
+</MudGrid>
+
+@code {
+    private IEnumerable<IdentityError>? identityErrors;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    public async Task RegisterUser(EditContext editContext)
     {
-        _disableButton = true;
-        Console.WriteLine($"Register: Name: {_name}, Email: {_email}, Password: {_password}");
-        var identity = new IdentityUser
-            {
-                UserName = _name,
-                Email = _email
-            };
-        var result = await _userManager.CreateAsync(identity, _password);
+        var user = CreateUser();
 
-        if (result.Succeeded)
+        await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        var emailStore = GetEmailStore();
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        var result = await _userManager.CreateAsync(user, Input.Password);
+
+        if (!result.Succeeded)
         {
-            await _singManager.PasswordSignInAsync(identity, _password, false, false);
-            _navigationManager.NavigateTo("/");
-        }
-        else
-        {
-            foreach (var error in result.Errors)
-            {
-                Console.WriteLine($"Error: {error.Description}");
-            }
+            identityErrors = result.Errors;
+            return;
         }
 
-        _disableButton = false;
+        Console.WriteLine($"User created a new account with password. {user.Id}");
+
+        await _signInManager.SignInAsync(user, isPersistent: false);
+        _navigationManager.NavigateTo(ReturnUrl ?? "/");
+    }
+
+    private static IdentityUser CreateUser()
+    {
+        try
+        {
+            return Activator.CreateInstance<IdentityUser>();
+        }
+        catch
+        {
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
+                $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor.");
+        }
+    }
+
+    private IUserEmailStore<IdentityUser> GetEmailStore()
+    {
+        if (!_userManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("The default UI requires a user store with email support.");
+        }
+        return (IUserEmailStore<IdentityUser>)_userStore;
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; } = "";
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = "";
     }
 }
+

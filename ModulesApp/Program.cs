@@ -5,6 +5,8 @@ using ModulesApp.Services;
 using ModulesApp.Services.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ModulesApp;
 
@@ -25,10 +27,11 @@ public class Program
         {
             options.UseSqlite(connectionString); 
         });
-        builder.Services.AddDbContext<SQLiteDbContext>(options =>
-        {
-            options.UseSqlite(connectionString);
-        });
+
+        builder.Services.AddScoped(provider =>
+            provider.GetRequiredService<IDbContextFactory<SQLiteDbContext>>().CreateDbContext());
+
+
 
         builder.Services.AddControllers();
 
@@ -42,13 +45,6 @@ public class Program
             options.Password.RequiredLength = 8;
             options.SignIn.RequireConfirmedAccount = false;
         }).AddEntityFrameworkStores<SQLiteDbContext>();
-
-        //
-        //builder.Services.AddCascadingAuthenticationState();
-        //builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
-        //builder.Services.AddAuthorization();
-        //builder.Services.AddAuthentication()
-        //    .AddCookie("AuthCookie");
 
         //data services
         builder.Services.AddScoped<ModuleService>();
@@ -89,7 +85,18 @@ public class Program
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 
-        app.Services.GetService<BackgroundServiceManager>();
+        //app.Services.GetService<BackgroundServiceManager>();
+
+        // Map the POST /Account/Logout endpoint
+        var accountGroup = app.MapGroup("/Account");
+        accountGroup.MapPost("/Logout", async (
+            ClaimsPrincipal user,
+            [FromServices] SignInManager<IdentityUser> signInManager,
+            [FromForm] string returnUrl) =>
+        {
+            await signInManager.SignOutAsync();
+            return TypedResults.LocalRedirect($"~/{returnUrl}");
+        });
 
         app.Run();
     }

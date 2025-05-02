@@ -1,5 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+
 @inherits LayoutComponentBase
+
+@inject SignInManager<IdentityUser> _singManager
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
@@ -10,10 +14,16 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
         <MudSpacer />
-        
+
         <AuthorizeView>
             <Authorized>
-                <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit"/>
+                <form action="Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="@_currentUrl" />
+                    <button type="submit" class="mud-nav-link mud-ripple">
+                        <MudIcon Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" Class="mr-3"></MudIcon> Logout
+                    </button>
+                </form>
             </Authorized>
             <NotAuthorized>
                 <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Href="account/login" />
@@ -31,7 +41,6 @@
     </MudMainContent>
 </MudLayout>
 
-
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
@@ -39,6 +48,7 @@
 </div>
 
 @code {
+    private string? _currentUrl;
     private bool _drawerOpen = false;
     private bool _isDarkMode = true;
     private MudTheme? _theme = null;
@@ -64,6 +74,11 @@
     private void DarkModeToggle()
     {
         _isDarkMode = !_isDarkMode;
+    }
+
+    private async Task LogOut()
+    {
+        // await _singManager.SignOutAsync();
     }
 
     private readonly PaletteLight _lightPalette = new()
