@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@using ModulesApp.Components.ServerTasks.Links
+﻿@using ModulesApp.Components.ServerTasks.Links
 @using ModulesApp.Components.ServerTasks.Nodes
 @using ModulesApp.Components.ServerTasks.Ports
 @using ModulesApp.Models
@@ -24,7 +23,7 @@
 @inject ContextService _serverContextService
 
 @page "/tasks"
-@* @attribute [Authorize] *@
+@attribute [Authorize]
 
 <PageTitle>Tasks</PageTitle>
 
@@ -52,7 +51,7 @@
         {
             <MudPaper Class="pa-4">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                     <MudText Typo="Typo.h5">
+                    <MudText Typo="Typo.h5">
                         @_selectedTask.Name
                     </MudText>
                     <MudStack Row="true">
@@ -112,33 +111,33 @@
             <MudStack Row="true" Wrap="Wrap.Wrap">
 
                 <MudButton StartIcon="@Icons.Material.Filled.Message"
-                           Variant="Variant.Filled"
-                           Style="background-color: var(--from-message-node-color); color: var(--node-background-color);"
-                           OnClick="() => AddNode(NodeType.FromMessage)">
+                Variant="Variant.Filled"
+                Style="background-color: var(--from-message-node-color); color: var(--node-background-color);"
+                OnClick="() => AddNode(NodeType.FromMessage)">
                     From Message
                 </MudButton>
 
                 <MudButton StartIcon="@Icons.Material.Filled.Numbers"
-                           Variant="Variant.Filled"
-                           Style="background-color: var(--value-node-color); color: var(--node-background-color);"
-                           OnClick="() => AddNode(NodeType.Value)">
+                Variant="Variant.Filled"
+                Style="background-color: var(--value-node-color); color: var(--node-background-color);"
+                OnClick="() => AddNode(NodeType.Value)">
                     Static Value
                 </MudButton>
 
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--condition-node-color); color: var(--node-background-color);"
-                               OnClick="() => AddNode(NodeType.Condition)">
+                    OnClick="() => AddNode(NodeType.Condition)">
                         Condition
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                             Label="@_selectedCondition.ToLongString()"
-                             Class="custom-menu-label custom-menu-icon"
-                             Style="auto; background-color: var(--condition-node-color);">
+                    Label="@_selectedCondition.ToLongString()"
+                    Class="custom-menu-label custom-menu-icon"
+                    Style="background-color: var(--condition-node-color);">
 
                         @foreach (NodeConditionType condition in Enum.GetValues(typeof(NodeConditionType)))
                         {
                             <MudMenuItem Style="background-color: var(--condition-node-color); color: var(--node-background-color);"
-                                         @onclick="() => ChangeConditionType(condition)">
+                            @onclick="() => ChangeConditionType(condition)">
                                 @condition.ToLongString()
                             </MudMenuItem>
                         }
@@ -147,33 +146,33 @@
                 </MudButtonGroup>
 
                 <MudButton StartIcon="@Icons.Material.Filled.DashboardCustomize"
-                           Variant="Variant.Filled"
-                           Style="background-color: var(--data-display-node-color); color: var(--node-background-color);"
-                           OnClick="() => AddNode(NodeType.DataDisplay)">
+                Variant="Variant.Filled"
+                Style="background-color: var(--data-display-node-color); color: var(--node-background-color);"
+                OnClick="() => AddNode(NodeType.DataDisplay)">
                     Data Display
                 </MudButton>
 
                 <MudButton StartIcon="@Icons.Material.Filled.Send"
-                           Variant="Variant.Filled"
-                           Style="background-color: var(--send-message-node-color); color: var(--node-background-color);"
-                           OnClick="() => AddNode(NodeType.SendMessage)">
+                Variant="Variant.Filled"
+                Style="background-color: var(--send-message-node-color); color: var(--node-background-color);"
+                OnClick="() => AddNode(NodeType.SendMessage)">
                     Send Message
                 </MudButton>
 
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--array-operation-node-color); color: var(--node-background-color);"
-                               OnClick="() => AddNode(NodeType.ArrayOperation)">
+                    OnClick="() => AddNode(NodeType.ArrayOperation)">
                         Array
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                             Label="@_selectedOperation.ToLongString()"
-                             Class="custom-menu-label custom-menu-icon"
-                             Style="background-color: var(--array-operation-node-color);">
+                    Label="@_selectedOperation.ToLongString()"
+                    Class="custom-menu-label custom-menu-icon"
+                    Style="background-color: var(--array-operation-node-color);">
 
                         @foreach (NodeArrayOperationType operation in Enum.GetValues(typeof(NodeArrayOperationType)))
                         {
                             <MudMenuItem Style="background-color: var(--array-operation-node-color); color: var(--node-background-color);"
-                                         @onclick="() => ChangeOperationType(operation)">
+                            @onclick="() => ChangeOperationType(operation)">
                                 @operation.ToLongString()
                             </MudMenuItem>
                         }
@@ -183,18 +182,18 @@
 
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--arithmetic-operation-node-color); color: var(--node-background-color);"
-                               OnClick="() => AddNode(NodeType.ArithmeticOperation)">
+                    OnClick="() => AddNode(NodeType.ArithmeticOperation)">
                         Arithmetic
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                             Label="@_selectedArithmeticOperation.ToString()"
-                             Class="custom-menu-label custom-menu-icon"
-                             Style="background-color: var(--arithmetic-operation-node-color);">
+                    Label="@_selectedArithmeticOperation.ToString()"
+                    Class="custom-menu-label custom-menu-icon"
+                    Style="background-color: var(--arithmetic-operation-node-color);">
 
                         @foreach (NodeArithmeticOperationType operation in Enum.GetValues(typeof(NodeArithmeticOperationType)))
                         {
                             <MudMenuItem Style="background-color: var(--arithmetic-operation-node-color); color: var(--node-background-color);"
-                                         @onclick="() => _selectedArithmeticOperation = operation">
+                            @onclick="() => _selectedArithmeticOperation = operation">
                                 @operation.ToString()
                             </MudMenuItem>
                         }
@@ -203,18 +202,18 @@
 
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--convert-to-color); color: var(--node-background-color);"
-                               OnClick="() => AddNode(NodeType.ConvertTo)">
+                    OnClick="() => AddNode(NodeType.ConvertTo)">
                         To
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                             Label="@_selectedConvertTo.ToString()"
-                             Class="custom-menu-label custom-menu-icon"
-                             Style="background-color: var(--convert-to-color);">
+                    Label="@_selectedConvertTo.ToString()"
+                    Class="custom-menu-label custom-menu-icon"
+                    Style="background-color: var(--convert-to-color);">
 
-                        @foreach (NodeConvertToType operation in Enum.GetValues(typeof(NodeConvertToType)))
+                        @foreach (var operation in _listOfConverTo)
                         {
                             <MudMenuItem Style="background-color: var(--convert-to-color); color: var(--node-background-color);"
-                                         @onclick="() => _selectedConvertTo = operation">
+                            @onclick="() => _selectedConvertTo = operation">
                                 @operation.ToString()
                             </MudMenuItem>
                         }
@@ -233,9 +232,9 @@
                             <GridWidget Size="30" Mode="GridMode.Point" BackgroundColor="var(--mud-palette-background)" />
 
                             <NavigatorWidget Width="200"
-                                             Height="120"
-                                             Class="border border-secondary absolute"
-                                             Style="bottom: 15px; right: 15px; background-color: var(--mud-palette-background);">
+                            Height="120"
+                            Class="border border-secondary absolute"
+                            Style="bottom: 15px; right: 15px; background-color: var(--mud-palette-background);">
                             </NavigatorWidget>
 
                         </Widgets>
@@ -254,17 +253,17 @@
 
 <style>
     .diagram-container {
-        width: 100%;
-        height: 65vh;
-        /*         border: 2px solid var(--mud-palette-drawer-text); */
+    width: 100%;
+    height: 65vh;
+    /*         border: 2px solid var(--mud-palette-drawer-text); */
     }
 
     .custom-menu-icon .mud-icon-root {
-        color: var(--node-background-color);
+    color: var(--node-background-color);
     }
 
     .custom-menu-label .mud-button-label {
-        color: var(--node-background-color);
+    color: var(--node-background-color);
     }
 
 </style>
@@ -283,7 +282,8 @@
     private NodeArrayOperationType _selectedOperation = NodeArrayOperationType.ArraySlice;
 
     private NodeArithmeticOperationType _selectedArithmeticOperation = NodeArithmeticOperationType.Add;
-    private NodeConvertToType _selectedConvertTo = NodeConvertToType.String;
+    private NodeValueType _selectedConvertTo = NodeValueType.String;
+    private List<NodeValueType> _listOfConverTo = [NodeValueType.String, NodeValueType.Number, NodeValueType.Boolean, NodeValueType.Array];
 
     private List<DbModule> _modules = [];
     private List<DbBackgroundService> _services = [];

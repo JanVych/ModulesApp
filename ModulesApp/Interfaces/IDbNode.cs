@@ -36,14 +36,6 @@ public enum NodeArithmeticOperationType
     Divide
 }
 
-public enum NodeConvertToType
-{
-    String,
-    Number,
-    Boolean,
-    Array,
-}
-
 public static class NodeExtensions
 {
     public static string ToShortString(this NodeConditionType type)

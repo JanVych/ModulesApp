@@ -36,6 +36,7 @@ public class ServerTaskService
             .Include(t => t.Module)
             .Include(t => t.BackgroundService)
             .Include(t => t.DashboardEntity)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -45,6 +46,7 @@ public class ServerTaskService
         return await context.Tasks
             .Where(t => t.ModuleId == module.Id)
             .Include(t => t.Module)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -54,6 +56,7 @@ public class ServerTaskService
         return await context.Tasks
             .Where(t => t.BackgroundServiceId == service.Id)
             .Include(t => t.BackgroundService)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -63,6 +66,7 @@ public class ServerTaskService
         return await context.Tasks
             .Where(t => t.DashboardEntityId == entity.Id)
             .Include(t => t.DashboardEntity)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -74,6 +78,7 @@ public class ServerTaskService
             .Include(n => n.Task)
             .Include(n => n.SourceLinks)
             .Include(n => n.TargetLinks)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -84,6 +89,7 @@ public class ServerTaskService
             .Where(l => l.Source.TaskId == task.Id)
             .Include(l => l.Source)
             .Include(l => l.Target)
+            .AsSplitQuery()
             .ToListAsync();
     }
 

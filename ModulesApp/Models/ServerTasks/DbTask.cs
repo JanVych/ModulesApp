@@ -12,10 +12,10 @@ public enum TaskType
 
 public enum TargetType
 {
+    None,
     Module,
     Service,
     DashboardEntity,
-    //None,
 }
 
 [Table("Task")]
@@ -26,7 +26,7 @@ public class DbTask
 
     public TaskType Type { get; set; }
 
-    public TargetType TriggerSourceType { get; set; }
+    public TargetType TriggerSourceType { get; set; } = TargetType.None;
 
     public string Name { get; set; } = string.Empty;
 

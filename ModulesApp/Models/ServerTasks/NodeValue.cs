@@ -8,7 +8,8 @@ public enum NodeValueType
     Boolean,
     Array,
     Object,
-    Invalid
+    Invalid,
+    Any
 }
 
 public abstract class NodeValue

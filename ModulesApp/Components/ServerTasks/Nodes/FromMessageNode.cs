@@ -10,8 +10,8 @@ public class FromMessageNode : TaskNode
 {
     public FromMessageNode(ContextService context, Point? position = null) : base(context, position) 
     {
-        StringVal2 = "any";
         Type = NodeType.FromMessage;
+        LongVal1 = (long)NodeValueType.Any;
         AddPort(new TaskPort(this, false, 0, data: true));
     }
 

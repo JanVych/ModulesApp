@@ -1,9 +1,6 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
-using ModulesApp.Helpers;
-using ModulesApp.Interfaces;
 using ModulesApp.Services;
 using System.Text.Json;
-using static MudBlazor.CategoryTypes;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
@@ -28,51 +25,43 @@ public class DbFromMessageNode : DbTaskNode
 
     public override void Process(ContextService context)
     {
-        //Value = TargetLinks.FirstOrDefault()?.GetValue(context)
-        //        ?? new NodeValue.InvalidValue($"node: {Order}, had no input");
-
+        JsonElement? value = null;
         if (Task == null)
         {
-            Value = new NodeValue.InvalidValue($"Module not found, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"Source not found, in node: {Order}");
             return;
         }
 
-        JsonElement? value = null;
-        if (Task.ModuleId is long moduleId)
+        if(Task.TriggerSourceType == TargetType.Module && Task.ModuleId is long moduleId)
         {
             value = context.GetMessageFromModule(moduleId, StringVal1);
         }
-
-        else if(Task.BackgroundServiceId is long backgroundServiceId)
+        else if (Task.TriggerSourceType == TargetType.Service && Task.BackgroundServiceId is long backgroundServiceId)
         {
             value = context.GetMessageFromService(backgroundServiceId, StringVal1);
         }
-
-        else if (Task.DashboardEntityId is long dashboardEntityId)
+        else if (Task.TriggerSourceType == TargetType.DashboardEntity && Task.DashboardEntityId is long dashboardEntityId)
         {
             value = context.GetMessageFromDashBoardEntity(dashboardEntityId, StringVal1);
         }
-
-
-        if (value is null)
+        else
         {
-            Value = new NodeValue.InvalidValue($"No such key:{StringVal1} in message, from module: {Task.ModuleId}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"Invalid source type: {Task.TriggerSourceType}, in node: {Order}");
             return;
         }
 
-        Value = ConvertJsonElement((JsonElement)value);
-
-        if (!IsValidType(Value, StringVal2))
+        if (value is not JsonElement jValue)
         {
-            if(StringVal2 == "number")
-            {
-                Value = new NodeValue.NumberValue(DataConvertor.ToDouble(value));
-            }
-            else
-            {
-                Value = new NodeValue.InvalidValue($"Value is not {StringVal2}, from module: {Task.ModuleId}, in node: {Order}");
-            }
+            Value = new NodeValue.InvalidValue($"No such key:{StringVal1} in message, from {Task.TriggerSourceType}, in node: {Order}");
+            return;
         }
+
+        if (!IsValidType(jValue, (NodeValueType)LongVal1))
+        {
+            Value = new NodeValue.InvalidValue($"Value is not {(NodeValueType)LongVal1}, from module: {Task.ModuleId}, in node: {Order}");
+            return;
+        }
+        Value = ConvertJsonElement((JsonElement)value);
     }
 
     private NodeValue ConvertJsonElement(JsonElement element)
@@ -88,15 +77,15 @@ public class DbFromMessageNode : DbTaskNode
         };
     }
 
-    private static bool IsValidType(NodeValue value, string expectedType)
+    private static bool IsValidType(JsonElement element, NodeValueType type)
     {
-        return expectedType switch
+        return type switch
         {
-            "any" => true,
-            "number" => value.Type == NodeValueType.Number,
-            "string" => value.Type == NodeValueType.String,
-            "boolean" => value.Type == NodeValueType.Boolean,
-            "array" => value.Type == NodeValueType.Array,
+            NodeValueType.Any => true,
+            NodeValueType.String => element.ValueKind == JsonValueKind.String,
+            NodeValueType.Number => element.ValueKind == JsonValueKind.Number,
+            NodeValueType.Boolean => element.ValueKind == JsonValueKind.True || element.ValueKind == JsonValueKind.False,
+            NodeValueType.Array => element.ValueKind == JsonValueKind.Array,
             _ => false
         };
     }

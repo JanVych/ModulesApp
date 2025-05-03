@@ -1,6 +1,4 @@
-﻿@using System.Text.RegularExpressions;
-@using Microsoft.AspNetCore.Authorization
-@using ModulesApp.Models.ModulesPrograms
+﻿@using ModulesApp.Models.ModulesPrograms
 @using ModulesApp.Services.Data
 @using System.Text
 
@@ -11,7 +9,7 @@
 @implements IAsyncDisposable
 
 @page "/modules/add"
-@* @attribute [Authorize] *@
+@attribute [Authorize]
 
 <PageTitle>Add module</PageTitle>
 

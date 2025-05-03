@@ -8,12 +8,12 @@ namespace ModulesApp.Components.ServerTasks.Nodes;
 
 public class ConvertToNode : TaskNode
 {
-    public NodeConvertToType ConvertToType => (NodeConvertToType)SubType;
-    public ConvertToNode(ContextService context, NodeConvertToType type, Point? position = null)
+    public NodeValueType ConvertToType => (NodeValueType)SubType;
+    public ConvertToNode(ContextService context, NodeValueType convertToType, Point? position = null)
         : base(context, position)
     {
         Type = NodeType.ConvertTo;
-        SubType = (int)type;
+        SubType = (int)convertToType;
         InputType = NodeInputType.Single;
         AddPorts();
 

@@ -1,6 +1,4 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
-@using ModulesApp.Models
+﻿@using ModulesApp.Models
 @using ModulesApp.Services
 @using ModulesApp.Services.Data
 
@@ -12,7 +10,7 @@
 @implements IDisposable
 
 @page "/modules"
-@* @attribute [Authorize] *@
+@attribute [Authorize]
 
 <PageTitle>Modules</PageTitle>
 

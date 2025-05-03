@@ -1,5 +1,4 @@
 ﻿@using BlazorMonaco.Editor
-@using Microsoft.AspNetCore.Authorization
 @using ModulesApp.Models
 @using ModulesApp.Models.ModulesPrograms
 @using ModulesApp.Services
@@ -11,7 +10,7 @@
 @inject ContextService _serverContextService
 
 @page "/programs"
-@* @attribute [Authorize] *@
+@attribute [Authorize]
 
 <PageTitle>Programs</PageTitle>
 

@@ -12,10 +12,9 @@
                Variant="Variant.Outlined"
                Label="Target"
                Margin="Margin.Dense">
-        @foreach (TargetType targetType in Enum.GetValues(typeof(TargetType)))
-        {
-            <MudSelectItem Value="@ToLong(targetType)">@targetType</MudSelectItem>
-        }
+        <MudSelectItem Value="@ToLong(TargetType.Module)">@TargetType.Module</MudSelectItem>
+        <MudSelectItem Value="@ToLong(TargetType.Service)">@TargetType.Service</MudSelectItem>
+        <MudSelectItem Value="@ToLong(TargetType.DashboardEntity)">@TargetType.DashboardEntity</MudSelectItem>
     </MudSelect>
 
     @if (Node.LongVal2 == (long)TargetType.Module && Node.Modules != null)
