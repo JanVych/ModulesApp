@@ -58,7 +58,7 @@ public class DbFromMessageNode : DbTaskNode
 
         if (!IsValidType(jValue, (NodeValueType)LongVal1))
         {
-            Value = new NodeValue.InvalidValue($"Value is not {(NodeValueType)LongVal1}, from module: {Task.ModuleId}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"Value is not {(NodeValueType)LongVal1}, from {Task.TriggerSourceType}, in node: {Order}");
             return;
         }
         Value = ConvertFromJsonElement((JsonElement)value, this);

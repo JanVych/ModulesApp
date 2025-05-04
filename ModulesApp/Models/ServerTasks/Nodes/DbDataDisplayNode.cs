@@ -42,9 +42,5 @@ public class DbDataDisplayNode : DbTaskNode
                 context.SendToDashboardEntity(LongVal1, "Value", Value.GetValue());
             }
         }
-        else
-        {
-            Console.WriteLine(Value.ToString());
-        }
     }
 }

@@ -57,10 +57,5 @@ public class DbSendMessageNode : DbTaskNode
                 }
             }
         }
-
-        if (Value.Type == NodeValueType.Invalid)
-        {
-            Console.WriteLine(Value.ToString());
-        }
     }
 }

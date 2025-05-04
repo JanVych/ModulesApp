@@ -102,7 +102,7 @@
                         <MudSelect @bind-Value="_selectedTask.DashboardEntity">
                             @foreach (var entity in _entities)
                             {
-                                <MudSelectItem Value="entity">@entity.ToString() | @entity.Id</MudSelectItem>
+                                <MudSelectItem Value="entity"></MudSelectItem>
                             }
                         </MudSelect>
                     }

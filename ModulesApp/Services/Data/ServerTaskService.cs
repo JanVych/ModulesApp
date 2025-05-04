@@ -168,29 +168,6 @@ public class ServerTaskService
         await UpdateAsync(task);
     }
 
-    public async Task ExecuteTaskAsync(ContextService serverContext , DbTask task)
-    {
-        var nodes = await GetNodesAsync(task);
-
-        foreach (var node in nodes)
-        {
-            if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
-            {
-                //node.Process(serverContext);
-                var value = node.GetValue(null, serverContext);
-                Console.WriteLine($"Node: {node.Order}, Value: {value}");
-            }
-        }
-    }
-
-    public async Task ExecuteTasksAsync(ContextService serverContext, IEnumerable<DbTask> tasks)
-    {
-        foreach (var task in tasks)
-        {
-            await ExecuteTaskAsync(serverContext, task);
-        }
-    }
-
     public async Task ExecuteTasksAsync(ContextService serverContext, DbModule module)
     {
         var tasks  = await GetTasksAsync(module);
@@ -207,6 +184,29 @@ public class ServerTaskService
     {
         var tasks = await GetTasksAsync(entity);
         await ExecuteTasksAsync(serverContext, tasks);
+    }
+
+    public async Task ExecuteTasksAsync(ContextService serverContext, IEnumerable<DbTask> tasks)
+    {
+        foreach (var task in tasks)
+        {
+            await ExecuteTaskAsync(serverContext, task);
+        }
+    }
+
+    public async Task ExecuteTaskAsync(ContextService serverContext, DbTask task)
+    {
+        var nodes = await GetNodesAsync(task);
+
+        foreach (var node in nodes)
+        {
+            if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
+            {
+                //node.Process(serverContext);
+                var value = node.GetValue(null, serverContext);
+                Console.WriteLine($"Node: {node.Order}, Value: {value}");
+            }
+        }
     }
 }
 
