@@ -1,4 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
+using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Services;
 
@@ -7,8 +8,8 @@ namespace ModulesApp.Models.ServerTasks.Nodes;
 public class DbArithmeticOperationNode : DbTaskNode
 {
     public NodeArithmeticOperationType OperationType => (NodeArithmeticOperationType)SubType;
-    private DbTaskLink? Left => TargetLinks.FirstOrDefault(l => l.TargetOrder == 1);
-    private DbTaskLink? Right => TargetLinks.FirstOrDefault(l => l.TargetOrder == 2);
+    private DbTaskLink? Left => TargetLinks.FirstOrDefault(l => l.TargetPositionAlignment == PortPositionAlignment.Start);
+    private DbTaskLink? Right => TargetLinks.FirstOrDefault(l => l.TargetPositionAlignment == PortPositionAlignment.End);
 
     public DbArithmeticOperationNode(TaskNode node) : base(node)
     {

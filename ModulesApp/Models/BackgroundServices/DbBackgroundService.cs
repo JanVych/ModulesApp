@@ -29,7 +29,7 @@ public abstract class DbBackgroundService
     public BackgroundServiceType Type { get; set; }
     public TimeSpan Interval { get; set; }
     public DateTime LastRun { get; set; }
-    public Dictionary<string, object> Data { get; set; } = [];
+    public Dictionary<string, object?> Data { get; set; } = [];
     public BackgroundServiceStatus Status { get; set; } = BackgroundServiceStatus.Stopped;
 
     public ICollection<DbAction> Actions { get; set; } = [];
@@ -96,10 +96,7 @@ public abstract class DbBackgroundService
 
     protected void AddMessage(string key, object? value)
     {
-        if (value is not null)
-        {
-            Data.TryAdd(key, value);
-        }
+        Data[key] = value;
     }
 
     public Color GetStatusColor()

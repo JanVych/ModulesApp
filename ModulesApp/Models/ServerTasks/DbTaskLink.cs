@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using ModulesApp.Interfaces;
 using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Services;
 
@@ -18,11 +17,11 @@ public class DbTaskLink
     public long TargetNodeId { get; set; }
     public DbTaskNode Target { get; set; }
 
-    public int SourceOrder { get; set; }
+    public PortPositionAlignment SourcePositionAlignment { get; set; }
     public bool SourceInput { get; set; } = false;
     public bool SourceData { get; set; } = false;
 
-    public int TargetOrder { get; set; }
+    public PortPositionAlignment TargetPositionAlignment { get; set; }
     public bool TargetInput { get; set; } = false;
     public bool TargetData { get; set; } = false;
 
@@ -32,11 +31,11 @@ public class DbTaskLink
         Source = sourceNode;
         Target = targetNode;
 
-        SourceOrder = sourcePort.Order;
+        SourcePositionAlignment = sourcePort.PositionAlignment;
         SourceInput = sourcePort.Input;
         SourceData = sourcePort.Data;
 
-        TargetOrder = targetPort.Order;
+        TargetPositionAlignment = targetPort.PositionAlignment;
         TargetInput = targetPort.Input;
         TargetData = targetPort.Data;
     }

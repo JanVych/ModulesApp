@@ -3,7 +3,7 @@
 @using ModulesApp.Interfaces
 @using MudBlazor
 
-<NodeWidget Node="Node"
+<TaskNodeWidget Node="Node"
             BoolOutputText="false"
             Header="@Node.OperationType.ToString()"
             MainColor="var(--arithmetic-operation-node-color)">
@@ -19,7 +19,7 @@
     <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="ToBool(Node.InputType)">
         @Node.InputType input
     </MudSwitch>
-</NodeWidget>
+</TaskNodeWidget>
 
 @code
 {

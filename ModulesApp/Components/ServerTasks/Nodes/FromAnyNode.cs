@@ -1,5 +1,4 @@
 ﻿using Blazor.Diagrams.Core.Geometry;
-using Blazor.Diagrams.Core.Models;
 using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Models;
@@ -10,22 +9,25 @@ using ModulesApp.Services;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
-public class SendMessageNode : TaskNode
+public class FromAnyNode : TaskNode
 {
     public List<DbModule>? Modules { get; set; }
     public List<DbDashboardEntity>? Entities { get; set; }
     public List<DbBackgroundService>? Services { get; set; }
-    public SendMessageNode(ContextService context, Point? position = null) : base(context, position)
+
+    public FromAnyNode(ContextService context, Point? position = null) : base(context, position) 
     {
-        Type = NodeType.SendMessage;
+        Type = NodeType.FromAny;
 
         Modules = context.GetAllModules();
         LongVal1 = Modules.FirstOrDefault()?.Id ?? 0;
         LongVal2 = (long)TargetType.Module;
+        LongVal3 = (long)NodeValueType.Any;
 
-        AddPorts(NodeInputType.Single);
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }
-    public SendMessageNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
+
+    public FromAnyNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         TargetType type = (TargetType)LongVal2;
         if (type == TargetType.Module)
@@ -40,24 +42,7 @@ public class SendMessageNode : TaskNode
         {
             Entities = context.GetAllDashBoardEntities();
         }
-        AddPorts(InputType);
-    }
 
-    public void AddPorts(NodeInputType type)
-    {
-        InputType = type;
-        RemoveAllInputPorts();
-        if (type == NodeInputType.Single)
-        {
-            //Trigger and data port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
-        }
-        else
-        {
-            //Trigger port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Start, data: false));
-            //Data port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.End, data: true));
-        }
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }
 }

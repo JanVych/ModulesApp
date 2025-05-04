@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ModulesApp.Data;
 
@@ -11,14 +10,12 @@ using ModulesApp.Data;
 namespace ModulesApp.Migrations
 {
     [DbContext(typeof(SQLiteDbContext))]
-    [Migration("20250502143942_mig2")]
-    partial class mig2
+    partial class SQLiteDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.15");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -536,7 +533,7 @@ namespace ModulesApp.Migrations
                     b.Property<long>("SourceNodeId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("SourceOrder")
+                    b.Property<int>("SourcePositionAlignment")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("TargetData")
@@ -548,7 +545,7 @@ namespace ModulesApp.Migrations
                     b.Property<long>("TargetNodeId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TargetOrder")
+                    b.Property<int>("TargetPositionAlignment")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -583,11 +580,6 @@ namespace ModulesApp.Migrations
 
                     b.Property<long>("LongVal3")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("NodeType")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("Order")
                         .HasColumnType("INTEGER");
@@ -625,7 +617,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator<string>("NodeType").HasValue("DbTaskNode");
+                    b.HasDiscriminator<int>("Type");
 
                     b.UseTphMappingStrategy();
                 });
@@ -708,7 +700,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("ArithmeticOperation");
+                    b.HasDiscriminator().HasValue(6);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbArrayOperationNode", b =>
@@ -717,7 +709,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("ArrayOperation");
+                    b.HasDiscriminator().HasValue(5);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbConditionNode", b =>
@@ -726,7 +718,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("Condition");
+                    b.HasDiscriminator().HasValue(0);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbConvertToNode", b =>
@@ -735,7 +727,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("ConvertTo");
+                    b.HasDiscriminator().HasValue(7);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbDataDisplayNode", b =>
@@ -744,7 +736,25 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("DataDisplay");
+                    b.HasDiscriminator().HasValue(2);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbDateTimeNode", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");
+
+                    b.ToTable("TaskNode");
+
+                    b.HasDiscriminator().HasValue(8);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbFromAnyNode", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");
+
+                    b.ToTable("TaskNode");
+
+                    b.HasDiscriminator().HasValue(9);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbFromMessageNode", b =>
@@ -753,7 +763,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("FromMessage");
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbSendMessageNode", b =>
@@ -762,7 +772,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("SendMessage");
+                    b.HasDiscriminator().HasValue(4);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbValueNode", b =>
@@ -771,7 +781,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("StaticData");
+                    b.HasDiscriminator().HasValue(3);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

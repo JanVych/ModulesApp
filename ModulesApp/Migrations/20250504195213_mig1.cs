@@ -374,8 +374,7 @@ namespace ModulesApp.Migrations
                     PositionX = table.Column<double>(type: "REAL", nullable: false),
                     PositionY = table.Column<double>(type: "REAL", nullable: false),
                     Order = table.Column<int>(type: "INTEGER", nullable: false),
-                    TaskId = table.Column<long>(type: "INTEGER", nullable: false),
-                    NodeType = table.Column<string>(type: "TEXT", maxLength: 21, nullable: false)
+                    TaskId = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -418,10 +417,10 @@ namespace ModulesApp.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     SourceNodeId = table.Column<long>(type: "INTEGER", nullable: false),
                     TargetNodeId = table.Column<long>(type: "INTEGER", nullable: false),
-                    SourceOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    SourcePositionAlignment = table.Column<int>(type: "INTEGER", nullable: false),
                     SourceInput = table.Column<bool>(type: "INTEGER", nullable: false),
                     SourceData = table.Column<bool>(type: "INTEGER", nullable: false),
-                    TargetOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    TargetPositionAlignment = table.Column<int>(type: "INTEGER", nullable: false),
                     TargetInput = table.Column<bool>(type: "INTEGER", nullable: false),
                     TargetData = table.Column<bool>(type: "INTEGER", nullable: false)
                 },

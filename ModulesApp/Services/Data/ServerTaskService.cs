@@ -128,6 +128,8 @@ public class ServerTaskService
                 NodeType.ArrayOperation => new DbArrayOperationNode((ArrayOperationNode)node),
                 NodeType.ArithmeticOperation => new DbArithmeticOperationNode(node),
                 NodeType.ConvertTo => new DbConvertToNode((ConvertToNode)node),
+                NodeType.DateTime => new DbDateTimeNode((DateTimeNode)node),
+                NodeType.FromAny => new DbFromAnyNode((FromAnyNode)node),
                 _ => throw new ArgumentException($"Unsupported node type: {node.Type}")
             });
         }

@@ -4,18 +4,25 @@ using Blazor.Diagrams.Core.Models.Base;
 
 namespace ModulesApp.Components.ServerTasks.Ports;
 
+public enum PortPositionAlignment
+{
+    Start,
+    Center,
+    End,
+}
+
 public class TaskPort : PortModel
 {
-    public int Order { get; set; }
+    public bool Data { get; set; }
     public bool Input { get; set; } = false;
-    public bool Data { get; set; } = false;
+    public PortPositionAlignment PositionAlignment { get; set; }
 
-    public TaskPort(NodeModel parent, bool input, int order, Point? position = null, Size? size = null, bool data = false) 
+    public TaskPort(NodeModel parent, bool input, PortPositionAlignment positionAlignment, Point? position = null, Size? size = null, bool data = false) 
         : base(parent, input ? PortAlignment.Left : PortAlignment.Right, position, size)
     {
-        Input = input;
-        Order = order;
         Data = data;
+        Input = input;
+        PositionAlignment = positionAlignment;
     }
 
     public override bool CanAttachTo(ILinkable other)

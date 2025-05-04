@@ -10,6 +10,8 @@ public enum NodeType
     ArrayOperation,
     ArithmeticOperation,
     ConvertTo,
+    DateTime,
+    FromAny
 }
 
 public enum NodeConditionType
@@ -34,6 +36,21 @@ public enum NodeArithmeticOperationType
     Subtract,
     Multiply,
     Divide
+}
+
+public enum NodeDateTimeOutputType
+{
+    DateTimeString,
+    DateString,
+    TimeString,
+    Year,
+    Month,
+    Day,
+    Hour,
+    Minute,
+    Second,
+    DayOfWeek,
+    DayOfYear
 }
 
 public static class NodeExtensions

@@ -1,5 +1,4 @@
 ﻿using ModulesApp.Helpers;
-using ModulesApp.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModulesApp.Models.BackgroundServices.Servicves;
@@ -35,29 +34,24 @@ public class DbGoodweBackgroundService : DbBackgroundService
     {
         if (_modbusRtuUdp.Open())
         {
-            //var x = _modbusRtuUdp.ReadU16Register(47515);
-            //Console.WriteLine(x);
-            //var y = x | 0xFF00;
-            //Console.WriteLine(y);
-            //_modbusRtuUdp.WriteU16Register(47515, (ushort) y);
-            //Console.WriteLine(_modbusRtuUdp.ReadU16Register(47515));
-            //_modbusRtuUdp.WriteU16Register(47612, 1);
-            //Console.WriteLine(_modbusRtuUdp.ReadU16Register(47612));
-
-            //if ((now.Hour >= 20 || now.Hour < 12) && _flag1)
-            //{
-            //    Console.WriteLine("SetBatteryDischarge(1)");
-            //    SetBatteryDischarge(1);
-            //    _flag1 = false;
-            //    _flag2 = true;
-            //}
-            //if(now.Hour >= 12  && now.Hour < 20 && _flag2)
-            //{
-            //    Console.WriteLine("SetBatteryDischarge(2)");
-            //    SetBatteryDischarge(0);
-            //    _flag1 = true;
-            //    _flag2 = false;
-            //}
+            foreach (var action in Actions)
+            {
+                if (action.Key == "SetBatteryPower")
+                {
+                    var value = DataConvertor.ToDouble(action.Value);
+                    SetBatteryPower((short)value);
+                }
+                else if (action.Key == "SetBatteryCharge")
+                {
+                    var value = DataConvertor.ToDouble(action.Value);
+                    SetBatteryCharge((short)value);
+                }
+                else if (action.Key == "SetBatteryDischarge")
+                {
+                    var value = DataConvertor.ToDouble(action.Value);
+                    SetBatteryDischarge((short)value);
+                }
+            }
             await Task.Delay(100);
             AddMessage("PV1 Power", GetPV1Power());
             AddMessage("Grid Power", GetGridPower());
@@ -67,13 +61,7 @@ public class DbGoodweBackgroundService : DbBackgroundService
             AddMessage("Inverter Temperature", GetInverterTemperature());
             AddMessage("Battery Temperature", GetBatteryTemperature());
             AddMessage("Battery SOC", GetBatterySOC());
-            AddMessage("Battery Status", GetBatteryStatus());
-
-            //SetBatteryDischarge(6);
-            //AddToMessage("47515", _modbusRtuUdp.ReadU16Register(47515));
-            //AddToMessage("47516", _modbusRtuUdp.ReadU16Register(47516));
-            //AddToMessage("47517", _modbusRtuUdp.ReadS16Register(47517));
-            //AddToMessage("47518", _modbusRtuUdp.ReadU16Register(47518));
+            AddMessage("Battery Status", GetBatteryStatus().ToString());
         }
         _modbusRtuUdp.Close();
     }
@@ -115,25 +103,27 @@ public class DbGoodweBackgroundService : DbBackgroundService
         _modbusRtuUdp.WriteU16Register(47516, value);
     }
 
-    public void SetBatteryCharge(short power) => SetBattery((short) -power);
-    public void SetBatteryDischarge(short power) => SetBattery(power);
+    public void SetBatteryCharge(short power) => SetBatteryPower((short) -power);
+    public void SetBatteryDischarge(short power) => SetBatteryPower(power);
 
-    // TODO change percent to power in Wats, 1 percent == 100W
-    private void SetBattery(short power)
+    // 1 percent == 100W
+    // 10 kW Max Battery Power
+
+    /// <summary>
+    /// Set battery power, in Watts
+    /// </summary>
+    /// <param name="power"></param>
+    private void SetBatteryPower(short power)
     {
+        var percentPower = (short)(power / 100);
+        if (percentPower > 100 || percentPower < -100)
+        {
+            return;
+        }
         _modbusRtuUdp.WriteU16Register(47515, 0x0000);
         _modbusRtuUdp.WriteU16Register(47516, 0x173B);
-        _modbusRtuUdp.WriteS16Register(47517, power);
-        //var workWeek = _modbusRtuUdp.ReadU16Register(47518);
-        //if (workWeek is not null)
-        //{
-        //    var workWeekAndMode = (ushort)(0xFF00 | workWeek);
-        //    _modbusRtuUdp.WriteU16Register(47518, workWeekAndMode);
-        //}
-        //else
-        //{
-        //    Console.WriteLine("Error: SetBattery, when reading register 47518");
-        //}
+        _modbusRtuUdp.WriteS16Register(47517, percentPower);
+
         _modbusRtuUdp.WriteU16Register(47518, 0xFF7F);
     }
 }

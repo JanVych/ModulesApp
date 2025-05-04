@@ -25,7 +25,7 @@ public class DbFromMessageNode : DbTaskNode
 
     public override void Process(ContextService context)
     {
-        JsonElement? value = null;
+        JsonElement? value;
         if (Task == null)
         {
             Value = new NodeValue.InvalidValue($"Source not found, in node: {Order}");
@@ -61,32 +61,6 @@ public class DbFromMessageNode : DbTaskNode
             Value = new NodeValue.InvalidValue($"Value is not {(NodeValueType)LongVal1}, from module: {Task.ModuleId}, in node: {Order}");
             return;
         }
-        Value = ConvertJsonElement((JsonElement)value);
-    }
-
-    private NodeValue ConvertJsonElement(JsonElement element)
-    {
-        return element.ValueKind switch
-        {
-            JsonValueKind.String => new NodeValue.StringValue(element.GetString() ?? string.Empty),
-            JsonValueKind.Number => new NodeValue.NumberValue(element.GetDouble()),
-            JsonValueKind.True => new NodeValue.BooleanValue(true),
-            JsonValueKind.False => new NodeValue.BooleanValue(false),
-            JsonValueKind.Array => new NodeValue.ArrayValue(element.EnumerateArray().Select(ConvertJsonElement).ToList()),
-            _ => new NodeValue.InvalidValue($"Invalid value type: {element.ValueKind}, from module: {Task.ModuleId}, in node: {Order}"),
-        };
-    }
-
-    private static bool IsValidType(JsonElement element, NodeValueType type)
-    {
-        return type switch
-        {
-            NodeValueType.Any => true,
-            NodeValueType.String => element.ValueKind == JsonValueKind.String,
-            NodeValueType.Number => element.ValueKind == JsonValueKind.Number,
-            NodeValueType.Boolean => element.ValueKind == JsonValueKind.True || element.ValueKind == JsonValueKind.False,
-            NodeValueType.Array => element.ValueKind == JsonValueKind.Array,
-            _ => false
-        };
+        Value = ConvertFromJsonElement((JsonElement)value, this);
     }
 }

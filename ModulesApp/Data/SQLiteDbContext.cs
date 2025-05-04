@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ModulesApp.Interfaces;
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.BackgroundServices.Servicves;
@@ -53,16 +54,17 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<DbTaskNode>()
-            .HasDiscriminator<string>("NodeType")
-            .HasValue<DbConditionNode>("Condition")
-            .HasValue<DbDataDisplayNode>("DataDisplay")
-            .HasValue<DbFromMessageNode>("FromMessage")
-            .HasValue<DbValueNode>("StaticData")
-            .HasValue<DbSendMessageNode>("SendMessage")
-            .HasValue<DbArrayOperationNode>("ArrayOperation")
-            .HasValue<DbArithmeticOperationNode>("ArithmeticOperation")
-            .HasValue<DbConvertToNode>("ConvertTo");
-
+            .HasDiscriminator<NodeType>(nameof(DbTaskNode.Type))
+            .HasValue<DbConditionNode>(NodeType.Condition)
+            .HasValue<DbDataDisplayNode>(NodeType.DataDisplay)
+            .HasValue<DbFromMessageNode>(NodeType.FromMessage)
+            .HasValue<DbValueNode>(NodeType.Value)
+            .HasValue<DbSendMessageNode>(NodeType.SendMessage)
+            .HasValue<DbArrayOperationNode>(NodeType.ArrayOperation)
+            .HasValue<DbArithmeticOperationNode>(NodeType.ArithmeticOperation)
+            .HasValue<DbConvertToNode>(NodeType.ConvertTo)
+            .HasValue<DbDateTimeNode>(NodeType.DateTime)
+            .HasValue<DbFromAnyNode>(NodeType.FromAny);
 
         builder.Entity<DbAction>()
             .Property(p => p.Value)
@@ -86,14 +88,14 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
             .Property(p => p.Data)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+                v => JsonSerializer.Deserialize<Dictionary<string, object?>>(v, SerializerOptions) ?? new Dictionary<string, object?>());
 
 
         builder.Entity<DbDashboardEntity>()
             .Property(p => p.Data)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+                v => JsonSerializer.Deserialize<Dictionary<string, object?>>(v, SerializerOptions) ?? new Dictionary<string, object?>());
 
         builder.Entity<DbDashboardEntity>()
             .HasDiscriminator<DashboardEntityType>(nameof(DbDashboardEntity.Type))

@@ -3,9 +3,8 @@
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
-            Header="Send-Message"
-            MainColor="var(--send-message-node-color)">
-
+                Header="From-Any"
+                MainColor="var(--from-any-node-color)">
     <MudSelect T="long"
                ValueChanged="OnTypeChanged"
                Value="@Node.LongVal2"
@@ -62,16 +61,24 @@
                   Label="Key"
                   Variant="Variant.Outlined"
                   Margin="Margin.Dense" />
-    <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="ToBool(Node.InputType)">
-        @Node.InputType input
-    </MudSwitch>
+
+    <MudSelect T="long"
+               @bind-Value="Node.LongVal3"
+               Variant="Variant.Outlined"
+               Label="Type"
+               Margin="Margin.Dense">
+        <MudSelectItem Value="(long)NodeValueType.Any">@NodeValueType.Any</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.String">@NodeValueType.String</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Number">@NodeValueType.Number</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Boolean">@NodeValueType.Boolean</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Array">@NodeValueType.Array</MudSelectItem>
+    </MudSelect>
 
 </TaskNodeWidget>
 
 @code
 {
-    [Parameter]
-    public SendMessageNode Node { get; set; } = null!;
+    [Parameter] public FromAnyNode Node { get; set; } = null!;
 
     private async Task OnTypeChanged(long type)
     {
@@ -92,18 +99,4 @@
         }
         Node.LongVal2 = type;
     }
-
-    private void SwitchInputType(bool inputType)
-    {
-        if (inputType)
-        {
-            Node.AddPorts(NodeInputType.Double);
-        }
-        else
-        {
-            Node.AddPorts(NodeInputType.Single);
-        }
-    }
-
-    private bool ToBool(NodeInputType type) => type == NodeInputType.Double;
 }

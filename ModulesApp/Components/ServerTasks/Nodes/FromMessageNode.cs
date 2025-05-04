@@ -12,11 +12,11 @@ public class FromMessageNode : TaskNode
     {
         Type = NodeType.FromMessage;
         LongVal1 = (long)NodeValueType.Any;
-        AddPort(new TaskPort(this, false, 0, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }
 
     public FromMessageNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
-        AddPort(new TaskPort(this, false, 0, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }
 }

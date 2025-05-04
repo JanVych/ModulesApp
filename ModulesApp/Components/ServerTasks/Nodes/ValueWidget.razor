@@ -1,20 +1,21 @@
-﻿@using MudBlazor
+﻿@using ModulesApp.Models.ServerTasks
+@using MudBlazor
 
-<NodeWidget Node="Node"
+<TaskNodeWidget Node="Node"
             Header="Value"
             MainColor="var(--value-node-color )">
 
-    <MudSelect T="string"
-               @bind-Value="Node.StringVal2"
+    <MudSelect T="long"
+               @bind-Value="Node.LongVal1"
                Variant="Variant.Outlined"
                Label="Type"
                Margin="Margin.Dense">
-        <MudSelectItem Value="@("String")" />
-        <MudSelectItem Value="@("Number")" />
-        <MudSelectItem Value="@("Boolean")" />
+        <MudSelectItem Value="(long)NodeValueType.String">@NodeValueType.String</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Number">@NodeValueType.Number</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Boolean">@NodeValueType.Boolean</MudSelectItem>
     </MudSelect>
 
-    @if (Node.StringVal2 == "String")
+    @if (Node.LongVal1 == (long)NodeValueType.String)
     {
         <MudTextField T="string"
                       @bind-Value="Node.StringVal1"
@@ -22,7 +23,7 @@
                       Variant="Variant.Outlined"
                       Margin="Margin.Dense" />
     }
-    else if (Node.StringVal2 == "Number")
+    else if (Node.LongVal1 == (long)NodeValueType.Number)
     {
         <MudNumericField T="double"
                          @bind-Value="Node.DoubleVal1"
@@ -30,7 +31,7 @@
                          Variant="Variant.Outlined"
                          Margin="Margin.Dense" />
     }
-    else if (Node.StringVal2 == "Boolean")
+    else if (Node.LongVal1 == (long)NodeValueType.Boolean)
     {
         <MudCheckBox T="bool"
                      Label="@Node.BoolVal1.ToString()"
@@ -38,7 +39,7 @@
                      Margin="Margin.Dense" />
     }
 
-</NodeWidget>
+</TaskNodeWidget>
 
 @code
 {

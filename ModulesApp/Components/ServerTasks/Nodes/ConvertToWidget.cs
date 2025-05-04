@@ -27,8 +27,8 @@ public class ConvertToNode : TaskNode
     private void AddPorts()
     {
         //Input port
-        AddPort(new TaskPort(this, true, 0, data: true));
+        AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
         //Output port
-        AddPort(new TaskPort(this, false, 0, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }
 }

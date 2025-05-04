@@ -6,16 +6,16 @@ using ModulesApp.Services;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
-public class ValueNode : TaskNode
+public class DateTimeNode : TaskNode
 {
-    public ValueNode(ContextService context, Point? position = null) : base(context, position)
+    public DateTimeNode(ContextService context, Point? position = null) : base(context, position)
     {
-        Type = NodeType.Value;
-        LongVal1 = (long)NodeValueType.String;
+        Type = NodeType.DateTime;
+        LongVal1 = (long)NodeDateTimeOutputType.DateTimeString;
         AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }
 
-    public ValueNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
+    public DateTimeNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }

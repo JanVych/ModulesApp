@@ -70,12 +70,15 @@
                             <MudSelectItem Value="type"></MudSelectItem>
                         }
                     </MudSelect>
-                    <MudSelect @bind-Value="_selectedTask.Type">
-                        @foreach (TaskType type in Enum.GetValues(typeof(TaskType)))
-                        {
-                            <MudSelectItem Value="type"></MudSelectItem>
-                        }
-                    </MudSelect>
+                    @if (_selectedTask.TriggerSourceType != TargetType.None)
+                    {
+                        <MudSelect @bind-Value="_selectedTask.Type">
+                            @foreach (TaskType type in Enum.GetValues(typeof(TaskType)))
+                            {
+                                <MudSelectItem Value="type"></MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
                     @if (_selectedTask.TriggerSourceType == TargetType.Service)
                     {
                         <MudSelect @bind-Value="_selectedTask.BackgroundService">
@@ -99,7 +102,7 @@
                         <MudSelect @bind-Value="_selectedTask.DashboardEntity">
                             @foreach (var entity in _entities)
                             {
-                                <MudSelectItem Value="entity"></MudSelectItem>
+                                <MudSelectItem Value="entity">@entity.ToString() | @entity.Id</MudSelectItem>
                             }
                         </MudSelect>
                     }
@@ -111,33 +114,47 @@
             <MudStack Row="true" Wrap="Wrap.Wrap">
 
                 <MudButton StartIcon="@Icons.Material.Filled.Message"
-                Variant="Variant.Filled"
-                Style="background-color: var(--from-message-node-color); color: var(--node-background-color);"
-                OnClick="() => AddNode(NodeType.FromMessage)">
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--from-message-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.FromMessage)">
                     From Message
                 </MudButton>
 
+                <MudButton StartIcon="@Icons.Material.Filled.Dataset"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--from-any-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.FromAny)">
+                    From Any
+                </MudButton>
+
                 <MudButton StartIcon="@Icons.Material.Filled.Numbers"
-                Variant="Variant.Filled"
-                Style="background-color: var(--value-node-color); color: var(--node-background-color);"
-                OnClick="() => AddNode(NodeType.Value)">
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--value-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.Value)">
                     Static Value
+                </MudButton>
+
+                <MudButton StartIcon="@Icons.Material.Filled.CalendarMonth"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--date-time-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.DateTime)">
+                    Date Time
                 </MudButton>
 
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--condition-node-color); color: var(--node-background-color);"
-                    OnClick="() => AddNode(NodeType.Condition)">
+                               OnClick="() => AddNode(NodeType.Condition)">
                         Condition
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                    Label="@_selectedCondition.ToLongString()"
-                    Class="custom-menu-label custom-menu-icon"
-                    Style="background-color: var(--condition-node-color);">
+                             Label="@_selectedCondition.ToLongString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--condition-node-color);">
 
                         @foreach (NodeConditionType condition in Enum.GetValues(typeof(NodeConditionType)))
                         {
                             <MudMenuItem Style="background-color: var(--condition-node-color); color: var(--node-background-color);"
-                            @onclick="() => ChangeConditionType(condition)">
+                                         @onclick="() => ChangeConditionType(condition)">
                                 @condition.ToLongString()
                             </MudMenuItem>
                         }
@@ -145,34 +162,20 @@
                     </MudMenu>
                 </MudButtonGroup>
 
-                <MudButton StartIcon="@Icons.Material.Filled.DashboardCustomize"
-                Variant="Variant.Filled"
-                Style="background-color: var(--data-display-node-color); color: var(--node-background-color);"
-                OnClick="() => AddNode(NodeType.DataDisplay)">
-                    Data Display
-                </MudButton>
-
-                <MudButton StartIcon="@Icons.Material.Filled.Send"
-                Variant="Variant.Filled"
-                Style="background-color: var(--send-message-node-color); color: var(--node-background-color);"
-                OnClick="() => AddNode(NodeType.SendMessage)">
-                    Send Message
-                </MudButton>
-
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--array-operation-node-color); color: var(--node-background-color);"
-                    OnClick="() => AddNode(NodeType.ArrayOperation)">
+                               OnClick="() => AddNode(NodeType.ArrayOperation)">
                         Array
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                    Label="@_selectedOperation.ToLongString()"
-                    Class="custom-menu-label custom-menu-icon"
-                    Style="background-color: var(--array-operation-node-color);">
+                             Label="@_selectedOperation.ToLongString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--array-operation-node-color);">
 
                         @foreach (NodeArrayOperationType operation in Enum.GetValues(typeof(NodeArrayOperationType)))
                         {
                             <MudMenuItem Style="background-color: var(--array-operation-node-color); color: var(--node-background-color);"
-                            @onclick="() => ChangeOperationType(operation)">
+                                         @onclick="() => ChangeOperationType(operation)">
                                 @operation.ToLongString()
                             </MudMenuItem>
                         }
@@ -182,18 +185,18 @@
 
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--arithmetic-operation-node-color); color: var(--node-background-color);"
-                    OnClick="() => AddNode(NodeType.ArithmeticOperation)">
+                               OnClick="() => AddNode(NodeType.ArithmeticOperation)">
                         Arithmetic
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                    Label="@_selectedArithmeticOperation.ToString()"
-                    Class="custom-menu-label custom-menu-icon"
-                    Style="background-color: var(--arithmetic-operation-node-color);">
+                             Label="@_selectedArithmeticOperation.ToString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--arithmetic-operation-node-color);">
 
                         @foreach (NodeArithmeticOperationType operation in Enum.GetValues(typeof(NodeArithmeticOperationType)))
                         {
                             <MudMenuItem Style="background-color: var(--arithmetic-operation-node-color); color: var(--node-background-color);"
-                            @onclick="() => _selectedArithmeticOperation = operation">
+                                         @onclick="() => _selectedArithmeticOperation = operation">
                                 @operation.ToString()
                             </MudMenuItem>
                         }
@@ -202,23 +205,37 @@
 
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--convert-to-color); color: var(--node-background-color);"
-                    OnClick="() => AddNode(NodeType.ConvertTo)">
+                               OnClick="() => AddNode(NodeType.ConvertTo)">
                         To
                     </MudButton>
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
-                    Label="@_selectedConvertTo.ToString()"
-                    Class="custom-menu-label custom-menu-icon"
-                    Style="background-color: var(--convert-to-color);">
+                             Label="@_selectedConvertTo.ToString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--convert-to-color);">
 
                         @foreach (var operation in _listOfConverTo)
                         {
                             <MudMenuItem Style="background-color: var(--convert-to-color); color: var(--node-background-color);"
-                            @onclick="() => _selectedConvertTo = operation">
+                                         @onclick="() => _selectedConvertTo = operation">
                                 @operation.ToString()
                             </MudMenuItem>
                         }
                     </MudMenu>
                 </MudButtonGroup>
+
+                <MudButton StartIcon="@Icons.Material.Filled.DashboardCustomize"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--data-display-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.DataDisplay)">
+                    Data Display
+                </MudButton>
+
+                <MudButton StartIcon="@Icons.Material.Filled.Send"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--send-message-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.SendMessage)">
+                    Send Message
+                </MudButton>
 
             </MudStack>
         </MudPaper>
@@ -232,9 +249,9 @@
                             <GridWidget Size="30" Mode="GridMode.Point" BackgroundColor="var(--mud-palette-background)" />
 
                             <NavigatorWidget Width="200"
-                            Height="120"
-                            Class="border border-secondary absolute"
-                            Style="bottom: 15px; right: 15px; background-color: var(--mud-palette-background);">
+                                             Height="120"
+                                             Class="border border-secondary absolute"
+                                             Style="bottom: 15px; right: 15px; background-color: var(--mud-palette-background);">
                             </NavigatorWidget>
 
                         </Widgets>
@@ -253,17 +270,17 @@
 
 <style>
     .diagram-container {
-    width: 100%;
-    height: 65vh;
-    /*         border: 2px solid var(--mud-palette-drawer-text); */
+        width: 100%;
+        height: 65vh;
+        /*         border: 2px solid var(--mud-palette-drawer-text); */
     }
 
     .custom-menu-icon .mud-icon-root {
-    color: var(--node-background-color);
+        color: var(--node-background-color);
     }
 
     .custom-menu-label .mud-button-label {
-    color: var(--node-background-color);
+        color: var(--node-background-color);
     }
 
 </style>
@@ -273,7 +290,6 @@
 {
     private List<DbTask> _tasks = [];
 
-    // private bool _tasksLoading = true;
     private DbTask? _selectedTask;
 
     private BlazorDiagram? _currentDiagram;
@@ -318,6 +334,8 @@
             _currentDiagram.RegisterComponent<ArrayOperationNode, ArrayOperationWidget>();
             _currentDiagram.RegisterComponent<ArithmeticOperationNode, ArithmeticOperationWidget>();
             _currentDiagram.RegisterComponent<ConvertToNode, ConvertToWidget>();
+            _currentDiagram.RegisterComponent<DateTimeNode, DateTimeWidget>();
+            _currentDiagram.RegisterComponent<FromAnyNode, FromAnyWidget>();
 
             _modules = await _moduleService.GetAllAsync();
             _services = await _backgroundServiceService.GetAllAsync();
@@ -397,15 +415,6 @@
                 _selectedTask.BackgroundServiceId = null;
                 _selectedTask.BackgroundService = null;
             }
-            // else if (_selectedTask.TriggerSourceType == TargetType.None)
-            // {
-            //     _selectedTask.ModuleId = null;
-            //     _selectedTask.Module = null;
-            //     _selectedTask.BackgroundServiceId = null;
-            //     _selectedTask.BackgroundService = null;
-            //     _selectedTask.DashboardEntityId = null;
-            //     _selectedTask.DashboardEntity = null;
-            // }
             await _serverTaskService.SaveDiagramAsync(_selectedTask, _currentDiagram);
         }
     }
@@ -477,7 +486,15 @@
             }
             else if (type == NodeType.ConvertTo)
             {
-                _currentDiagram.Nodes.Add(new ConvertToNode(_serverContextService, _selectedConvertTo , point) { Order = smallestOrder });
+                _currentDiagram.Nodes.Add(new ConvertToNode(_serverContextService, _selectedConvertTo, point) { Order = smallestOrder });
+            }
+            else if (type == NodeType.DateTime)
+            {
+                _currentDiagram.Nodes.Add(new DateTimeNode(_serverContextService, point) { Order = smallestOrder });
+            }
+            else if (type == NodeType.FromAny)
+            {
+                _currentDiagram.Nodes.Add(new FromAnyNode(_serverContextService, point) { Order = smallestOrder });
             }
         }
     }
@@ -536,19 +553,27 @@
                 {
                     _currentDiagram.Nodes.Add(new ConvertToNode(_serverContextService, node));
                 }
+                else if (node.Type == NodeType.DateTime)
+                {
+                    _currentDiagram.Nodes.Add(new DateTimeNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.FromAny)
+                {
+                    _currentDiagram.Nodes.Add(new FromAnyNode(_serverContextService, node));
+                }
             }
 
-            foreach (var link in links)
+            foreach (var dbLink in links)
             {
-                var source = _currentDiagram.Nodes.First(n => n.Order == link.Source.Order);
-                var target = _currentDiagram.Nodes.First(n => n.Order == link.Target.Order);
+                var source = _currentDiagram.Nodes.First(n => n.Order == dbLink.Source.Order);
+                var target = _currentDiagram.Nodes.First(n => n.Order == dbLink.Target.Order);
                 LinkModel? linkModel;
                 TaskPort? sourcePort = null;
                 TaskPort? targetPort = null;
 
                 foreach (TaskPort port in source.Ports)
                 {
-                    if (port.Order == link.SourceOrder && port.Input == link.SourceInput)
+                    if (port.PositionAlignment == dbLink.SourcePositionAlignment && port.Input == dbLink.SourceInput)
                     {
                         sourcePort = port;
                         break;
@@ -557,7 +582,7 @@
 
                 foreach (TaskPort port in target.Ports)
                 {
-                    if (port.Order == link.TargetOrder && port.Input == link.TargetInput)
+                    if (port.PositionAlignment == dbLink.TargetPositionAlignment && port.Input == dbLink.TargetInput)
                     {
                         targetPort = port;
                         break;
