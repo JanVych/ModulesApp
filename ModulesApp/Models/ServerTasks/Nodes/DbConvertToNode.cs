@@ -7,7 +7,7 @@ namespace ModulesApp.Models.ServerTasks.Nodes;
 
 public class DbConvertToNode : DbTaskNode
 {
-    public NodeConvertToType ConvertToType => (NodeConvertToType)SubType;
+    public NodeValueType ConvertToType => (NodeValueType)SubType;
 
     private DbTaskLink? Input => TargetLinks.FirstOrDefault();
 
@@ -33,19 +33,19 @@ public class DbConvertToNode : DbTaskNode
         Value = Input?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no input");
         if (Value.Type != NodeValueType.Invalid)
         {
-            if (ConvertToType == NodeConvertToType.String)
+            if (ConvertToType == NodeValueType.String)
             {
                 Value = new NodeValue.StringValue(DataConvertor.ToString(Value.GetValue()));
             }
-            else if (ConvertToType == NodeConvertToType.Number)
+            else if (ConvertToType == NodeValueType.Number)
             {
                 Value = new NodeValue.NumberValue(DataConvertor.ToDouble(Value.GetValue()));
             }
-            else if (ConvertToType == NodeConvertToType.Boolean)
+            else if (ConvertToType == NodeValueType.Boolean)
             {
                 Value = new NodeValue.BooleanValue(DataConvertor.ToBool(Value.GetValue()));
             }
-            else if (ConvertToType == NodeConvertToType.Array)
+            else if (ConvertToType == NodeValueType.Array)
             {
                 if(Value is not NodeValue.ArrayValue)
                 {

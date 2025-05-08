@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using ModulesApp.Interfaces;
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.BackgroundServices.Servicves;
@@ -11,10 +14,8 @@ using System.Text.Json;
 
 namespace ModulesApp.Data;
 
-public class SQLiteDb : DbContext
+public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(options)
 {
-    protected readonly IConfiguration _configuration;
-
     public DbSet<DbModule> Modules { get; set; }
 
     public DbSet<DbDashboard> Dashboards { get; set; }
@@ -33,17 +34,6 @@ public class SQLiteDb : DbContext
     public DbSet<DbModuleProgram> Programs { get; set; }
     public DbSet<DbModuleProgramFile> ProgramsFiles { get; set; }
 
-    public SQLiteDb(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder
-            //.UseLazyLoadingProxies()
-            .UseSqlite(NormalizePath(_configuration.GetConnectionString("SQLiteDb")));
-    }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         var SerializerOptions = new JsonSerializerOptions
@@ -64,16 +54,18 @@ public class SQLiteDb : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<DbTaskNode>()
-            .HasDiscriminator<string>("NodeType")
-            .HasValue<DbConditionNode>("Condition")
-            .HasValue<DbDataDisplayNode>("DataDisplay")
-            .HasValue<DbFromMessageNode>("FromMessage")
-            .HasValue<DbValueNode>("StaticData")
-            .HasValue<DbSendMessageNode>("SendMessage")
-            .HasValue<DbArrayOperationNode>("ArrayOperation")
-            .HasValue<DbArithmeticOperationNode>("ArithmeticOperation")
-            .HasValue<DbConvertToNode>("ConvertTo");
-
+            .HasDiscriminator<NodeType>(nameof(DbTaskNode.Type))
+            .HasValue<DbConditionNode>(NodeType.Condition)
+            .HasValue<DbDataDisplayNode>(NodeType.DataDisplay)
+            .HasValue<DbFromMessageNode>(NodeType.FromMessage)
+            .HasValue<DbValueNode>(NodeType.Value)
+            .HasValue<DbSendMessageNode>(NodeType.SendMessage)
+            .HasValue<DbArrayOperationNode>(NodeType.ArrayOperation)
+            .HasValue<DbArithmeticOperationNode>(NodeType.ArithmeticOperation)
+            .HasValue<DbConvertToNode>(NodeType.ConvertTo)
+            .HasValue<DbDateTimeNode>(NodeType.DateTime)
+            .HasValue<DbFromAnyNode>(NodeType.FromAny)
+            .HasValue<DbBooleanOperationNode>(NodeType.BooleanOperation);
 
         builder.Entity<DbAction>()
             .Property(p => p.Value)
@@ -97,14 +89,14 @@ public class SQLiteDb : DbContext
             .Property(p => p.Data)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+                v => JsonSerializer.Deserialize<Dictionary<string, object?>>(v, SerializerOptions) ?? new Dictionary<string, object?>());
 
 
         builder.Entity<DbDashboardEntity>()
             .Property(p => p.Data)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
+                v => JsonSerializer.Deserialize<Dictionary<string, object?>>(v, SerializerOptions) ?? new Dictionary<string, object?>());
 
         builder.Entity<DbDashboardEntity>()
             .HasDiscriminator<DashboardEntityType>(nameof(DbDashboardEntity.Type))
@@ -116,10 +108,5 @@ public class SQLiteDb : DbContext
             .HasValue<DbValueSetterEntity>(DashboardEntityType.ValueSetter);
 
         base.OnModelCreating(builder);
-    }
-
-    static string? NormalizePath(string? connectionString)
-    {
-        return connectionString?.Replace("\\", Path.DirectorySeparatorChar.ToString());
-    }
+    }  
 }

@@ -3,7 +3,7 @@
 @using ModulesApp.Interfaces
 @using MudBlazor
 
-<NodeWidget Node="Node"
+<TaskNodeWidget Node="Node"
             BoolOutputText="true"
             Header="@Node.ConditionType.ToLongString()"
             MainColor="var(--condition-node-color)">
@@ -20,7 +20,7 @@
         @Node.InputType input
     </MudSwitch>
 
-</NodeWidget>
+</TaskNodeWidget>
 
 @code
 {

@@ -6,17 +6,17 @@ namespace ModulesApp.Services.Data;
 
 public class BackgroundServiceService
 {
-    private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
+    private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
     private readonly NotifyService _notifyService;
 
-    public BackgroundServiceService(IDbContextFactory<SQLiteDb> dbContextFactory, NotifyService notifyService)
+    public BackgroundServiceService(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
         _notifyService = notifyService;
     }
 
-    private async Task SaveChangesAsync(SQLiteDb context)
+    private async Task SaveChangesAsync(SQLiteDbContext context)
     {
         await context.SaveChangesAsync();
         _notifyService.NotifyBackgroundServiceChanged();

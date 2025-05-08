@@ -15,9 +15,9 @@ namespace ModulesApp.Services.Data;
 
 public class ServerTaskService
 {
-    private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
+    private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
-    public ServerTaskService(IDbContextFactory<SQLiteDb> dbContextFactory)
+    public ServerTaskService(IDbContextFactory<SQLiteDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
@@ -36,6 +36,7 @@ public class ServerTaskService
             .Include(t => t.Module)
             .Include(t => t.BackgroundService)
             .Include(t => t.DashboardEntity)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -45,6 +46,7 @@ public class ServerTaskService
         return await context.Tasks
             .Where(t => t.ModuleId == module.Id)
             .Include(t => t.Module)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -54,6 +56,7 @@ public class ServerTaskService
         return await context.Tasks
             .Where(t => t.BackgroundServiceId == service.Id)
             .Include(t => t.BackgroundService)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -63,6 +66,7 @@ public class ServerTaskService
         return await context.Tasks
             .Where(t => t.DashboardEntityId == entity.Id)
             .Include(t => t.DashboardEntity)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -74,6 +78,7 @@ public class ServerTaskService
             .Include(n => n.Task)
             .Include(n => n.SourceLinks)
             .Include(n => n.TargetLinks)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -84,6 +89,7 @@ public class ServerTaskService
             .Where(l => l.Source.TaskId == task.Id)
             .Include(l => l.Source)
             .Include(l => l.Target)
+            .AsSplitQuery()
             .ToListAsync();
     }
 
@@ -122,6 +128,9 @@ public class ServerTaskService
                 NodeType.ArrayOperation => new DbArrayOperationNode((ArrayOperationNode)node),
                 NodeType.ArithmeticOperation => new DbArithmeticOperationNode(node),
                 NodeType.ConvertTo => new DbConvertToNode((ConvertToNode)node),
+                NodeType.DateTime => new DbDateTimeNode((DateTimeNode)node),
+                NodeType.FromAny => new DbFromAnyNode((FromAnyNode)node),
+                NodeType.BooleanOperation => new DbBooleanOperationNode((BooleanOperationNode)node),
                 _ => throw new ArgumentException($"Unsupported node type: {node.Type}")
             });
         }
@@ -160,29 +169,6 @@ public class ServerTaskService
         await UpdateAsync(task);
     }
 
-    public async Task ExecuteTaskAsync(ContextService serverContext , DbTask task)
-    {
-        var nodes = await GetNodesAsync(task);
-
-        foreach (var node in nodes)
-        {
-            if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
-            {
-                //node.Process(serverContext);
-                var value = node.GetValue(null, serverContext);
-                Console.WriteLine($"Node: {node.Order}, Value: {value}");
-            }
-        }
-    }
-
-    public async Task ExecuteTasksAsync(ContextService serverContext, IEnumerable<DbTask> tasks)
-    {
-        foreach (var task in tasks)
-        {
-            await ExecuteTaskAsync(serverContext, task);
-        }
-    }
-
     public async Task ExecuteTasksAsync(ContextService serverContext, DbModule module)
     {
         var tasks  = await GetTasksAsync(module);
@@ -199,6 +185,29 @@ public class ServerTaskService
     {
         var tasks = await GetTasksAsync(entity);
         await ExecuteTasksAsync(serverContext, tasks);
+    }
+
+    public async Task ExecuteTasksAsync(ContextService serverContext, IEnumerable<DbTask> tasks)
+    {
+        foreach (var task in tasks)
+        {
+            await ExecuteTaskAsync(serverContext, task);
+        }
+    }
+
+    public async Task ExecuteTaskAsync(ContextService serverContext, DbTask task)
+    {
+        var nodes = await GetNodesAsync(task);
+
+        foreach (var node in nodes)
+        {
+            if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
+            {
+                //node.Process(serverContext);
+                var value = node.GetValue(null, serverContext);
+                Console.WriteLine($"Node: {node.Order}, Value: {value}");
+            }
+        }
     }
 }
 

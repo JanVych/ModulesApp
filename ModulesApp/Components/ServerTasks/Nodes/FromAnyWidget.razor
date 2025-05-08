@@ -1,0 +1,102 @@
+﻿@using ModulesApp.Interfaces
+@using ModulesApp.Models.ServerTasks
+@using MudBlazor
+
+<TaskNodeWidget Node="Node"
+                Header="From-Any"
+                MainColor="var(--from-any-node-color)">
+    <MudSelect T="long"
+               ValueChanged="OnTypeChanged"
+               Value="@Node.LongVal2"
+               Variant="Variant.Outlined"
+               Label="Target"
+               Margin="Margin.Dense">
+        <MudSelectItem Value="(long)TargetType.Module">@TargetType.Module</MudSelectItem>
+        <MudSelectItem Value="(long)TargetType.Service">@TargetType.Service</MudSelectItem>
+        <MudSelectItem Value="(long)TargetType.Dashboard">@TargetType.Dashboard</MudSelectItem>
+    </MudSelect>
+
+    @if (Node.LongVal2 == (long)TargetType.Module && Node.Modules != null)
+    {
+        <MudSelect T="long"
+                   @bind-Value="Node.LongVal1"
+                   Variant="Variant.Outlined"
+                   Label="Module"
+                   Margin="Margin.Dense">
+            @foreach (var m in Node.Modules)
+            {
+                <MudSelectItem Value="@m.Id">@m.Name</MudSelectItem>
+            }
+        </MudSelect>
+    }
+    else if (Node.LongVal2 == (long)TargetType.Service && Node.Services != null)
+    {
+        <MudSelect T="long"
+                   @bind-Value="Node.LongVal1"
+                   Variant="Variant.Outlined"
+                   Label="Service"
+                   Margin="Margin.Dense">
+            @foreach (var u in Node.Services)
+            {
+                <MudSelectItem Value="@u.Id">@u.Name</MudSelectItem>
+            }
+        </MudSelect>
+    }
+    else if (Node.LongVal2 == (long)TargetType.Dashboard && Node.Entities != null)
+    {
+        <MudSelect T="long"
+                   @bind-Value="Node.LongVal1"
+                   Variant="Variant.Outlined"
+                   Label="Entity"
+                   Margin="Margin.Dense">
+            @foreach (var e in Node.Entities)
+            {
+                <MudSelectItem Value="@e.Id">@e.Name | @e.Id</MudSelectItem>
+            }
+        </MudSelect>
+    }
+
+    <MudTextField T="string"
+                  @bind-Value="Node.StringVal1"
+                  Label="Key"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense" />
+
+    <MudSelect T="long"
+               @bind-Value="Node.LongVal3"
+               Variant="Variant.Outlined"
+               Label="Type"
+               Margin="Margin.Dense">
+        <MudSelectItem Value="(long)NodeValueType.Any">@NodeValueType.Any</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.String">@NodeValueType.String</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Number">@NodeValueType.Number</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Boolean">@NodeValueType.Boolean</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Array">@NodeValueType.Array</MudSelectItem>
+    </MudSelect>
+
+</TaskNodeWidget>
+
+@code
+{
+    [Parameter] public FromAnyNode Node { get; set; } = null!;
+
+    private async Task OnTypeChanged(long type)
+    {
+        if (type == (long)TargetType.Module)
+        {
+            Node.Modules ??= await Node._context.GetAllModulesAsync();
+            Node.LongVal1 = Node.Modules.FirstOrDefault()?.Id ?? 0;
+        }
+        else if (type == (long)TargetType.Service)
+        {
+            Node.Services ??= await Node._context.GetAllBackgroundServicesAsync();
+            Node.LongVal1 = Node.Services.FirstOrDefault()?.Id ?? 0;
+        }
+        else if (type == (long)TargetType.Dashboard)
+        {
+            Node.Entities ??= await Node._context.GetAllDashBoardEntitiesAsync();
+            Node.LongVal1 = Node.Entities.FirstOrDefault()?.Id ?? 0;
+        }
+        Node.LongVal2 = type;
+    }
+}

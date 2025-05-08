@@ -10,15 +10,207 @@ using ModulesApp.Data;
 
 namespace ModulesApp.Migrations
 {
-    [DbContext(typeof(SQLiteDb))]
-    [Migration("20250427103838_mig9")]
-    partial class mig9
+    [DbContext(typeof(SQLiteDbContext))]
+    [Migration("20250504195213_mig1")]
+    partial class mig1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.13");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
 
             modelBuilder.Entity("ModulesApp.Models.BackgroundServices.DbBackgroundService", b =>
                 {
@@ -121,7 +313,6 @@ namespace ModulesApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Value")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -313,7 +504,7 @@ namespace ModulesApp.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TargetType")
+                    b.Property<int>("TriggerSourceType")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Type")
@@ -345,7 +536,7 @@ namespace ModulesApp.Migrations
                     b.Property<long>("SourceNodeId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("SourceOrder")
+                    b.Property<int>("SourcePositionAlignment")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("TargetData")
@@ -357,7 +548,7 @@ namespace ModulesApp.Migrations
                     b.Property<long>("TargetNodeId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TargetOrder")
+                    b.Property<int>("TargetPositionAlignment")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -390,10 +581,8 @@ namespace ModulesApp.Migrations
                     b.Property<long>("LongVal2")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("NodeType")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("TEXT");
+                    b.Property<long>("LongVal3")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Order")
                         .HasColumnType("INTEGER");
@@ -431,7 +620,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator<string>("NodeType").HasValue("DbTaskNode");
+                    b.HasDiscriminator<int>("Type");
 
                     b.UseTphMappingStrategy();
                 });
@@ -499,13 +688,22 @@ namespace ModulesApp.Migrations
                     b.HasDiscriminator().HasValue(3);
                 });
 
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbValueSetterEntity", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
+
+                    b.ToTable("DashBoardEntity");
+
+                    b.HasDiscriminator().HasValue(5);
+                });
+
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbArithmeticOperationNode", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("ArithmeticOperation");
+                    b.HasDiscriminator().HasValue(6);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbArrayOperationNode", b =>
@@ -514,7 +712,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("ArrayOperation");
+                    b.HasDiscriminator().HasValue(5);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbConditionNode", b =>
@@ -523,7 +721,16 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("Condition");
+                    b.HasDiscriminator().HasValue(0);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbConvertToNode", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");
+
+                    b.ToTable("TaskNode");
+
+                    b.HasDiscriminator().HasValue(7);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbDataDisplayNode", b =>
@@ -532,7 +739,25 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("DataDisplay");
+                    b.HasDiscriminator().HasValue(2);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbDateTimeNode", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");
+
+                    b.ToTable("TaskNode");
+
+                    b.HasDiscriminator().HasValue(8);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbFromAnyNode", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");
+
+                    b.ToTable("TaskNode");
+
+                    b.HasDiscriminator().HasValue(9);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbFromMessageNode", b =>
@@ -541,7 +766,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("FromMessage");
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbSendMessageNode", b =>
@@ -550,7 +775,7 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("SendMessage");
+                    b.HasDiscriminator().HasValue(4);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbValueNode", b =>
@@ -559,7 +784,58 @@ namespace ModulesApp.Migrations
 
                     b.ToTable("TaskNode");
 
-                    b.HasDiscriminator().HasValue("StaticData");
+                    b.HasDiscriminator().HasValue(3);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ModulesApp.Models.Dasboards.DbDashboardEntity", b =>

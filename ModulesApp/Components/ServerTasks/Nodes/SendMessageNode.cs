@@ -27,15 +27,16 @@ public class SendMessageNode : TaskNode
     }
     public SendMessageNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
-        if (LongVal2 == (long)TargetType.Module)
+        TargetType type = (TargetType)LongVal2;
+        if (type == TargetType.Module)
         {
             Modules = context.GetAllModules();
         }
-        else if (LongVal2 == (long)TargetType.Service)
+        else if (type == TargetType.Service)
         {
             Services = context.GetAllBackgroundServices();
         }
-        else if (LongVal2 == (long)TargetType.DashboardEntity)
+        else if (type == TargetType.Dashboard)
         {
             Entities = context.GetAllDashBoardEntities();
         }
@@ -49,14 +50,14 @@ public class SendMessageNode : TaskNode
         if (type == NodeInputType.Single)
         {
             //Trigger and data port
-            AddPort(new TaskPort(this, true, 0, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
         }
         else
         {
             //Trigger port
-            AddPort(new TaskPort(this, true, 1, data: false));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Start, data: false));
             //Data port
-            AddPort(new TaskPort(this, true, 2, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.End, data: true));
         }
     }
 }

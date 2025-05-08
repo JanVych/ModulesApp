@@ -10,13 +10,13 @@ public class FromMessageNode : TaskNode
 {
     public FromMessageNode(ContextService context, Point? position = null) : base(context, position) 
     {
-        StringVal2 = "any";
         Type = NodeType.FromMessage;
-        AddPort(new TaskPort(this, false, 0, data: true));
+        LongVal1 = (long)NodeValueType.Any;
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }
 
     public FromMessageNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
-        AddPort(new TaskPort(this, false, 0, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
     }
 }

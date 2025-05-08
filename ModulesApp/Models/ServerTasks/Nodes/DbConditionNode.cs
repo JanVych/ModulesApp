@@ -1,4 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
+using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Services;
 
@@ -19,20 +20,17 @@ public class DbConditionNode : DbTaskNode
     {
     }
 
-    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
+    public override NodeValue GetValue(DbTaskLink link, ContextService context)
     {
         if (Value.Type == NodeValueType.Waiting)
         {
             Process(context);
         }
-
-        NodeValue value = (Value.Type == NodeValueType.Invalid ||
-                          (dbLink.SourceOrder == 1 && Result) ||
-                          (dbLink.SourceOrder == 2 && !Result))
+        var value = (Value.Type == NodeValueType.Invalid ||
+                          (link.SourcePositionAlignment == PortPositionAlignment.Start && Result) ||
+                          (link.SourcePositionAlignment == PortPositionAlignment.End && !Result))
             ? Value
             : new NodeValue.InvalidValue($"node: {Order}, condition invalid");
-
-        //Debug.WriteLine($"GetValue Condition: {value.Type}, value: {value}");
         return value;
     }
 

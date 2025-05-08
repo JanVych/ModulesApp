@@ -25,22 +25,22 @@ public class DbValueNode : DbTaskNode
 
     public override void Process(ContextService context)
     {
-        if (StringVal2 == "Number")
+        NodeValueType type = (NodeValueType)LongVal1;
+        if (type == NodeValueType.Number)
         {
             Value = new NodeValue.NumberValue(DoubleVal1);
         }
-        else if (StringVal2 == "String")
+        else if (type == NodeValueType.String)
         {
             Value = new NodeValue.StringValue(StringVal1);
         }
-        else if (StringVal2 == "Boolean")
+        else if (type == NodeValueType.Boolean)
         {
             Value = new NodeValue.BooleanValue(BoolVal1);
         }
         else
         {
-            Value = new NodeValue.InvalidValue($"Invalid Value Type, node: {Order}");
+            Value = new NodeValue.InvalidValue($"Invalid value type: {type}, node: {Order}");
         }
-
     }
 }

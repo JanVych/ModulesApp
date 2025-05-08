@@ -2,7 +2,7 @@
 @using ModulesApp.Models.ServerTasks
 @using MudBlazor
 
-<NodeWidget Node="Node"
+<TaskNodeWidget Node="Node"
             Header="Send-Message"
             MainColor="var(--send-message-node-color)">
 
@@ -12,10 +12,9 @@
                Variant="Variant.Outlined"
                Label="Target"
                Margin="Margin.Dense">
-        @foreach (TargetType targetType in Enum.GetValues(typeof(TargetType)))
-        {
-            <MudSelectItem Value="@ToLong(targetType)">@targetType</MudSelectItem>
-        }
+        <MudSelectItem Value="(long)TargetType.Module">@TargetType.Module</MudSelectItem>
+        <MudSelectItem Value="(long)TargetType.Service">@TargetType.Service</MudSelectItem>
+        <MudSelectItem Value="(long)TargetType.Dashboard">@TargetType.Dashboard</MudSelectItem>
     </MudSelect>
 
     @if (Node.LongVal2 == (long)TargetType.Module && Node.Modules != null)
@@ -44,7 +43,7 @@
             }
         </MudSelect>
     }
-    else if (Node.LongVal2 == (long)TargetType.DashboardEntity && Node.Entities != null)
+    else if (Node.LongVal2 == (long)TargetType.Dashboard && Node.Entities != null)
     {
         <MudSelect T="long"
                    @bind-Value="Node.LongVal1"
@@ -67,7 +66,7 @@
         @Node.InputType input
     </MudSwitch>
 
-</NodeWidget>
+</TaskNodeWidget>
 
 @code
 {
@@ -86,17 +85,12 @@
             Node.Services ??= await Node._context.GetAllBackgroundServicesAsync();
             Node.LongVal1 = Node.Services.FirstOrDefault()?.Id ?? 0;
         }
-        else if (type == (long)TargetType.DashboardEntity)
+        else if (type == (long)TargetType.Dashboard)
         {
             Node.Entities ??= await Node._context.GetAllDashBoardEntitiesAsync();
             Node.LongVal1 = Node.Entities.FirstOrDefault()?.Id ?? 0;
         }
         Node.LongVal2 = type;
-    }
-
-    private long ToLong(TargetType value)
-    {
-        return (long)value;
     }
 
     private void SwitchInputType(bool inputType)

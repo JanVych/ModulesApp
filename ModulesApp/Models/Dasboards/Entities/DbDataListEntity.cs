@@ -14,7 +14,7 @@ public class DbDataListEntity : DbDashboardEntity
     [NotMapped]
     public List<TableItem> TableData = [];
 
-    public override void UpdateData(Dictionary<string, object?> data)
+    public override void UpdateFromData(Dictionary<string, object?> data)
     {
         foreach(var (key, value) in data)
         {

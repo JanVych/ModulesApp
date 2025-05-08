@@ -32,8 +32,8 @@ public abstract class DbDashboardEntity
 
     public ICollection<DbTask> ServerTasks { get; set; } = [];
 
-    public abstract void UpdateData(Dictionary<string, object?> data);
-    public void UpdateData() => UpdateData(Data);
+    public abstract void UpdateFromData(Dictionary<string, object?> data);
+    public void UpdateFromData() => UpdateFromData(Data);
 
     public abstract void SaveData();
 

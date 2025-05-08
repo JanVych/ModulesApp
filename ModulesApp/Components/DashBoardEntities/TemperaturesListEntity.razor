@@ -72,7 +72,7 @@ else
                     <MudTd DataLabel="current">
                         <MudText>@context.CurrentTemp  °C</MudText>
                     </MudTd>
-                    <MudTd DataLabel="target">
+                    <MudTd DataLabel="target" Class="py-0">
                         <MudNumericField @bind-Value="context.TargetTemp" Margin="Margin.Dense" Variant="Variant.Outlined" HideSpinButtons="true"
                                          Adornment="Adornment.End" AdornmentText="°C" Style="width: 70px" Max="32" Min="0" />
                     </MudTd>

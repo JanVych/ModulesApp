@@ -1,19 +1,21 @@
-﻿@using MudBlazor
+﻿@using ModulesApp.Interfaces
+@using ModulesApp.Models.ServerTasks
+@using MudBlazor
 
-<NodeWidget Node="Node"
-            Header="From-Message"
-            MainColor="var(--from-message-node-color)">
+<TaskNodeWidget Node="Node"
+Header="From-Message"
+MainColor="var(--from-message-node-color)">
 
-    <MudSelect T="string"
-               @bind-Value="Node.StringVal2"
-               Variant="Variant.Outlined"
-               Label="Type"
-               Margin="Margin.Dense">
-        <MudSelectItem Value="@("any")" />
-        <MudSelectItem Value="@("string")" />
-        <MudSelectItem Value="@("number")" />
-        <MudSelectItem Value="@("boolean")" />
-        <MudSelectItem Value="@("array")" />
+    <MudSelect T="long"
+    @bind-Value="Node.LongVal1"
+    Variant="Variant.Outlined"
+    Label="Type"
+    Margin="Margin.Dense">
+        <MudSelectItem Value="(long)NodeValueType.Any">@NodeValueType.Any</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.String">@NodeValueType.String</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Number">@NodeValueType.Number</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Boolean">@NodeValueType.Boolean</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Array">@NodeValueType.Array</MudSelectItem>
     </MudSelect>
 
     <MudTextField T="string"
@@ -22,7 +24,7 @@
                   Variant="Variant.Outlined"
                   Margin="Margin.Dense" />
 
-</NodeWidget>
+</TaskNodeWidget>
 
 @code
 {

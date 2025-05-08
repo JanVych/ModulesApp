@@ -47,7 +47,7 @@ public class DbSendMessageNode : DbTaskNode
                 {
                     context.SendToBackgroundService(LongVal1, StringVal1, Value.GetValue());
                 }
-                else if (LongVal2 == (long)TargetType.DashboardEntity)
+                else if (LongVal2 == (long)TargetType.Dashboard)
                 {
                     context.SendToDashboardEntity(LongVal1, StringVal1, Value.GetValue());
                 }
@@ -56,11 +56,6 @@ public class DbSendMessageNode : DbTaskNode
                     Value = new NodeValue.InvalidValue($"Invalid type: {(TargetType)LongVal2}, in node: {Order}");
                 }
             }
-        }
-
-        if (Value.Type == NodeValueType.Invalid)
-        {
-            Console.WriteLine(Value.ToString());
         }
     }
 }

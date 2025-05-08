@@ -3,14 +3,15 @@
 @using ModulesApp.Models.BackgroundServices
 @using ModulesApp.Services.Data
 
-@page "/services"
-
 @inject BackgroundServiceManager _backgroundServiceManager
 @inject BackgroundServiceService _backgroundServiceService
 @inject NavigationManager _navigationManager
 @inject NotifyService _notifyService
 
 @implements IDisposable
+
+@page "/services"
+@attribute [Authorize]
 
 <PageTitle>Services</PageTitle>
 

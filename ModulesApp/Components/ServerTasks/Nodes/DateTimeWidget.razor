@@ -1,0 +1,31 @@
+﻿@using ModulesApp.Interfaces
+@using MudBlazor
+
+<TaskNodeWidget Node="Node"
+            Header="Date-Time-Now"
+                MainColor="var(--date-time-node-color )">
+
+    <MudSelect T="long"
+               @bind-Value="Node.LongVal1"
+               Variant="Variant.Outlined"
+               Label="Type"
+               Style="min-width: 160px"
+               Margin="Margin.Dense">
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.Year">@NodeDateTimeOutputType.Year</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.Month">@NodeDateTimeOutputType.Month</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.Day">@NodeDateTimeOutputType.Day</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.Hour">@NodeDateTimeOutputType.Hour</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.Minute">@NodeDateTimeOutputType.Minute</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.Second">@NodeDateTimeOutputType.Second</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.DayOfWeek">@NodeDateTimeOutputType.DayOfWeek</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.DayOfYear">@NodeDateTimeOutputType.DayOfYear</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.DateTimeString">@NodeDateTimeOutputType.DateTimeString</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.DateString">@NodeDateTimeOutputType.DateString</MudSelectItem>
+        <MudSelectItem Value="(long)NodeDateTimeOutputType.TimeString">@NodeDateTimeOutputType.TimeString</MudSelectItem>
+    </MudSelect>
+</TaskNodeWidget>
+
+@code
+{
+    [Parameter] public DateTimeNode Node { get; set; } = null!;
+}

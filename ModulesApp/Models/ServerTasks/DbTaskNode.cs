@@ -3,11 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using ModulesApp.Interfaces;
 using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Services;
+using System.Text.Json;
 
 namespace ModulesApp.Models.ServerTasks;
 
 [Table("TaskNode")]
-public class DbTaskNode : IDbNode
+public abstract class DbTaskNode : IDbNode
 {
     [Key]
     public long Id { get; set; }
@@ -74,5 +75,31 @@ public class DbTaskNode : IDbNode
     public virtual void Process(ContextService context)
     {
         throw new NotImplementedException();
+    }
+
+    protected static NodeValue ConvertFromJsonElement(JsonElement element, DbTaskNode node)
+    {
+        return element.ValueKind switch
+        {
+            JsonValueKind.String => new NodeValue.StringValue(element.GetString() ?? string.Empty),
+            JsonValueKind.Number => new NodeValue.NumberValue(element.GetDouble()),
+            JsonValueKind.True => new NodeValue.BooleanValue(true),
+            JsonValueKind.False => new NodeValue.BooleanValue(false),
+            JsonValueKind.Array => new NodeValue.ArrayValue(element.EnumerateArray().Select(e => ConvertFromJsonElement(e, node)).ToList()),
+            _ => new NodeValue.InvalidValue($"Invalid value type: {element.ValueKind}, in node: {node.Order}"),
+        };
+    }
+
+    protected static bool IsValidType(JsonElement element, NodeValueType type)
+    {
+        return type switch
+        {
+            NodeValueType.Any => true,
+            NodeValueType.String => element.ValueKind == JsonValueKind.String,
+            NodeValueType.Number => element.ValueKind == JsonValueKind.Number,
+            NodeValueType.Boolean => element.ValueKind == JsonValueKind.True || element.ValueKind == JsonValueKind.False,
+            NodeValueType.Array => element.ValueKind == JsonValueKind.Array,
+            _ => false
+        };
     }
 }

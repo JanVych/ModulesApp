@@ -6,9 +6,9 @@ namespace ModulesApp.Services.Data;
 
 public class ModuleProgramService
 {
-    private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
+    private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
-    public ModuleProgramService(IDbContextFactory<SQLiteDb> dbContextFactory)
+    public ModuleProgramService(IDbContextFactory<SQLiteDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }

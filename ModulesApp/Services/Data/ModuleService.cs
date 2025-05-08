@@ -6,24 +6,24 @@ namespace ModulesApp.Services.Data;
 
 public class ModuleService
 {
-    private readonly IDbContextFactory<SQLiteDb> _dbContextFactory;
+    private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
     private readonly NotifyService _notifyService;
 
-    public ModuleService(IDbContextFactory<SQLiteDb> dbContextFactory, NotifyService notifyService)
+    public ModuleService(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
         _notifyService = notifyService;
     }
 
-    private int SaveChanges(SQLiteDb context)
+    private int SaveChanges(SQLiteDbContext context)
     {
         var result = context.SaveChanges();
         _notifyService.NotifyModulesChanged();
         return result;
     }
 
-    private async Task<int> SaveChangesAsync(SQLiteDb context)
+    private async Task<int> SaveChangesAsync(SQLiteDbContext context)
     {
         var result = await context.SaveChangesAsync();
         _notifyService.NotifyModulesChanged();

@@ -15,31 +15,31 @@
 
     @foreach (TaskPort port in Node.Ports)
     {
-        if (port.Input && port.Order == 0)
+        if (port.Input && port.PositionAlignment == PortPositionAlignment.Center)
         {
             <PortRenderer @key="port" Port="port" Class="diagram-port in middle" Style="@GetPortStyle(port.Data)" />
         }
 
-        else if (port.Input && port.Order == 1)
+        else if (port.Input && port.PositionAlignment == PortPositionAlignment.Start)
         {
             <PortRenderer @key="port" Port="port" Class="diagram-port in first" Style="@GetPortStyle(port.Data)" />
         }
 
-        else if (port.Input && port.Order == 2)
+        else if (port.Input && port.PositionAlignment == PortPositionAlignment.End)
         {
             <PortRenderer @key="port" Port="port" Class="diagram-port in second" Style="@GetPortStyle(port.Data)" />
         }
 
-        else if (!port.Input && port.Order == 0)
+        else if (!port.Input && port.PositionAlignment == PortPositionAlignment.Center)
         {
             <PortRenderer @key="port" Port="port" Class="diagram-port out middle" Style="@GetPortStyle(port.Data)" />
         }
 
-        else if (!port.Input && port.Order == 1)
+        else if (!port.Input && port.PositionAlignment == PortPositionAlignment.Start)
         {
             <PortRenderer @key="port" Port="port" Class="diagram-port out first" Style="@GetPortStyle(port.Data)" />
         }
-        else if (!port.Input && port.Order == 2)
+        else if (!port.Input && port.PositionAlignment == PortPositionAlignment.End)
         {
             <PortRenderer @key="port" Port="port" Class="diagram-port out second" Style="@GetPortStyle(port.Data)" />
         }

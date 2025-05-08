@@ -3,7 +3,7 @@
 @using ModulesApp.Interfaces
 @using MudBlazor
 
-<NodeWidget Node="Node"
+<TaskNodeWidget Node="Node"
             BoolOutputText="false"
             Header="@Node.OperationType.ToLongString()"
             MainColor="var(--array-operation-node-color)">
@@ -33,7 +33,7 @@
                          Label="Index" />
     }
 
-</NodeWidget>
+</TaskNodeWidget>
 
 @code
 {

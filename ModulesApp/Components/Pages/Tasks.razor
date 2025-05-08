@@ -22,9 +22,8 @@
 @inject DashboardService _dashboardService
 @inject ContextService _serverContextService
 
-@* @implements IDisposable *@
-
 @page "/tasks"
+@attribute [Authorize]
 
 <PageTitle>Tasks</PageTitle>
 
@@ -50,36 +49,35 @@
     <MudItem xs="12" md="10" Class="pl-4">
         @if (_selectedTask != null)
         {
-            <MudPaper Class="pa-4">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                     <MudText Typo="Typo.h5">
-                        @_selectedTask.Name
-                    </MudText>
-                    <MudStack Row="true">
-                        <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveTask" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteTask" />
-                        <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled" Color="Color.Primary" OnClick="@RunTask" />
-                    </MudStack>
-                </MudStack>
+            <MudPaper Class="pa-3">
+                @* <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween"> *@
+                @*     <MudText Typo="Typo.h5"> *@
+                @*         @_selectedTask.Name *@
+                @*     </MudText> *@
+                    
+                @* </MudStack> *@
 
                 <MudStack Row="true" Wrap="Wrap.Wrap">
-                    <MudTextField @bind-Value="_selectedTask.Name" Variant="Variant.Text" />
-                    <MudSelect @bind-Value="_selectedTask.TriggerSourceType">
+                    <MudTextField @bind-Value="_selectedTask.Name" Label="Name" Variant="Variant.Text" />
+                    <MudSelect @bind-Value="_selectedTask.TriggerSourceType" Label="Source">
 
                         @foreach (TargetType type in Enum.GetValues(typeof(TargetType)))
                         {
                             <MudSelectItem Value="type"></MudSelectItem>
                         }
                     </MudSelect>
-                    <MudSelect @bind-Value="_selectedTask.Type">
-                        @foreach (TaskType type in Enum.GetValues(typeof(TaskType)))
-                        {
-                            <MudSelectItem Value="type"></MudSelectItem>
-                        }
-                    </MudSelect>
+                    @if (_selectedTask.TriggerSourceType != TargetType.None)
+                    {
+                        <MudSelect @bind-Value="_selectedTask.Type" Label="When">
+                            @foreach (TaskType type in Enum.GetValues(typeof(TaskType)))
+                            {
+                                <MudSelectItem Value="type"></MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
                     @if (_selectedTask.TriggerSourceType == TargetType.Service)
                     {
-                        <MudSelect @bind-Value="_selectedTask.BackgroundService">
+                        <MudSelect @bind-Value="_selectedTask.BackgroundService" Label="Service">
                             @foreach (var service in _services)
                             {
                                 <MudSelectItem Value="service"></MudSelectItem>
@@ -88,27 +86,33 @@
                     }
                     else if (_selectedTask.TriggerSourceType == TargetType.Module)
                     {
-                        <MudSelect @bind-Value="_selectedTask.Module">
+                        <MudSelect @bind-Value="_selectedTask.Module" Label="Module">
                             @foreach (var module in _modules)
                             {
                                 <MudSelectItem Value="module"></MudSelectItem>
                             }
                         </MudSelect>
                     }
-                    else if (_selectedTask.TriggerSourceType == TargetType.DashboardEntity)
+                    else if (_selectedTask.TriggerSourceType == TargetType.Dashboard)
                     {
-                        <MudSelect @bind-Value="_selectedTask.DashboardEntity">
+                        <MudSelect @bind-Value="_selectedTask.DashboardEntity" Label="Dashboard">
                             @foreach (var entity in _entities)
                             {
                                 <MudSelectItem Value="entity"></MudSelectItem>
                             }
                         </MudSelect>
                     }
+                    <div style="min-width: 30px"/>
+                    <MudStack Row="true">
+                        <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveTask" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteTask" />
+                        <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled" Color="Color.Primary" OnClick="@RunTask" />
+                    </MudStack>
                 </MudStack>
             </MudPaper>
         }
 
-        <MudPaper Class="pa-4 mb-2">
+        <MudPaper Class="pa-3 my-2">
             <MudStack Row="true" Wrap="Wrap.Wrap">
 
                 <MudButton StartIcon="@Icons.Material.Filled.Message"
@@ -118,11 +122,25 @@
                     From Message
                 </MudButton>
 
+                <MudButton StartIcon="@Icons.Material.Filled.Dataset"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--from-any-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.FromAny)">
+                    From Any
+                </MudButton>
+
                 <MudButton StartIcon="@Icons.Material.Filled.Numbers"
                            Variant="Variant.Filled"
                            Style="background-color: var(--value-node-color); color: var(--node-background-color);"
                            OnClick="() => AddNode(NodeType.Value)">
                     Static Value
+                </MudButton>
+
+                <MudButton StartIcon="@Icons.Material.Filled.CalendarMonth"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--date-time-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.DateTime)">
+                    Date Time
                 </MudButton>
 
                 <MudButtonGroup Variant="Variant.Filled">
@@ -133,7 +151,7 @@
                     <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
                              Label="@_selectedCondition.ToLongString()"
                              Class="custom-menu-label custom-menu-icon"
-                             Style="auto; background-color: var(--condition-node-color);">
+                             Style="background-color: var(--condition-node-color);">
 
                         @foreach (NodeConditionType condition in Enum.GetValues(typeof(NodeConditionType)))
                         {
@@ -145,20 +163,6 @@
 
                     </MudMenu>
                 </MudButtonGroup>
-
-                <MudButton StartIcon="@Icons.Material.Filled.DashboardCustomize"
-                           Variant="Variant.Filled"
-                           Style="background-color: var(--data-display-node-color); color: var(--node-background-color);"
-                           OnClick="() => AddNode(NodeType.DataDisplay)">
-                    Data Display
-                </MudButton>
-
-                <MudButton StartIcon="@Icons.Material.Filled.Send"
-                           Variant="Variant.Filled"
-                           Style="background-color: var(--send-message-node-color); color: var(--node-background-color);"
-                           OnClick="() => AddNode(NodeType.SendMessage)">
-                    Send Message
-                </MudButton>
 
                 <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--array-operation-node-color); color: var(--node-background-color);"
@@ -202,6 +206,26 @@
                 </MudButtonGroup>
 
                 <MudButtonGroup Variant="Variant.Filled">
+                    <MudButton Style="background-color: var(--boolean-operation-node-color); color: var(--node-background-color);"
+                               OnClick="() => AddNode(NodeType.BooleanOperation)">
+                        Boolean
+                    </MudButton>
+                    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                             Label="@_selectedBooleanOperation.ToString()"
+                             Class="custom-menu-label custom-menu-icon"
+                             Style="background-color: var(--boolean-operation-node-color);">
+
+                        @foreach (NodeBooleanOperationType operation in Enum.GetValues(typeof(NodeBooleanOperationType)))
+                        {
+                            <MudMenuItem Style="background-color: var(--boolean-operation-node-color); color: var(--node-background-color);"
+                                         @onclick="() => _selectedBooleanOperation = operation">
+                                @operation.ToString()
+                            </MudMenuItem>
+                        }
+                    </MudMenu>
+                </MudButtonGroup>
+
+                <MudButtonGroup Variant="Variant.Filled">
                     <MudButton Style="background-color: var(--convert-to-color); color: var(--node-background-color);"
                                OnClick="() => AddNode(NodeType.ConvertTo)">
                         To
@@ -211,7 +235,7 @@
                              Class="custom-menu-label custom-menu-icon"
                              Style="background-color: var(--convert-to-color);">
 
-                        @foreach (NodeConvertToType operation in Enum.GetValues(typeof(NodeConvertToType)))
+                        @foreach (var operation in _listOfConverTo)
                         {
                             <MudMenuItem Style="background-color: var(--convert-to-color); color: var(--node-background-color);"
                                          @onclick="() => _selectedConvertTo = operation">
@@ -220,6 +244,20 @@
                         }
                     </MudMenu>
                 </MudButtonGroup>
+
+                <MudButton StartIcon="@Icons.Material.Filled.DashboardCustomize"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--data-display-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.DataDisplay)">
+                    Data Display
+                </MudButton>
+
+                <MudButton StartIcon="@Icons.Material.Filled.Send"
+                           Variant="Variant.Filled"
+                           Style="background-color: var(--send-message-node-color); color: var(--node-background-color);"
+                           OnClick="() => AddNode(NodeType.SendMessage)">
+                    Send Message
+                </MudButton>
 
             </MudStack>
         </MudPaper>
@@ -255,7 +293,7 @@
 <style>
     .diagram-container {
         width: 100%;
-        height: 65vh;
+        height: 70vh;
         /*         border: 2px solid var(--mud-palette-drawer-text); */
     }
 
@@ -274,16 +312,17 @@
 {
     private List<DbTask> _tasks = [];
 
-    // private bool _tasksLoading = true;
     private DbTask? _selectedTask;
 
     private BlazorDiagram? _currentDiagram;
 
     private NodeConditionType _selectedCondition = NodeConditionType.Equal;
     private NodeArrayOperationType _selectedOperation = NodeArrayOperationType.ArraySlice;
+    private NodeBooleanOperationType _selectedBooleanOperation = NodeBooleanOperationType.And;
 
     private NodeArithmeticOperationType _selectedArithmeticOperation = NodeArithmeticOperationType.Add;
-    private NodeConvertToType _selectedConvertTo = NodeConvertToType.String;
+    private NodeValueType _selectedConvertTo = NodeValueType.String;
+    private List<NodeValueType> _listOfConverTo = [NodeValueType.String, NodeValueType.Number, NodeValueType.Boolean, NodeValueType.Array];
 
     private List<DbModule> _modules = [];
     private List<DbBackgroundService> _services = [];
@@ -318,6 +357,9 @@
             _currentDiagram.RegisterComponent<ArrayOperationNode, ArrayOperationWidget>();
             _currentDiagram.RegisterComponent<ArithmeticOperationNode, ArithmeticOperationWidget>();
             _currentDiagram.RegisterComponent<ConvertToNode, ConvertToWidget>();
+            _currentDiagram.RegisterComponent<DateTimeNode, DateTimeWidget>();
+            _currentDiagram.RegisterComponent<FromAnyNode, FromAnyWidget>();
+            _currentDiagram.RegisterComponent<BooleanOperationNode, BooleanOperationWidget>();
 
             _modules = await _moduleService.GetAllAsync();
             _services = await _backgroundServiceService.GetAllAsync();
@@ -390,22 +432,13 @@
                 _selectedTask.DashboardEntityId = null;
                 _selectedTask.DashboardEntity = null;
             }
-            else if (_selectedTask.TriggerSourceType == TargetType.DashboardEntity)
+            else if (_selectedTask.TriggerSourceType == TargetType.Dashboard)
             {
                 _selectedTask.ModuleId = null;
                 _selectedTask.Module = null;
                 _selectedTask.BackgroundServiceId = null;
                 _selectedTask.BackgroundService = null;
             }
-            // else if (_selectedTask.TriggerSourceType == TargetType.None)
-            // {
-            //     _selectedTask.ModuleId = null;
-            //     _selectedTask.Module = null;
-            //     _selectedTask.BackgroundServiceId = null;
-            //     _selectedTask.BackgroundService = null;
-            //     _selectedTask.DashboardEntityId = null;
-            //     _selectedTask.DashboardEntity = null;
-            // }
             await _serverTaskService.SaveDiagramAsync(_selectedTask, _currentDiagram);
         }
     }
@@ -477,7 +510,19 @@
             }
             else if (type == NodeType.ConvertTo)
             {
-                _currentDiagram.Nodes.Add(new ConvertToNode(_serverContextService, _selectedConvertTo , point) { Order = smallestOrder });
+                _currentDiagram.Nodes.Add(new ConvertToNode(_serverContextService, _selectedConvertTo, point) { Order = smallestOrder });
+            }
+            else if (type == NodeType.DateTime)
+            {
+                _currentDiagram.Nodes.Add(new DateTimeNode(_serverContextService, point) { Order = smallestOrder });
+            }
+            else if (type == NodeType.FromAny)
+            {
+                _currentDiagram.Nodes.Add(new FromAnyNode(_serverContextService, point) { Order = smallestOrder });
+            }
+            else if (type == NodeType.BooleanOperation)
+            {
+                _currentDiagram.Nodes.Add(new BooleanOperationNode(_serverContextService, _selectedBooleanOperation, point) { Order = smallestOrder });
             }
         }
     }
@@ -536,19 +581,31 @@
                 {
                     _currentDiagram.Nodes.Add(new ConvertToNode(_serverContextService, node));
                 }
+                else if (node.Type == NodeType.DateTime)
+                {
+                    _currentDiagram.Nodes.Add(new DateTimeNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.FromAny)
+                {
+                    _currentDiagram.Nodes.Add(new FromAnyNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.BooleanOperation)
+                {
+                    _currentDiagram.Nodes.Add(new BooleanOperationNode(_serverContextService, node));
+                }
             }
 
-            foreach (var link in links)
+            foreach (var dbLink in links)
             {
-                var source = _currentDiagram.Nodes.First(n => n.Order == link.Source.Order);
-                var target = _currentDiagram.Nodes.First(n => n.Order == link.Target.Order);
+                var source = _currentDiagram.Nodes.First(n => n.Order == dbLink.Source.Order);
+                var target = _currentDiagram.Nodes.First(n => n.Order == dbLink.Target.Order);
                 LinkModel? linkModel;
                 TaskPort? sourcePort = null;
                 TaskPort? targetPort = null;
 
                 foreach (TaskPort port in source.Ports)
                 {
-                    if (port.Order == link.SourceOrder && port.Input == link.SourceInput)
+                    if (port.PositionAlignment == dbLink.SourcePositionAlignment && port.Input == dbLink.SourceInput)
                     {
                         sourcePort = port;
                         break;
@@ -557,7 +614,7 @@
 
                 foreach (TaskPort port in target.Ports)
                 {
-                    if (port.Order == link.TargetOrder && port.Input == link.TargetInput)
+                    if (port.PositionAlignment == dbLink.TargetPositionAlignment && port.Input == dbLink.TargetInput)
                     {
                         targetPort = port;
                         break;
