@@ -38,7 +38,7 @@ public class FromAnyNode : TaskNode
         {
             Services = context.GetAllBackgroundServices();
         }
-        else if (type == TargetType.DashboardEntity)
+        else if (type == TargetType.Dashboard)
         {
             Entities = context.GetAllDashBoardEntities();
         }

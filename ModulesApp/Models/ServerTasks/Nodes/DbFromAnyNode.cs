@@ -35,7 +35,7 @@ public class DbFromAnyNode : DbTaskNode
         {
             value = context.GetMessageFromService(LongVal1, StringVal1);
         }
-        else if (targetType == TargetType.DashboardEntity)
+        else if (targetType == TargetType.Dashboard)
         {
             value = context.GetMessageFromDashBoardEntity(LongVal1, StringVal1);
         }

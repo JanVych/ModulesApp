@@ -47,7 +47,7 @@ public class DbSendMessageNode : DbTaskNode
                 {
                     context.SendToBackgroundService(LongVal1, StringVal1, Value.GetValue());
                 }
-                else if (LongVal2 == (long)TargetType.DashboardEntity)
+                else if (LongVal2 == (long)TargetType.Dashboard)
                 {
                     context.SendToDashboardEntity(LongVal1, StringVal1, Value.GetValue());
                 }

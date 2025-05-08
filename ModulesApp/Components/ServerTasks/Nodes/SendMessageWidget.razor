@@ -14,7 +14,7 @@
                Margin="Margin.Dense">
         <MudSelectItem Value="(long)TargetType.Module">@TargetType.Module</MudSelectItem>
         <MudSelectItem Value="(long)TargetType.Service">@TargetType.Service</MudSelectItem>
-        <MudSelectItem Value="(long)TargetType.DashboardEntity">@TargetType.DashboardEntity</MudSelectItem>
+        <MudSelectItem Value="(long)TargetType.Dashboard">@TargetType.Dashboard</MudSelectItem>
     </MudSelect>
 
     @if (Node.LongVal2 == (long)TargetType.Module && Node.Modules != null)
@@ -43,7 +43,7 @@
             }
         </MudSelect>
     }
-    else if (Node.LongVal2 == (long)TargetType.DashboardEntity && Node.Entities != null)
+    else if (Node.LongVal2 == (long)TargetType.Dashboard && Node.Entities != null)
     {
         <MudSelect T="long"
                    @bind-Value="Node.LongVal1"
@@ -85,7 +85,7 @@
             Node.Services ??= await Node._context.GetAllBackgroundServicesAsync();
             Node.LongVal1 = Node.Services.FirstOrDefault()?.Id ?? 0;
         }
-        else if (type == (long)TargetType.DashboardEntity)
+        else if (type == (long)TargetType.Dashboard)
         {
             Node.Entities ??= await Node._context.GetAllDashBoardEntitiesAsync();
             Node.LongVal1 = Node.Entities.FirstOrDefault()?.Id ?? 0;

@@ -11,7 +11,7 @@ public class DbValueSetterEntity: DbDashboardEntity
     [NotMapped]
     public string InputValue { get; set; } =  "0";
 
-    public override void UpdateData(Dictionary<string, object?> data)
+    public override void UpdateFromData(Dictionary<string, object?> data)
     {
         foreach (var (key, value) in data)
         {

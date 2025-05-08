@@ -11,7 +11,8 @@ public enum NodeType
     ArithmeticOperation,
     ConvertTo,
     DateTime,
-    FromAny
+    FromAny,
+    BooleanOperation,
 }
 
 public enum NodeConditionType
@@ -21,7 +22,7 @@ public enum NodeConditionType
     Greater,
     Less,
     GreaterOrEqual,
-    LessOrEqual
+    LessOrEqual,
 }
 
 public enum NodeArrayOperationType
@@ -53,6 +54,17 @@ public enum NodeDateTimeOutputType
     DayOfYear
 }
 
+public enum NodeBooleanOperationType
+{
+    And,
+    Or,
+    Not,
+    Xor,
+    Nand,
+    Nor,
+    Xnor,
+}
+
 public static class NodeExtensions
 {
     public static string ToShortString(this NodeConditionType type)
@@ -74,11 +86,11 @@ public static class NodeExtensions
         return type switch
         {
             NodeConditionType.Equal => "Equal",
-            NodeConditionType.NotEqual => "Not Equal",
+            NodeConditionType.NotEqual => "Not-Equal",
             NodeConditionType.Greater => "Greater",
             NodeConditionType.Less => "Less",
-            NodeConditionType.GreaterOrEqual => "Greater Or Equal",
-            NodeConditionType.LessOrEqual => "Less Or Equal",
+            NodeConditionType.GreaterOrEqual => "Greater-Or-Equal",
+            NodeConditionType.LessOrEqual => "Less-Or-Equal",
             _ => type.ToString()
         };
     }
@@ -88,7 +100,7 @@ public static class NodeExtensions
         return type switch
         {
             NodeArrayOperationType.ArraySlice => "Slice",
-            NodeArrayOperationType.ArrayRemoveAt => "Remove At",
+            NodeArrayOperationType.ArrayRemoveAt => "Remove-At",
             _ => type.ToString()
         };
     }

@@ -27,7 +27,7 @@ namespace ModulesApp.Models.Dasboards.Entities
             Data["Headers"] = Headers;
         }
 
-        public override void UpdateData(Dictionary<string, object?> data)
+        public override void UpdateFromData(Dictionary<string, object?> data)
         {
             foreach (var (key, value) in data)
             {

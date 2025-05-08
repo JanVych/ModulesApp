@@ -1,0 +1,56 @@
+﻿@using ModulesApp.Components.DashBoardEntities
+@using ModulesApp.Models.Dasboards
+@using ModulesApp.Models.Dasboards.Entities
+
+<MudDialog>
+    <TitleContent>
+        Dashboard
+    </TitleContent>
+    <DialogContent>
+        <div class="pa-1">
+            <MudStack AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h5">New Dashboard</MudText>
+
+                <MudTextField @bind-Value="Dashboard.Name" Label="Name" Required="true" Style="min-width: 200px" />
+
+                <MudSelect T="string" @bind-value="Dashboard.IconString" Label="Type" Style="min-width: 200px">
+                    @foreach (string icon in _stringIconList)
+                    {
+                        <MudSelectItem Value="icon">
+                            <MudIcon Icon="@icon" Size="Size.Medium" />
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+            </MudStack>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter, EditorRequired]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public DbDashboard Dashboard { get; set; } = default!;
+
+    private List<string> _stringIconList =
+    [
+        Icons.Material.Filled.Pageview,
+        Icons.Material.Filled.Label,
+        Icons.Material.Filled.ExposureZero,
+        Icons.Material.Filled.TempleBuddhist,
+        Icons.Material.Filled.Dashboard,
+        Icons.Material.Filled.DashboardCustomize,
+        Icons.Material.Filled.AddChart,
+        Icons.Material.Filled.Chair,
+    ];
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Dashboard));
+
+    private void Cancel() => MudDialog.Cancel();
+}
+

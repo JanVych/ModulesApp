@@ -15,7 +15,7 @@ public enum TargetType
     None,
     Module,
     Service,
-    DashboardEntity,
+    Dashboard,
 }
 
 [Table("Task")]

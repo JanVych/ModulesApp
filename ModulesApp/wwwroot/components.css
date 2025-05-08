@@ -10,4 +10,5 @@
     --convert-to-color: var(--mud-palette-tertiary-darken);
     --date-time-node-color: var(--mud-palette-primary-darken);
     --from-any-node-color: var(--mud-palette-primary-darken);
+    --boolean-operation-node-color: var(--mud-palette-tertiary-darken);
 }

@@ -7,10 +7,6 @@ public class DataConvertor
     public static List<T?> ToList<T>(object? value)
     {
         var targetType = typeof(T);
-        if (value is List<T?> list)
-        {
-            return list;
-        }
         if (value is JsonElement json && json.ValueKind == JsonValueKind.Array)
         {
             var result = new List<T?>(json.GetArrayLength());
@@ -41,10 +37,6 @@ public class DataConvertor
 
     public static string ToString(object? value)
     {
-        if (value is string str)
-        {
-            return str;
-        }
         if (value is JsonElement json)
         {
             if (json.ValueKind == JsonValueKind.String)
@@ -58,10 +50,6 @@ public class DataConvertor
 
     public static double ToDouble(object? value)
     {
-        if (value is double d)
-        {
-            return d;
-        }
         if (value is JsonElement json)
         {
             if (json.ValueKind == JsonValueKind.Number)
@@ -82,10 +70,6 @@ public class DataConvertor
 
     public static bool ToBool(object? value)
     {
-        if (value is bool b)
-        {
-            return b;
-        }
         if (value is JsonElement json)
         {
             if(json.ValueKind == JsonValueKind.True)

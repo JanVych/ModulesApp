@@ -2,7 +2,7 @@
 
 public class DbButtonEntity : DbDashboardEntity
 {
-    public override void UpdateData(Dictionary<string, object?> data)
+    public override void UpdateFromData(Dictionary<string, object?> data)
     {
         Data = data;
     }

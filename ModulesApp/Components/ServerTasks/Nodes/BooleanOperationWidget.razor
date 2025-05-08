@@ -1,0 +1,16 @@
+﻿@using Blazor.Diagrams.Components.Renderers;
+@using Blazor.Diagrams.Core.Models
+@using ModulesApp.Interfaces
+@using MudBlazor
+
+<TaskNodeWidget Node="Node"
+                BoolOutputText="false"
+                Header="@Node.OperationType.ToString()"
+                MainColor="var(--boolean-operation-node-color)">
+</TaskNodeWidget>
+
+@code
+{
+    [Parameter] 
+    public BooleanOperationNode Node { get; set; } = null!;
+}

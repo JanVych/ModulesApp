@@ -23,6 +23,7 @@ public class DbGoodweBackgroundService : DbBackgroundService
         Friday = 0x20,
         Saturday = 0x40,
         All = 0x7F,
+        None = 0x00,
     }
 
     [NotMapped]
@@ -126,4 +127,10 @@ public class DbGoodweBackgroundService : DbBackgroundService
 
         _modbusRtuUdp.WriteU16Register(47518, 0xFF7F);
     }
+
+    // set interval (interval_number, start_time(hodina+minuta), end_time(...), power(wats), day_of_week)
+
+    //interval_numbe - offset for thsi 4 reg. 47515  47516 47517 47518, * 4 * interval_number
+    //(hodina+minuta) hour = 1 higher byte,minute = 1 lower byte
+    // day_of_week 0x00 -higher deactivated, 0xFF higher- activated, lower = day of week
 }

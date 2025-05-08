@@ -40,7 +40,7 @@ public class DbFromMessageNode : DbTaskNode
         {
             value = context.GetMessageFromService(backgroundServiceId, StringVal1);
         }
-        else if (Task.TriggerSourceType == TargetType.DashboardEntity && Task.DashboardEntityId is long dashboardEntityId)
+        else if (Task.TriggerSourceType == TargetType.Dashboard && Task.DashboardEntityId is long dashboardEntityId)
         {
             value = context.GetMessageFromDashBoardEntity(dashboardEntityId, StringVal1);
         }

@@ -130,6 +130,7 @@ public class ServerTaskService
                 NodeType.ConvertTo => new DbConvertToNode((ConvertToNode)node),
                 NodeType.DateTime => new DbDateTimeNode((DateTimeNode)node),
                 NodeType.FromAny => new DbFromAnyNode((FromAnyNode)node),
+                NodeType.BooleanOperation => new DbBooleanOperationNode((BooleanOperationNode)node),
                 _ => throw new ArgumentException($"Unsupported node type: {node.Type}")
             });
         }

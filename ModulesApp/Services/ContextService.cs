@@ -90,7 +90,7 @@ public class ContextService
 
     public JsonElement? GetMessageFromDashBoardEntity(long serviceId, string key)
     {
-        var entity = _dashboardService.GetDashBoardEntity(serviceId);
+        var entity = _dashboardService.GetEntity(serviceId);
         if (entity == null || entity.Data == null)
         {
             return null;
@@ -132,12 +132,12 @@ public class ContextService
 
     public void SendToDashboardEntity(long entityId, string key, object? value)
     {
-        _dashboardService.EntityDataChanged(entityId, new Dictionary<string, object?> { { key, value } });
+        _dashboardService.UpdateEntity(entityId, key, value);
     }
 
     public async Task DashboardEntityUserTrigger(DbDashboardEntity entity)
     {
-        _dashboardService.Update(entity);
+        _dashboardService.UpdateEntity(entity);
         await _serverTaskService.ExecuteTasksAsync(this, entity);
     }
 

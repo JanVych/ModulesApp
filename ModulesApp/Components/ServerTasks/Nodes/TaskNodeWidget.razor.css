@@ -25,7 +25,7 @@
 
 .node-content {
     padding: 25px;
-    min-height: 60px;
+    min-height: 70px;
     display: flex;
     flex-direction: column;
     justify-content: center;
