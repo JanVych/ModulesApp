@@ -99,19 +99,27 @@
     {
         if (type == BackgroundServiceType.Test)
         {
-            _service = new DbTestBackgroundService()
-                {
-                    Name = "Test_Service",
-                    Interval = TimeSpan.FromSeconds(_intervalSeconds)
-                };
+            _service = new DbBackgroundService()
+            {
+                Name = "Test_Service",
+                Type = BackgroundServiceType.Test,
+            };
         }
         else if (type == BackgroundServiceType.Goodwe)
         {
-            _service = new DbGoodweBackgroundService()
-                {
-                    Name = "Goodwee_Service",
-                    Interval = TimeSpan.FromSeconds(_intervalSeconds)
-                };
+            _service = new DbBackgroundService()
+            {
+                Name = "Goodwee_Service",
+                Type = BackgroundServiceType.Goodwe,
+            };
+        }
+        else if(type == BackgroundServiceType.Cron)
+        {
+            _service = new DbBackgroundService()
+            {
+                Name = "Cron_Service",
+                Type = BackgroundServiceType.Cron,
+            };
         }
     }
 
@@ -133,8 +141,7 @@
     {
         if (_service is not null)
         {
-            _service.Interval = TimeSpan.FromSeconds(_intervalSeconds);
-            await _backgroundServiceManager.RegisterServiceAsync(_service, _backgroundServiceService);
+            await _backgroundServiceManager.CreateServiceAsync(_service);
             GoBack();
         }
     }

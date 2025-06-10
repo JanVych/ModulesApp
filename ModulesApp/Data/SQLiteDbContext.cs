@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ModulesApp.Interfaces;
 using ModulesApp.Models;
@@ -80,10 +79,11 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
                 v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
 
 
-        builder.Entity<DbBackgroundService>()
-            .HasDiscriminator<BackgroundServiceType>(nameof(DbBackgroundService.Type))
-            .HasValue<DbGoodweBackgroundService>(BackgroundServiceType.Goodwe)
-            .HasValue<DbTestBackgroundService>(BackgroundServiceType.Test);
+        //builder.Entity<DbBackgroundService>()
+        //    .HasDiscriminator<BackgroundServiceType>(nameof(DbBackgroundService.Type))
+        //    .HasValue<DbGoodweBackgroundService>(BackgroundServiceType.Goodwe)
+        //    .HasValue<CronService>(BackgroundServiceType.Cron)
+        //    .HasValue<DbTestBackgroundService>(BackgroundServiceType.Test);
 
         builder.Entity<DbBackgroundService>()
             .Property(p => p.Data)

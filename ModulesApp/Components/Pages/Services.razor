@@ -22,8 +22,8 @@
         <MudTh>Name</MudTh>
         <MudTh>Type</MudTh>
         <MudTh>Status</MudTh>
-        <MudTh>Last run</MudTh>
-        <MudTh>Interval</MudTh>
+        @* <MudTh>Last run</MudTh> *@
+@*         <MudTh>Interval</MudTh> *@
         <MudTh>Actions</MudTh>
     </HeaderContent>
     <RowTemplate>
@@ -35,13 +35,13 @@
                 @context.Status
             </MudChip>
         </MudTd>
-        <MudTd DataLabel="Last run">
+@*         <MudTd DataLabel="Last run">
             @context.LastRun.ToString()
-        </MudTd>
+        </MudTd> *@
 
-        <MudTd DataLabel="Interval">
+@*         <MudTd DataLabel="Interval">
             @context.IntervalString
-        </MudTd>
+        </MudTd> *@
 
         <MudTd DataLabel="Actions">
             <MudStack Row="true">
@@ -53,14 +53,14 @@
                 Color="Color.Secondary"
                 OnClick="() => Delete(context)">
                 </MudIconButton>
-                @if(context.Status == BackgroundServiceStatus.Running)
+                @if(context.Status == BackgroundServiceStatus.Active)
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.PauseCircleFilled"
                     Color="Color.Primary"
                     OnClick="() => PauseService(context)">
                     </MudIconButton>
                 }
-                else if (context.Status == BackgroundServiceStatus.Stopped)
+                else if (context.Status == BackgroundServiceStatus.Paused)
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled"
                     Color="Color.Primary"
@@ -104,7 +104,7 @@
 
     private async Task Delete(DbBackgroundService service)
     {
-        await _backgroundServiceManager.UnregisterServiceAync(service.Id, _backgroundServiceService);
+        await _backgroundServiceManager.DeleteServiceAsync(service);
     }
 
     private void DetailService(DbBackgroundService service)
@@ -114,12 +114,12 @@
 
     private async Task PauseService(DbBackgroundService service)
     {
-        await _backgroundServiceManager.StopAsync(service.Id);
+        await _backgroundServiceManager.StopServiceAsync(service);
     }
 
-    private void StartService(DbBackgroundService service)
+    private async Task StartService(DbBackgroundService service)
     {
-        _backgroundServiceManager.StartAsync(service.Id);
+        await _backgroundServiceManager.StartServiceAsync(service);
     }
 
     public void Dispose()

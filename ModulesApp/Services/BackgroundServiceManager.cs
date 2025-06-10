@@ -1,115 +1,102 @@
 ﻿using ModulesApp.Models.BackgroundServices;
+using ModulesApp.Models.BackgroundServices.Servicves;
 using ModulesApp.Services.Data;
+using Quartz;
 
 namespace ModulesApp.Services;
 
 public class BackgroundServiceManager
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ISchedulerFactory _schedulerFactory;
+    private readonly BackgroundServiceService _backgroundService;
 
-    private List<DbBackgroundService> _backgroundServices = default!;
-    private readonly object _lock = new();
-
-    public BackgroundServiceManager(IServiceProvider serviceProvider)
+    public BackgroundServiceManager(ISchedulerFactory schedulerFactory, BackgroundServiceService backgroundService)
     {
-        _serviceProvider = serviceProvider;
-        Launch();
+        _schedulerFactory = schedulerFactory;
+        _backgroundService = backgroundService;
     }
 
-    public void Launch()
+    public async Task LaunchAsync()
     {
-        using var scoop = _serviceProvider.CreateScope();
-        var backgroundServiceService = scoop.ServiceProvider.GetRequiredService<BackgroundServiceService>();
-        _backgroundServices = backgroundServiceService.GetAll();
-
-        lock (_lock)
+        var scheduler = await _schedulerFactory.GetScheduler();
+        var services = await _backgroundService.GetAllAsync();
+        foreach (var s in services)
         {
-            foreach (var backgroundService in _backgroundServices)
+            if(s.Status == BackgroundServiceStatus.Active)
             {
-                if (backgroundService.Status == BackgroundServiceStatus.Running)
-                {
-                    Task.Run(() => backgroundService.StartAsync(_serviceProvider));
-                }
-                else
-                {
-                    backgroundService.Status = BackgroundServiceStatus.Stopped;
-                    backgroundServiceService.UpdateAsync(backgroundService).Wait();
-                }
+                ScheduleJobAsync(s, scheduler).GetAwaiter().GetResult();
             }
         }
     }
 
-    public void StartAsync(long serviceId)
+    private async Task ScheduleJobAsync(DbBackgroundService service, IScheduler? scheduler = null)
     {
-        DbBackgroundService? service;
-        lock (_lock)
+        scheduler ??= await _schedulerFactory.GetScheduler();
+        if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
         {
-            service = _backgroundServices.FirstOrDefault(x => x.Id == serviceId);
+            return;
         }
-        if (service is not null && service.Status == BackgroundServiceStatus.Stopped)
+        JobBuilder builder = service.Type switch
         {
-            Task.Run(() => service.StartAsync(_serviceProvider));
-        }
+            BackgroundServiceType.Cron => JobBuilder.Create<CronBackgroundService>(),
+            BackgroundServiceType.Goodwe => JobBuilder.Create<GoodweBackgroundService>(),
+            BackgroundServiceType.Test => JobBuilder.Create<TestBackgroundService>(),
+            _ => JobBuilder.Create<CronBackgroundService>()
+        };
+        var newJob = builder.WithIdentity(service.Id.ToString(), "DefaultGroup").Build();
+
+        var neWtrigger = TriggerBuilder.Create()
+            .WithIdentity(service.Id.ToString())
+            .ForJob(newJob)
+            .WithCronSchedule(service.CronExpression)
+            .Build();
+
+        await scheduler.ScheduleJob(newJob, neWtrigger);
     }
 
-    public async Task StopAsync(long serviceId)
+    public async Task CreateServiceAsync(DbBackgroundService service)
     {
-        DbBackgroundService? service;
-        lock (_lock)
-        {
-            service = _backgroundServices.FirstOrDefault(x => x.Id == serviceId);
-        }
-        if (service is not null && service.Status == BackgroundServiceStatus.Running)
-        {
-            await service.StopAsync(_serviceProvider);
-        }
+        await _backgroundService.AddAsync(service);
+        await ScheduleJobAsync(service);
     }
 
-    public async Task RegisterServiceAsync(DbBackgroundService service, BackgroundServiceService backgroundServiceService)
+    public async Task StartServiceAsync(DbBackgroundService service, IScheduler? scheduler = null)
     {
-        await backgroundServiceService.AddAsync(service);
-        lock (_lock)
+        scheduler ??= await _schedulerFactory.GetScheduler();
+        if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
         {
-            _backgroundServices.Add(service);
-        }
-    }
-
-    public async Task UnregisterServiceAync(long taskId, BackgroundServiceService backgroundServiceService)
-    {
-        var service = _backgroundServices.FirstOrDefault(x => x.Id == taskId);
-        if (service is not null && service.Status == BackgroundServiceStatus.Stopped)
-        {
-            //await service.StopAsync();
-
-            //while(service.IsRunning)
-            //{
-            //    await Task.Delay(100);
-            //}
-            lock (_lock)
+            var state = await scheduler.GetTriggerState(new TriggerKey(service.Id.ToString()));
+            if (state == TriggerState.Paused)
             {
-                _backgroundServices.Remove(service);
-            }
-            await backgroundServiceService.DeleteAsync(service);
-        }
-    }
-
-    public async Task UpdateServiceAsync(DbBackgroundService service, BackgroundServiceService backgroundServiceService)
-    {
-        var index = -1;
-        if (service.Status == BackgroundServiceStatus.Stopped)
-        {
-            lock (_lock)
-            {
-                index = _backgroundServices.FindIndex(x => x.Id == service.Id);
-                if (index != -1)
-                {
-                    _backgroundServices[index] = service;
-                }
-            }
-            if (index != -1)
-            {
-                await backgroundServiceService.UpdateAsync(service);
+                await scheduler.ResumeJob(new JobKey(service.Id.ToString(), "DefaultGroup"));
             }
         }
+        else
+        {
+            await ScheduleJobAsync(service, scheduler);
+        }
+        service.Status = BackgroundServiceStatus.Active;
+        await _backgroundService.UpdateAsync(service);
+    }
+
+    public async Task StopServiceAsync(DbBackgroundService service)
+    {
+        var scheduler = await _schedulerFactory.GetScheduler();
+        if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
+        {
+            await scheduler.PauseJob(new JobKey(service.Id.ToString(), "DefaultGroup"));
+        }
+        service.Status = BackgroundServiceStatus.Paused;
+        await _backgroundService.UpdateAsync(service);
+    }
+
+    public async Task DeleteServiceAsync(DbBackgroundService service)
+    {
+        var scheduler = await _schedulerFactory.GetScheduler();
+        if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
+        {
+            await scheduler.DeleteJob(new JobKey(service.Id.ToString(), "DefaultGroup"));
+        }
+        await _backgroundService.DeleteAsync(service);
     }
 }

@@ -1,12 +1,16 @@
-using MudBlazor.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ModulesApp.Components;
 using ModulesApp.Data;
+using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Services;
 using ModulesApp.Services.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+using MudBlazor.Services;
+using Quartz;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+using static Quartz.Logging.OperationName;
+
 
 namespace ModulesApp;
 
@@ -31,7 +35,12 @@ public class Program
         builder.Services.AddScoped(provider =>
             provider.GetRequiredService<IDbContextFactory<SQLiteDbContext>>().CreateDbContext());
 
-
+        // quartz, background services
+        builder.Services.AddQuartz();
+        builder.Services.AddQuartzHostedService(options =>
+        {
+            options.WaitForJobsToComplete = true;
+        });
 
         builder.Services.AddControllers();
 
@@ -58,7 +67,9 @@ public class Program
         
         builder.Services.AddScoped<ModuleProgramManager>();
 
-        builder.Services.AddSingleton<BackgroundServiceManager>();
+        builder.Services.AddScoped<BackgroundServiceManager>();
+
+        //builder.Services.AddSingleton<BackgroundServiceManager>();
         builder.Services.AddSingleton<NotifyService>();
 
         var app = builder.Build();
@@ -85,8 +96,6 @@ public class Program
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 
-        //app.Services.GetService<BackgroundServiceManager>();
-
         // Map the POST /Account/Logout endpoint
         var accountGroup = app.MapGroup("/Account");
         accountGroup.MapPost("/Logout", async (
@@ -97,6 +106,12 @@ public class Program
             await signInManager.SignOutAsync();
             return TypedResults.LocalRedirect($"~/{returnUrl}");
         });
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var scopedService = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();
+            scopedService.LaunchAsync();
+        }
 
         app.Run();
     }

@@ -51,7 +51,7 @@ else
         if (ServerContextService != null)
         {
             _disabled = true;
-            await ServerContextService.DashboardEntityUserTrigger(Entity);
+            await ServerContextService.DashboardEntityUserTriggerAsync(Entity);
             await Task.Delay(1000);
             _disabled = false;
         }

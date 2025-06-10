@@ -70,7 +70,7 @@ else
     private async Task SaveChanges()
     {
         _saveDisabled = true;
-        await ServerContextService.DashboardEntityUserTrigger(Entity);
+        await ServerContextService.DashboardEntityUserTriggerAsync(Entity);
         await Task.Delay(1000);
         _saveDisabled = false;
     }

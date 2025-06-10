@@ -215,14 +215,12 @@ namespace ModulesApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Data")
+                    b.Property<string>("CronExpression")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<TimeSpan>("Interval")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("LastRun")
+                    b.Property<string>("Data")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
@@ -238,10 +236,6 @@ namespace ModulesApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BackgroundService");
-
-                    b.HasDiscriminator<int>("Type");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("ModulesApp.Models.Dasboards.DbDashboard", b =>
@@ -622,24 +616,6 @@ namespace ModulesApp.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("ModulesApp.Models.BackgroundServices.Servicves.DbGoodweBackgroundService", b =>
-                {
-                    b.HasBaseType("ModulesApp.Models.BackgroundServices.DbBackgroundService");
-
-                    b.ToTable("BackgroundService");
-
-                    b.HasDiscriminator().HasValue(0);
-                });
-
-            modelBuilder.Entity("ModulesApp.Models.BackgroundServices.Servicves.DbTestBackgroundService", b =>
-                {
-                    b.HasBaseType("ModulesApp.Models.BackgroundServices.DbBackgroundService");
-
-                    b.ToTable("BackgroundService");
-
-                    b.HasDiscriminator().HasValue(1);
-                });
-
             modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbBasicCardEntity", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
@@ -710,6 +686,15 @@ namespace ModulesApp.Migrations
                     b.ToTable("TaskNode");
 
                     b.HasDiscriminator().HasValue(5);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbBooleanOperationNode", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");
+
+                    b.ToTable("TaskNode");
+
+                    b.HasDiscriminator().HasValue(10);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbConditionNode", b =>

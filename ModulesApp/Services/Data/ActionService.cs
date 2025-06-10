@@ -28,20 +28,6 @@ public class ActionService
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<DbAction>> GetListAndDeleteAsync(DbBackgroundService service)
-    {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
-        var actions = await context.Actions
-            .Where(x => x.BackgroundServiceId == service.Id)
-            .AsNoTracking()
-            .ToListAsync();
-
-        await context.Actions
-            .Where(x => x.BackgroundServiceId == service.Id)
-            .ExecuteDeleteAsync();
-        return actions;
-    }
-
     public async Task<List<DbAction>> GetListAndDeleteAsync(DbModule module)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();

@@ -35,6 +35,7 @@ public class BackgroundServiceService
         return await context.BackgroundServices
             .Include(x => x.Actions)
             .Include(x => x.ServerTasks)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
@@ -64,6 +65,21 @@ public class BackgroundServiceService
         using var context = await _dbContextFactory.CreateDbContextAsync();
         context.BackgroundServices.Update(service);
         await SaveChangesAsync(context);
+    }
+
+    public async Task UpdateDataAsync(DbBackgroundService service)
+    {        
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        var existingService = await context.BackgroundServices
+            .FirstOrDefaultAsync(x => x.Id == service.Id);
+        
+        if (existingService != null)
+        {
+            existingService.Data = service.Data;
+            existingService.Actions = [];
+            context.BackgroundServices.Update(existingService);
+            await SaveChangesAsync(context);
+        }
     }
 
     public async Task DeleteAsync(DbBackgroundService service)

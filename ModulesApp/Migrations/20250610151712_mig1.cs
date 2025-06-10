@@ -57,11 +57,10 @@ namespace ModulesApp.Migrations
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
+                    CronExpression = table.Column<string>(type: "TEXT", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    Interval = table.Column<TimeSpan>(type: "TEXT", nullable: false),
-                    LastRun = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Data = table.Column<string>(type: "TEXT", nullable: false),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false)
+                    Status = table.Column<int>(type: "INTEGER", nullable: false),
+                    Data = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

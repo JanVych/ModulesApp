@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Data;
 using ModulesApp.Models.Dasboards;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModulesApp.Services.Data;
 

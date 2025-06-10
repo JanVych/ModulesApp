@@ -54,9 +54,9 @@ public class ContextService
         return await _modulesService.GetAllAsync();
     }
 
-    public async Task<List<DbAction>> GetActionsAsync(DbBackgroundService service)
+    public async Task<DbBackgroundService?> GetBackGroundServiceAsync(long id)
     {
-        return await _moduleActionService.GetListAndDeleteAsync(service);
+        return await _backgroundServiceService.GetAsync(id);
     }
 
     public JsonElement? GetMessageFromModule(long moduleId, string key)
@@ -135,15 +135,15 @@ public class ContextService
         _dashboardService.UpdateEntity(entityId, key, value);
     }
 
-    public async Task DashboardEntityUserTrigger(DbDashboardEntity entity)
+    public async Task DashboardEntityUserTriggerAsync(DbDashboardEntity entity)
     {
         _dashboardService.UpdateEntity(entity);
         await _serverTaskService.ExecuteTasksAsync(this, entity);
     }
 
-    public async Task UpdateFromBackgroundService(DbBackgroundService service)
+    public async Task UpdateBackgroundServiceDataAsync(DbBackgroundService service)
     {
-        await _backgroundServiceService.UpdateAsync(service);
+        await _backgroundServiceService.UpdateDataAsync(service);
     }
 
     public async Task ExecuteServerTasksAsync(DbBackgroundService service)

@@ -1,9 +1,11 @@
 ﻿using ModulesApp.Helpers;
+using ModulesApp.Services;
+using Quartz;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModulesApp.Models.BackgroundServices.Servicves;
 
-public class DbGoodweBackgroundService : DbBackgroundService
+public class GoodweBackgroundService : BackgroundService
 {
     public enum BatteryStatus
     {
@@ -29,41 +31,41 @@ public class DbGoodweBackgroundService : DbBackgroundService
     [NotMapped]
     private readonly ModbusRtuUdp _modbusRtuUdp = new(0xF7, 8899, "192.168.0.240", 2);
 
-    public DbGoodweBackgroundService(){}
+    public GoodweBackgroundService(ContextService contextService) : base(contextService){}
 
-    public override async Task ExecuteAsync()
+    public override async Task ExecuteAsync(IJobExecutionContext context)
     {
-        if (_modbusRtuUdp.Open())
-        {
-            foreach (var action in Actions)
-            {
-                if (action.Key == "SetBatteryPower")
-                {
-                    var value = DataConvertor.ToDouble(action.Value);
-                    SetBatteryPower((short)value);
-                }
-                else if (action.Key == "SetBatteryCharge")
-                {
-                    var value = DataConvertor.ToDouble(action.Value);
-                    SetBatteryCharge((short)value);
-                }
-                else if (action.Key == "SetBatteryDischarge")
-                {
-                    var value = DataConvertor.ToDouble(action.Value);
-                    SetBatteryDischarge((short)value);
-                }
-            }
-            await Task.Delay(100);
-            AddMessage("PV1 Power", GetPV1Power());
-            AddMessage("Grid Power", GetGridPower());
-            AddMessage("Backup Power", GetBackupPower());
-            AddMessage("Load Power", GetLoadPower());
-            AddMessage("Battery Power", GetBatteryPower());
-            AddMessage("Inverter Temperature", GetInverterTemperature());
-            AddMessage("Battery Temperature", GetBatteryTemperature());
-            AddMessage("Battery SOC", GetBatterySOC());
-            AddMessage("Battery Status", GetBatteryStatus().ToString());
-        }
+        //if (_modbusRtuUdp.Open())
+        //{
+        //    foreach (var action in Actions)
+        //    {
+        //        if (action.Key == "SetBatteryPower")
+        //        {
+        //            var value = DataConvertor.ToDouble(action.Value);
+        //            SetBatteryPower((short)value);
+        //        }
+        //        else if (action.Key == "SetBatteryCharge")
+        //        {
+        //            var value = DataConvertor.ToDouble(action.Value);
+        //            SetBatteryCharge((short)value);
+        //        }
+        //        else if (action.Key == "SetBatteryDischarge")
+        //        {
+        //            var value = DataConvertor.ToDouble(action.Value);
+        //            SetBatteryDischarge((short)value);
+        //        }
+        //    }
+        //    Data["PV1 Power"] = GetPV1Power();
+        //    Data["Grid Power"] = GetGridPower();
+        //    Data["Backup Power"] = GetBackupPower();
+        //    Data["Load Power"] = GetLoadPower();
+        //    Data["Battery Power"] = GetBatteryPower();
+        //    Data["Inverter Temperature"] = GetInverterTemperature();
+        //    Data["Battery Temperature"] = GetBatteryTemperature();
+        //    Data["Battery SOC"] = GetBatterySOC();
+        //    Data["Battery Status"] = GetBatteryStatus()?.ToString() ?? "Unknown";
+
+        //}
         _modbusRtuUdp.Close();
     }
 
