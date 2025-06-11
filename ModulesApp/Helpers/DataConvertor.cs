@@ -68,6 +68,30 @@ public class DataConvertor
         return default;
     }
 
+    public static int ToInt32(object? value)
+    {
+        if (value is int intValue)
+        {
+            return intValue;
+        }
+        if (value is JsonElement json)
+        {
+            if (json.ValueKind == JsonValueKind.Number)
+            {
+                return json.GetInt32();
+            }
+            else if (json.ValueKind == JsonValueKind.String && int.TryParse(json.GetString(), out var parsed))
+            {
+                return parsed;
+            }
+        }
+        if (value is string str && int.TryParse(str, out var parsedValue))
+        {
+            return parsedValue;
+        }
+        return default;
+    }
+
     public static bool ToBool(object? value)
     {
         if (value is JsonElement json)

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using ModulesApp.Interfaces;
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
-using ModulesApp.Models.BackgroundServices.Servicves;
 using ModulesApp.Models.Dasboards;
 using ModulesApp.Models.Dasboards.Entities;
 using ModulesApp.Models.ModulesPrograms;
@@ -79,14 +78,13 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
                 v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, SerializerOptions) ?? new Dictionary<string, object>());
 
 
-        //builder.Entity<DbBackgroundService>()
-        //    .HasDiscriminator<BackgroundServiceType>(nameof(DbBackgroundService.Type))
-        //    .HasValue<DbGoodweBackgroundService>(BackgroundServiceType.Goodwe)
-        //    .HasValue<CronService>(BackgroundServiceType.Cron)
-        //    .HasValue<DbTestBackgroundService>(BackgroundServiceType.Test);
-
         builder.Entity<DbBackgroundService>()
-            .Property(p => p.Data)
+            .Property(p => p.MessageData)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, SerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, object?>>(v, SerializerOptions) ?? new Dictionary<string, object?>());
+        builder.Entity<DbBackgroundService>()
+            .Property(p => p.ConfigurationData)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),
                 v => JsonSerializer.Deserialize<Dictionary<string, object?>>(v, SerializerOptions) ?? new Dictionary<string, object?>());

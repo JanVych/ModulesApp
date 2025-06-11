@@ -77,11 +77,11 @@ public class ContextService
     public JsonElement? GetMessageFromService(long serviceId, string key)
     {
         var service = _backgroundServiceService.Get(serviceId);
-        if (service == null || service.Data == null)
+        if (service == null || service.MessageData == null)
         {
             return null;
         }
-        if (service.Data.TryGetValue(key, out var value) && value is JsonElement element)
+        if (service.MessageData.TryGetValue(key, out var value) && value is JsonElement element)
         {
             return element;
         }

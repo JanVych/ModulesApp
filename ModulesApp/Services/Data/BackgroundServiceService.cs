@@ -75,7 +75,8 @@ public class BackgroundServiceService
         
         if (existingService != null)
         {
-            existingService.Data = service.Data;
+            existingService.MessageData = service.MessageData;
+            existingService.ConfigurationData = service.ConfigurationData;
             existingService.Actions = [];
             context.BackgroundServices.Update(existingService);
             await SaveChangesAsync(context);

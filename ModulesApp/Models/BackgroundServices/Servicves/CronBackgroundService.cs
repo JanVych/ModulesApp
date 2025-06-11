@@ -9,6 +9,7 @@ public class CronBackgroundService : BackgroundService
 
     public override async Task ExecuteAsync(IJobExecutionContext context)
     {
-        Console.WriteLine($"CronBackgroundService executed at {DateTime.Now}");
+        var name = context.JobDetail.Key.Name;
+        Console.WriteLine($"CronBackgroundService id: {name}, time: {DateTime.Now}");
     }
 }

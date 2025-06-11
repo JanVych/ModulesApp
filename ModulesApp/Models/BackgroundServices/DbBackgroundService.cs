@@ -8,8 +8,8 @@ namespace ModulesApp.Models.BackgroundServices;
 public enum BackgroundServiceType
 {
     Goodwe,
-    Test,
-    Cron
+    Cron,
+    Http
 }
 
 public enum BackgroundServiceStatus
@@ -27,10 +27,12 @@ public class DbBackgroundService
     public long Id { get; set; }
     public string Name { get; set; } = default!;
     public string CronExpression { get; set; } = "0/5 * * ? * * *";
+    public string Description { get; set; } = string.Empty;
     public BackgroundServiceType Type { get; set; } = BackgroundServiceType.Cron;
     public BackgroundServiceStatus Status { get; set; } = BackgroundServiceStatus.Paused;
 
-    public Dictionary<string, object?> Data { get; set; } = [];
+    public Dictionary<string, object?> ConfigurationData { get; set; } = [];
+    public Dictionary<string, object?> MessageData { get; set; } = [];
 
     public ICollection<DbAction> Actions { get; set; } = [];
     public ICollection<DbTask> ServerTasks { get; set; } = [];

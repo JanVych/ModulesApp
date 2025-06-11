@@ -40,7 +40,7 @@ public class BackgroundServiceManager
         {
             BackgroundServiceType.Cron => JobBuilder.Create<CronBackgroundService>(),
             BackgroundServiceType.Goodwe => JobBuilder.Create<GoodweBackgroundService>(),
-            BackgroundServiceType.Test => JobBuilder.Create<TestBackgroundService>(),
+            BackgroundServiceType.Http => JobBuilder.Create<HttpBackgroundService>(),
             _ => JobBuilder.Create<CronBackgroundService>()
         };
         var newJob = builder.WithIdentity(service.Id.ToString(), "DefaultGroup").Build();
@@ -56,6 +56,7 @@ public class BackgroundServiceManager
 
     public async Task CreateServiceAsync(DbBackgroundService service)
     {
+        service.Status = BackgroundServiceStatus.Active;
         await _backgroundService.AddAsync(service);
         await ScheduleJobAsync(service);
     }

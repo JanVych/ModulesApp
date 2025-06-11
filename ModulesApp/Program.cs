@@ -110,7 +110,7 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var scopedService = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();
-            scopedService.LaunchAsync();
+            scopedService.LaunchAsync().GetAwaiter().GetResult();
         }
 
         app.Run();

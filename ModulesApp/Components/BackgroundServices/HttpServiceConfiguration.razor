@@ -1,0 +1,27 @@
+﻿@using ModulesApp.Helpers
+@using ModulesApp.Models.BackgroundServices
+@using System.Text.RegularExpressions
+
+<MudTextField Label="Url" HelperText="Server address"
+              @bind-Value="Url" Variant="@Variant.Text" Clearable />
+
+
+@code 
+{
+    [Parameter, EditorRequired]
+    public DbBackgroundService Service { get; set; }
+
+    [Parameter, EditorRequired]
+    public bool HasError { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service.ConfigurationData["Url"] = "https://microsoftedge.github.io/Demos/json-dummy-data/64KB.json";
+    }
+
+    private string Url
+    {
+        get => DataConvertor.ToString(Service.ConfigurationData["Url"]);
+        set => Service.ConfigurationData["Url"] = value;
+    }
+}

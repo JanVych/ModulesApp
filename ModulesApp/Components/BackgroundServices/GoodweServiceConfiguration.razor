@@ -1,0 +1,54 @@
+﻿@using ModulesApp.Helpers
+@using ModulesApp.Models.BackgroundServices
+@using System.Text.RegularExpressions
+
+<MudStack>
+    <MudTextField Mask="@_ipv4Mask" Label="IPv4 Address" HelperText="@_ipv4Mask.Mask"
+                  @bind-Value="Ip" Variant="@Variant.Text" OnBlur="ValidateIp"  
+                  Error="@HasError" ErrorText="Invalid IPv4 address" Clearable />
+
+    <MudNumericField Label="Port Number" HelperText="Valid range: 0–65535"
+                  @bind-Value="Port" Variant="@Variant.Text" 
+                  Max="65535" Min="0" Clearable  HideSpinButtons/>
+</MudStack>
+
+
+
+@code 
+{
+    [Parameter, EditorRequired]
+    public DbBackgroundService Service { get; set; }
+
+    private IMask _ipv4Mask = RegexMask.IPv4();
+    private Regex _ipv4Regex = new Regex(@"^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$");
+
+    [Parameter, EditorRequired]
+    public bool HasError { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service.ConfigurationData["Ip"] = "192.168.0.1";
+        Service.ConfigurationData["Port"] = 8899;
+    }
+
+    private string Ip
+    {
+        get => DataConvertor.ToString(Service.ConfigurationData["Ip"]);
+        set => Service.ConfigurationData["Ip"] = value;
+    }
+
+    private int Port
+    {
+        get => DataConvertor.ToInt32(Service.ConfigurationData["Port"]);
+        set => Service.ConfigurationData["Port"] = value;
+    }
+
+    private void ValidateIp()
+    {
+        var ipValue = Service.ConfigurationData["Ip"]?.ToString();
+        if (!string.IsNullOrEmpty(ipValue))
+        {
+            HasError = !_ipv4Regex.IsMatch(ipValue);
+        }
+    }
+}

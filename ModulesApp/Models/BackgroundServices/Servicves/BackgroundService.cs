@@ -9,7 +9,8 @@ public abstract class BackgroundService: IJob
     protected readonly ContextService _contextService;
 
     protected IEnumerable<DbAction> Actions = [];
-    protected Dictionary<string, object?> Data { get; set; } = [];
+    protected Dictionary<string, object?> MessageData { get; set; } = [];
+    protected Dictionary<string, object?> ConfigurationData { get; set; } = [];
 
     public BackgroundService(ContextService contextService) 
     { 
@@ -27,11 +28,11 @@ public abstract class BackgroundService: IJob
                     ?? throw new ArgumentNullException(id.ToString(), "Background service not found.");
 
                 Actions = service.Actions;
-                Data = service.Data;
+                ConfigurationData = service.ConfigurationData;
 
                 await ExecuteAsync(context);
 
-                service.Data = Data;
+                service.MessageData = MessageData;
                 await _contextService.UpdateBackgroundServiceDataAsync(service);
                 await _contextService.ExecuteServerTasksAsync(service);
 
