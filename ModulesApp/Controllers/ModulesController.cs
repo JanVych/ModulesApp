@@ -33,7 +33,7 @@ public class ModulesController : ControllerBase
             { "name", "Jaroslav" },
             { "surname", "Basta" }
         };
-        return Ok(data);
+        return Ok(JsonSerializer.Serialize(data));
     }
 
     [HttpPost]

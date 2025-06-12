@@ -39,6 +39,19 @@ public class BackgroundServiceService
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
+    public async Task<DbBackgroundService?> GetAndDeleteActionsAsync(long id)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        var services = await context.BackgroundServices
+            .Include(x => x.Actions)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        await context.Actions
+            .Where(x => x.BackgroundServiceId == id)
+            .ExecuteDeleteAsync();
+        return services;
+    }
+
     public async Task<List<DbBackgroundService>> GetAllAsync()
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
@@ -67,19 +80,18 @@ public class BackgroundServiceService
         await SaveChangesAsync(context);
     }
 
-    public async Task UpdateDataAsync(DbBackgroundService service)
+    public void UpdateFromBackgroundService(DbBackgroundService service)
     {        
-        using var context = await _dbContextFactory.CreateDbContextAsync();
-        var existingService = await context.BackgroundServices
-            .FirstOrDefaultAsync(x => x.Id == service.Id);
+        using var context = _dbContextFactory.CreateDbContext();
+        var existingService = context.BackgroundServices
+            .FirstOrDefault(x => x.Id == service.Id);
         
         if (existingService != null)
         {
             existingService.MessageData = service.MessageData;
             existingService.ConfigurationData = service.ConfigurationData;
-            existingService.Actions = [];
             context.BackgroundServices.Update(existingService);
-            await SaveChangesAsync(context);
+            SaveChangesAsync(context).GetAwaiter().GetResult();
         }
     }
 

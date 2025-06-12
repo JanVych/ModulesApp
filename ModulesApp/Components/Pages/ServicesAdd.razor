@@ -14,17 +14,15 @@
 <PageTitle>Add Service</PageTitle>
 
 <div>
-    <div>
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
-            @if (_service is not null)
-            {
-                <MudText Typo="Typo.h4">@_service.Name</MudText>
-            }
-        </MudStack>
-    </div>
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
+        @if (_service is not null)
+        {
+            <MudText Typo="Typo.h4">@_service.Name</MudText>
+        }
+    </MudStack>
 
-    <MudDivider Class="mb-4" />
+    <MudDivider Class="mb-2" />
 
     @if (_service is null)
     {
@@ -32,82 +30,91 @@
     }
     else
     {
-        <MudPaper Elevation="0" Class="px-4 pt-2 pb-2" Style="max-width: 800px;">
-            <div>
+        <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
+
+            <MudPaper Class="pa-4" Elevation="0">
                 <MudText Typo="Typo.h5">Add new service</MudText>
-                <MudDivider Class="my-2" />
-            </div>
 
-            <MudStack Spacing="4">
-                <MudTextField @bind-Value="_service.Name" Label="Name" Variant="Variant.Text" Clearable />
+                <MudStack Spacing="4">
+                    <MudDivider Class="mt-2" />
+                    <MudTextField @bind-Value="_service.Name" Label="Name" Variant="Variant.Text" Clearable />
 
-                <MudSelect T="CronType" @bind-Value="_selectedCronType" Label="Trigger">
-                    @foreach (CronType type in Enum.GetValues(typeof(CronType)))
+                    <MudSelect T="CronType" @bind-Value="_selectedCronType" Label="Trigger">
+                        @foreach (CronType type in Enum.GetValues(typeof(CronType)))
+                        {
+                            <MudSelectItem Value="type" />
+                        }
+                    </MudSelect>
+
+                    @if (_selectedCronType == CronType.Interval)
                     {
-                        <MudSelectItem Value="type"/>
-                    }
-                </MudSelect>
-
-                @if(_selectedCronType == CronType.Interval)
-                {
-                    <MudStack Row="true">
-                        <MudSelect T="TimeType" @bind-Value="_selectedTimeType" Label="Time">
-                            @foreach (TimeType type in Enum.GetValues(typeof(TimeType)))
+                        <MudStack Row="true">
+                            <MudSelect T="TimeType" @bind-Value="_selectedTimeType" Label="Time">
+                                @foreach (TimeType type in Enum.GetValues(typeof(TimeType)))
+                                {
+                                    <MudSelectItem Value="type" />
+                                }
+                            </MudSelect>
+                            @if (_selectedTimeType == TimeType.Seconds)
                             {
-                                <MudSelectItem Value="type" />
+                                <MudNumericField T="int" Label="Seconds" Min="5" Max="59" @bind-Value="_selectedInterval" />
                             }
-                        </MudSelect>
-                        @if (_selectedTimeType == TimeType.Seconds)
-                        {
-                            <MudNumericField T="int" Label="Seconds" Min="5" Max="59" @bind-Value="_selectedInterval"/>
-                        }
-                        else if (_selectedTimeType == TimeType.Minutes)
-                        {
-                            <MudNumericField T="int" Label="Minutes" Min="1" Max="59" @bind-Value="_selectedInterval" />
-                        }
-                        else if (_selectedTimeType == TimeType.Hours)
-                        {
-                            <MudNumericField T="int" Label="Hours" Min="1" Max="23" @bind-Value="_selectedInterval" />
-                        }
-                    </MudStack>
-                }
-                else if (_selectedCronType == CronType.SpecificTime)
-                {
-                    <MudTimePicker PickerVariant="PickerVariant.Inline" Label="Select Time" @bind-Time="_selectedTime" />
-                    <MudStack Row="true" Wrap="Wrap.Wrap">
-                        @foreach(DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
-                        {
-                            <MudCheckBox T="bool" @bind-Value="_selectedDaysOfWeek[(int)day]" Label="@day.ToString()" />
-                        }
-                    </MudStack>
-                }
-                else if (_selectedCronType == CronType.CronString)
-                {
-                    <MudTextField @bind-Value="_service.CronExpression" Label="Cron Expression" Variant="Variant.Text" Clearable />
-                }
-
-                <MudDivider Class="mb-4" />
-
-                <MudSelect T="BackgroundServiceType" Value="_selectedType" Label="Type" ValueChanged="SelectedTypeChanged">
-                    @foreach (BackgroundServiceType type in Enum.GetValues(typeof(BackgroundServiceType)))
-                    {
-                        <MudSelectItem Value="type" />
+                            else if (_selectedTimeType == TimeType.Minutes)
+                            {
+                                <MudNumericField T="int" Label="Minutes" Min="1" Max="59" @bind-Value="_selectedInterval" />
+                            }
+                            else if (_selectedTimeType == TimeType.Hours)
+                            {
+                                <MudNumericField T="int" Label="Hours" Min="1" Max="23" @bind-Value="_selectedInterval" />
+                            }
+                        </MudStack>
                     }
-                </MudSelect>
+                    else if (_selectedCronType == CronType.SpecificTime)
+                    {
+                        <MudTimePicker PickerVariant="PickerVariant.Inline" Label="Select Time" @bind-Time="_selectedTime" />
+                        <MudStack Row="true" Wrap="Wrap.Wrap">
+                            @foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+                            {
+                                <MudCheckBox T="bool" @bind-Value="_selectedDaysOfWeek[(int)day]" Label="@day.ToString()" />
+                            }
+                        </MudStack>
+                    }
+                    else if (_selectedCronType == CronType.CronString)
+                    {
+                        <MudTextField @bind-Value="_service.CronExpression" Label="Cron Expression" Variant="Variant.Text" Clearable />
+                    }
 
-                @if(_service.Type == BackgroundServiceType.Goodwe)
-                {
-                    <GoodweServiceConfiguration Service="_service" HasError=_hasError/>
-                }
-                else if (_service.Type == BackgroundServiceType.Http)
-                {
-                    <HttpServiceConfiguration Service="_service" HasError="_hasError"/>
-                }
+                    <MudSelect T="BackgroundServiceType" Value="_selectedType" Label="Type" ValueChanged="SelectedTypeChanged">
+                        @foreach (BackgroundServiceType type in Enum.GetValues(typeof(BackgroundServiceType)))
+                        {
+                            <MudSelectItem Value="type" />
+                        }
+                    </MudSelect>
 
-                <MudButton Variant="Variant.Filled" Style="max-width: 200px;" Color="Color.Primary" OnClick="SaveService">Save</MudButton>
+                    <MudButton Variant="Variant.Filled" Style="max-width: 150px;" Color="Color.Primary" OnClick="SaveService">Confirm</MudButton>
+                </MudStack>
+            </MudPaper>
 
-            </MudStack>
-        </MudPaper>
+
+            @if (_service.Type == BackgroundServiceType.Goodwe)
+            {
+                <MudPaper Class="pa-4" Elevation="0">
+                    <GoodweServiceConfiguration Service="_service" HasError=_hasError />
+                </MudPaper>
+            }
+            else if (_service.Type == BackgroundServiceType.Http)
+            {
+                <MudPaper Class="pa-4" Elevation="0">
+                    <HttpServiceConfiguration Service="_service" HasError="_hasError" />
+                </MudPaper>
+            }
+
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudText Typo="Typo.body1">
+                    @_service.Description
+                </MudText>
+            </MudPaper>
+        </MudStack>
     }
 </div>
 

@@ -11,7 +11,7 @@ public class ContextService
     private readonly ModuleService _modulesService;
     private readonly DashboardService _dashboardService;
     private readonly ActionService _moduleActionService;
-    private readonly BackgroundServiceService _backgroundServiceService;
+    public readonly BackgroundServiceService _backgroundServiceService;
     private readonly ServerTaskService _serverTaskService;
 
 
@@ -52,11 +52,6 @@ public class ContextService
     public async Task<List<DbModule>> GetAllModulesAsync()
     {
         return await _modulesService.GetAllAsync();
-    }
-
-    public async Task<DbBackgroundService?> GetBackGroundServiceAsync(long id)
-    {
-        return await _backgroundServiceService.GetAsync(id);
     }
 
     public JsonElement? GetMessageFromModule(long moduleId, string key)
@@ -141,9 +136,9 @@ public class ContextService
         await _serverTaskService.ExecuteTasksAsync(this, entity);
     }
 
-    public async Task UpdateBackgroundServiceDataAsync(DbBackgroundService service)
+    public void UpdateFromBackgroundService(DbBackgroundService service)
     {
-        await _backgroundServiceService.UpdateDataAsync(service);
+        _backgroundServiceService.UpdateFromBackgroundService(service);
     }
 
     public async Task ExecuteServerTasksAsync(DbBackgroundService service)

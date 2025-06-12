@@ -2,7 +2,7 @@
 @using ModulesApp.Models.BackgroundServices
 @using System.Text.RegularExpressions
 
-<MudStack>
+<MudStack Spacing="4">
     <MudTextField Mask="@_ipv4Mask" Label="IPv4 Address" HelperText="@_ipv4Mask.Mask"
                   @bind-Value="Ip" Variant="@Variant.Text" OnBlur="ValidateIp"  
                   Error="@HasError" ErrorText="Invalid IPv4 address" Clearable />

@@ -13,8 +13,12 @@ public class HttpBackgroundService : BackgroundService
         var name = context.JobDetail.Key.Name;
         Console.WriteLine($"Http id: {name}, time: {DateTime.Now}");
 
-        var url = ConfigurationData["Url"];
+        foreach (var a in Actions)
+        {
+            Console.WriteLine($"Action: {a.Key}, Data: {a.Value}");
+        }
 
+        var url = ConfigurationData["Url"];
         try
         {
             using HttpClient client = new();
@@ -24,9 +28,16 @@ public class HttpBackgroundService : BackgroundService
             {
                 PropertyNameCaseInsensitive = true
             };
-
-            var list = JsonSerializer.Deserialize<List<Dictionary<string, object?>>>(jsonString, options);
-            MessageData = list?[new Random().Next(0, list.Count)] ?? [];
+            try
+            {
+                var list = JsonSerializer.Deserialize<List<Dictionary<string, object?>>>(jsonString, options);
+                MessageData = list?[new Random().Next(0, list.Count)] ?? [];
+            }
+            catch (JsonException)
+            {
+                MessageData = JsonSerializer.Deserialize<Dictionary<string, object?>>(jsonString, options) ?? [];
+            }
+            
 
         }
         catch (Exception ex)

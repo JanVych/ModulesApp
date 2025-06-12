@@ -17,7 +17,7 @@
 <PageTitle>Service Dteail</PageTitle>
 
 <div>
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" >
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
             @if (_service is not null)
@@ -37,11 +37,11 @@
     else
     {
         <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Module detail</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
+            <MudPaper Class="pa-4" Elevation="0">
+
+                <MudText Typo="Typo.h5">Module detail</MudText>
+                <MudDivider Class="mt-2" />
+
                 <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
                     <tbody>
                         <tr>
@@ -70,26 +70,12 @@
                                 </MudChip>
                             </td>
                         </tr>
-@*                         <tr>
-                            <td>Last run</td>
-                            <td>@_service.LastRun.ToString()</td>
-                        </tr>
-                        <tr>
-                            <td>Interval</td>
-                            <MudStack Row="true" AlignItems="AlignItems.Baseline">
-                                <MudNumericField @bind-Value="_intervalSeconds" Variant="Variant.Text" Margin="Margin.Dense" Min="5" 
-                                Disabled="_service.Status != BackgroundServiceStatus.Stopped" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="SaveService" />
-                            </MudStack>
-                        </tr> *@
                     </tbody>
                 </MudSimpleTable>
-            </div>
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Message data</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
+            </MudPaper>
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudText Typo="Typo.h5">Message data</MudText>
+                <MudDivider Class="mt-2" />
                 <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
                     <tbody>
                         @foreach (var item in _service.MessageData)
@@ -102,12 +88,10 @@
                         }
                     </tbody>
                 </MudSimpleTable>
-            </div>
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Server tasks</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
+            </MudPaper>
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudText Typo="Typo.h5">Server tasks</MudText>
+                <MudDivider Class="mt-2" />
                 <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
                     <tbody>
                         @foreach (var item in _service.ServerTasks)
@@ -119,12 +103,10 @@
                         }
                     </tbody>
                 </MudSimpleTable>
-            </div>
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Pending actions</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
+            </MudPaper>
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudText Typo="Typo.h5">Pending actions</MudText>
+                <MudDivider Class="mt-2" />
                 <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
                     <tbody>
                         @foreach (var item in _service.Actions)
@@ -136,7 +118,7 @@
                         }
                     </tbody>
                 </MudSimpleTable>
-            </div>
+            </MudPaper>
         </MudStack>
     }
 </div>

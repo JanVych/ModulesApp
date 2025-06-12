@@ -14,142 +14,134 @@
 
 <PageTitle>Module Dteail</PageTitle>
 
-<div>
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
-            @if (_module is not null)
-            {
-                <MudText Typo="Typo.h4">@_module.Name</MudText>
-            }
-        </MudStack>
-        <MudIconButton Icon="@Icons.Material.Filled.Refresh" Size="Size.Large" OnClick="OnModulesChanged" />
+<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
+        @if (_module is not null)
+        {
+            <MudText Typo="Typo.h4">@_module.Name</MudText>
+        }
     </MudStack>
+    <MudIconButton Icon="@Icons.Material.Filled.Refresh" Size="Size.Large" OnClick="OnModulesChanged" />
+</MudStack>
 
-    <MudDivider Class="mb-2" />
+<MudDivider Class="mb-2" />
 
-    @if (_module == null)
-    {
-        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
-    }
-    else
-    {
-        <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Module detail</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
-                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                    <tbody>
-                        <tr>
-                            <td>Id</td>
-                            <td>@_module.Id</td>
-                        </tr>
-                        <tr>
-                            <td>Key</td>
-                            <td>@_module?.Key</td>
-                        </tr>
-                        <tr>
-                            <td>Name</td>
-                            <td>
-                                <MudStack Row="true" AlignItems="AlignItems.Baseline">
-                                    <MudTextField @bind-Value="_module.Name" Variant="Variant.Text" Margin="Margin.Dense" />
-                                    <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="SaveModule" />
-                                </MudStack>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Program</td>
-                            <td>@_module?.ProgramName</td>
-                        </tr>
-                        <tr>
-                            <td>Program status</td>
-                            <td>@_module?.ProgramStatus</td>
-                        </tr>
-                        <tr>
-                            <td>Chip name</td>
-                            <td>@_module?.Chip</td>
-                        </tr>
-                        <tr>
-                            <td>Firmware version</td>
-                            <td>@_module?.FirmwareVersion</td>
-                        </tr>
-                        <tr>
-                            <td>IDF version</td>
-                            <td>@_module?.IDFVersion</td>
-                        </tr>
-                        <tr>
-                            <td>Free heap</td>
-                            <td>@_module?.FreeHeapText()</td>
-                        </tr>
-                        <tr>
-                            <td>Wifi network</td>
-                            <td>@_module?.WifiCurrent</td>
-                        </tr>
-                        <tr>
-                            <td>Last Response</td>
-                            <td>@_module?.LastResponse</td>
-                        </tr>
-                    </tbody>
-                </MudSimpleTable>
-            </div>
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Message data</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
-                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                    <tbody>
-                        @foreach (var item in _module.Data)
-                        {
-                            <tr>
-                                <td>@item.Key</td>
-                                <td>@item.Value</td>
-                                <td>@GenerateValueTypeText(item.Value)</td>
-                            </tr>
-                        }
-                    </tbody>
-                </MudSimpleTable>
-            </div>
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Server tasks</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
-                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                    <tbody>
-                        @foreach (var item in _module.ServerTasks)
-                        {
-                            <tr>
-                                <td>@item.Name</td>
-                                <td>@item.Type</td>
-                            </tr>
-                        }
-                    </tbody>
-                </MudSimpleTable>
-            </div>
-            <div>
-                <MudPaper Class="px-4 pt-4 pb-2" Elevation="0">
-                    <MudText Typo="Typo.h5">Pending actions</MudText>
-                    <MudDivider Class="mt-2" />
-                </MudPaper>
-                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                    <tbody>
-                        @foreach (var item in _module.Actions)
-                        {
-                            <tr>
-                                <td>@item.Key</td>
-                                <td>@item.Value</td>
-                            </tr>
-                        }
-                    </tbody>
-                </MudSimpleTable>
-            </div>
-        </MudStack>
-    }
+@if (_module == null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
+        <MudPaper Class="pa-4" Elevation="0">
+            <MudText Typo="Typo.h5">Module detail</MudText>
+            <MudDivider Class="mt-2" />
+            <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                <tbody>
+                    <tr>
+                        <td>Id</td>
+                        <td>@_module.Id</td>
+                    </tr>
+                    <tr>
+                        <td>Key</td>
+                        <td>@_module?.Key</td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>
+                            <MudStack Row="true" AlignItems="AlignItems.Baseline">
+                                <MudTextField @bind-Value="_module.Name" Variant="Variant.Text" Margin="Margin.Dense" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="SaveModule" />
+                            </MudStack>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Program</td>
+                        <td>@_module?.ProgramName</td>
+                    </tr>
+                    <tr>
+                        <td>Program status</td>
+                        <td>@_module?.ProgramStatus</td>
+                    </tr>
+                    <tr>
+                        <td>Chip name</td>
+                        <td>@_module?.Chip</td>
+                    </tr>
+                    <tr>
+                        <td>Firmware version</td>
+                        <td>@_module?.FirmwareVersion</td>
+                    </tr>
+                    <tr>
+                        <td>IDF version</td>
+                        <td>@_module?.IDFVersion</td>
+                    </tr>
+                    <tr>
+                        <td>Free heap</td>
+                        <td>@_module?.FreeHeapText()</td>
+                    </tr>
+                    <tr>
+                        <td>Wifi network</td>
+                        <td>@_module?.WifiCurrent</td>
+                    </tr>
+                    <tr>
+                        <td>Last Response</td>
+                        <td>@_module?.LastResponse</td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+        </MudPaper>
 
-</div>
+        <MudPaper Class="pa-4" Elevation="0">
+            <MudText Typo="Typo.h5">Message data</MudText>
+            <MudDivider Class="mt-2" />
+            <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                <tbody>
+                    @foreach (var item in _module.Data)
+                    {
+                        <tr>
+                            <td>@item.Key</td>
+                            <td>@item.Value</td>
+                            <td>@GenerateValueTypeText(item.Value)</td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="0">
+            <MudText Typo="Typo.h5">Server tasks</MudText>
+            <MudDivider Class="mt-2" />
+            <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                <tbody>
+                    @foreach (var item in _module.ServerTasks)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Type</td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="0">
+            <MudText Typo="Typo.h5">Pending actions</MudText>
+            <MudDivider Class="mt-2" />
+            <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                <tbody>
+                    @foreach (var item in _module.Actions)
+                    {
+                        <tr>
+                            <td>@item.Key</td>
+                            <td>@item.Value</td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        </MudPaper>
+    </MudStack>
+}
 
 
 @code

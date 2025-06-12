@@ -21,11 +21,11 @@ public class ActionService
         context.SaveChanges();
     }
 
-    public async Task DeleteAsync(IEnumerable<DbAction> actions)
+    public void Delete(IEnumerable<DbAction> actions)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        using var context = _dbContextFactory.CreateDbContext();
         context.Actions.RemoveRange(actions);
-        await context.SaveChangesAsync();
+        context.SaveChanges();
     }
 
     public async Task<List<DbAction>> GetListAndDeleteAsync(DbModule module)
