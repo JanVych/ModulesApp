@@ -81,26 +81,45 @@ public static class NodeExtensions
         };
     }
 
-    public static string ToLongString(this NodeConditionType type)
+    public static string ToLongString(this NodeConditionType type, char space='-')
     {
         return type switch
         {
             NodeConditionType.Equal => "Equal",
-            NodeConditionType.NotEqual => "Not-Equal",
+            NodeConditionType.NotEqual => $"Not{space}Equal",
             NodeConditionType.Greater => "Greater",
             NodeConditionType.Less => "Less",
-            NodeConditionType.GreaterOrEqual => "Greater-Or-Equal",
-            NodeConditionType.LessOrEqual => "Less-Or-Equal",
+            NodeConditionType.GreaterOrEqual => $"Greater{space}Or{space}Equal",
+            NodeConditionType.LessOrEqual => $"Less{space}Or{space}Equal",
             _ => type.ToString()
         };
     }
 
-    public static string ToLongString(this NodeArrayOperationType type)
+    public static string ToLongString(this NodeArrayOperationType type, char space = '-')
     {
         return type switch
         {
             NodeArrayOperationType.ArraySlice => "Slice",
-            NodeArrayOperationType.ArrayRemoveAt => "Remove-At",
+            NodeArrayOperationType.ArrayRemoveAt => $"Remove{space}At",
+            _ => type.ToString()
+        };
+    }
+
+    public static string ToLongString(this NodeType type, char space = '-')
+    {
+        return type switch
+        {
+            NodeType.Condition => "Condition",
+            NodeType.FromMessage => $"From{space}Message",
+            NodeType.DataDisplay => $"Data{space}Display",
+            NodeType.Value => "Value",
+            NodeType.SendMessage => $"Send{space}Message",
+            NodeType.ArrayOperation => "Array",
+            NodeType.ArithmeticOperation => "Arithmetic",
+            NodeType.ConvertTo => "To",
+            NodeType.DateTime => $"Date{space}Time",
+            NodeType.FromAny => $"From{space}Any",
+            NodeType.BooleanOperation => "Boolean",
             _ => type.ToString()
         };
     }

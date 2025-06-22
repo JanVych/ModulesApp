@@ -41,6 +41,7 @@ public class BackgroundServiceManager
             BackgroundServiceType.Cron => JobBuilder.Create<CronBackgroundService>(),
             BackgroundServiceType.Goodwe => JobBuilder.Create<GoodweBackgroundService>(),
             BackgroundServiceType.Http => JobBuilder.Create<HttpBackgroundService>(),
+            BackgroundServiceType.OteElectricityDam => JobBuilder.Create<OteElectricityDamBacgroundService>(),
             _ => JobBuilder.Create<CronBackgroundService>()
         };
         var newJob = builder.WithIdentity(service.Id.ToString(), "DefaultGroup").Build();

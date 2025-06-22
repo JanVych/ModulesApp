@@ -11,4 +11,6 @@ public class DbDashboard
     public string Name { get; set; } = default!;
     public string? IconString { get; set; }
     public List<DbDashboardEntity> Entities { get; set; } = [];
+
+    public override string ToString() => Name;
 }

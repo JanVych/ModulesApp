@@ -9,7 +9,8 @@ public enum BackgroundServiceType
 {
     Goodwe,
     Cron,
-    Http
+    Http,
+    OteElectricityDam
 }
 
 public enum BackgroundServiceStatus
@@ -38,6 +39,8 @@ public class DbBackgroundService
     public ICollection<DbTask> ServerTasks { get; set; } = [];
 
     public DbBackgroundService() { }
+
+    public override string ToString() => Name;
 
     public Color GetStatusColor()
     {

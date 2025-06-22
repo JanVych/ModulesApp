@@ -1,0 +1,90 @@
+﻿@using ModulesApp.Interfaces
+@using ModulesApp.Models.ServerTasks
+
+<MudButtonGroup Variant="Variant.Filled">
+    <MudButton Style="@FullStyle"
+               OnClick="@OnButtonClick">
+        @NodeType.ToLongString()
+    </MudButton>
+
+    <MudMenu EndIcon="@Icons.Material.Filled.ArrowDropDown"
+             Label="@GetTypeString(_subType)"
+             Style="@Style"
+             Class="custom-menu-label custom-menu-icon">
+        @foreach (var item in Items)
+        {
+            <MudMenuItem Style="@FullStyle"
+                         @onclick="() => ChangeType(item)">
+                @GetTypeString(item)
+            </MudMenuItem>
+        }
+    </MudMenu>
+</MudButtonGroup>
+
+<style>
+    .custom-menu-icon .mud-icon-root {
+        color: var(--node-background-color);
+    }
+
+    .custom-menu-label .mud-button-label {
+        color: var(--node-background-color);
+    }
+</style>
+
+@code 
+{
+    [Parameter] 
+    [EditorRequired]
+    public Action<NodeType, int> OnCLick { get; set; }
+
+
+    [Parameter]
+    [EditorRequired]
+    public NodeType NodeType { get; set; }
+
+    private int _subType = 1;
+
+    private List<int> Items => NodeType switch
+    {
+        NodeType.Condition => Enum.GetValues(typeof(NodeConditionType)).Cast<int>().ToList(),
+        NodeType.ArrayOperation => Enum.GetValues(typeof(NodeArrayOperationType)).Cast<int>().ToList(),
+        NodeType.ArithmeticOperation => Enum.GetValues(typeof(NodeArithmeticOperationType)).Cast<int>().ToList(),
+        NodeType.ConvertTo => [(int)NodeValueType.String, (int)NodeValueType.Number, (int)NodeValueType.Boolean, (int)NodeValueType.Array],
+        NodeType.BooleanOperation => Enum.GetValues(typeof(NodeBooleanOperationType)).Cast<int>().ToList(),
+        _ => new List<int>()
+    };
+
+    private string FullStyle => $"{Style} color: var(--node-background-color);";
+    private string Style => NodeType switch
+    {
+        NodeType.Condition => "background-color: var(--condition-node-color);",
+        NodeType.ArrayOperation => "background-color: var(--array-operation-node-color);",
+        NodeType.ArithmeticOperation => "background-color: var(--arithmetic-operation-node-color);",
+        NodeType.ConvertTo => "background-color: var(--convert-to-node-color);",
+        NodeType.BooleanOperation => "background-color: var(--boolean-operation-node-color);",
+        _ => "background-color: var(--default-node-color);"
+    };
+
+    private string GetTypeString(int type)
+    {
+        return NodeType switch
+        {
+            NodeType.Condition => ((NodeConditionType)type).ToLongString(' '),
+            NodeType.ArrayOperation => ((NodeArrayOperationType)type).ToLongString(' '),
+            NodeType.ArithmeticOperation => ((NodeArithmeticOperationType)type).ToString(),
+            NodeType.ConvertTo => ((NodeValueType)type).ToString(),
+            NodeType.BooleanOperation => ((NodeBooleanOperationType)type).ToString(),
+            _ => "Unknown"
+        };
+    }
+
+    private void ChangeType(int type)
+    {
+        _subType = type;
+    }
+
+    private void OnButtonClick()
+    {
+        OnCLick?.Invoke(NodeType, _subType);
+    }
+}

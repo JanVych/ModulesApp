@@ -11,6 +11,16 @@ public enum PortPositionAlignment
     End,
 }
 
+public enum PortDataType
+{
+    None,
+    String,
+    Number,
+    Boolean,
+    Array,
+    Json,
+}
+
 public class TaskPort : PortModel
 {
     public bool Data { get; set; }
