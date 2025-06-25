@@ -6,22 +6,8 @@ namespace ModulesApp.Models.ServerTasks.Nodes;
 
 public class DbDateTimeNode : DbTaskNode
 {
-    public DbDateTimeNode(TaskNode node) : base(node)
-    {
-    }
-
-    public DbDateTimeNode()
-    {
-    }
-
-    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
-    {
-        if (Value.Type == NodeValueType.Waiting)
-        {
-            Process(context);
-        }
-        return Value;
-    }
+    public DbDateTimeNode(TaskNode node) : base(node){}
+    public DbDateTimeNode(){}
 
     public override void Process(ContextService context)
     {

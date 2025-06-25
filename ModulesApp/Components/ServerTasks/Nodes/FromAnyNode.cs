@@ -24,7 +24,7 @@ public class FromAnyNode : TaskNode
         LongVal2 = (long)TargetType.Module;
         LongVal3 = (long)NodeValueType.Any;
 
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: NodeValueType.Any));
     }
 
     public FromAnyNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
@@ -43,6 +43,6 @@ public class FromAnyNode : TaskNode
             Entities = context.GetAllDashBoardEntities();
         }
 
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: (NodeValueType)LongVal3));
     }
 }

@@ -26,9 +26,9 @@ public class ArrayOperationNode :TaskNode
     private void AddPorts()
     {
         //Output data port
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: NodeValueType.Array));
 
         //Input data port
-        AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, true, PortPositionAlignment.Center, dataType: NodeValueType.Array));
     }
 }

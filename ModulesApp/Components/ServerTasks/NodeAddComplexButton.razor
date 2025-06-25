@@ -1,8 +1,10 @@
-﻿@using ModulesApp.Interfaces
+﻿@using ModulesApp.Components.ServerTasks.Nodes
+@using ModulesApp.Interfaces
 @using ModulesApp.Models.ServerTasks
 
 <MudButtonGroup Variant="Variant.Filled">
     <MudButton Style="@FullStyle"
+               StartIcon="@TaskNode.GetNodeIconString(NodeType)"
                OnClick="@OnButtonClick">
         @NodeType.ToLongString()
     </MudButton>
@@ -23,26 +25,33 @@
 
 <style>
     .custom-menu-icon .mud-icon-root {
-        color: var(--node-background-color);
+        color: var(--mud-palette-surface);
     }
 
     .custom-menu-label .mud-button-label {
-        color: var(--node-background-color);
+        color: var(--mud-palette-surface);
     }
 </style>
 
-@code 
+@code
 {
-    [Parameter] 
+    [Parameter]
     [EditorRequired]
     public Action<NodeType, int> OnCLick { get; set; }
-
 
     [Parameter]
     [EditorRequired]
     public NodeType NodeType { get; set; }
 
-    private int _subType = 1;
+    protected override void OnInitialized()
+    {
+        if(NodeType == NodeType.ConvertTo)
+        {
+            _subType = 1;
+        }
+    }
+
+    private int _subType = 0;
 
     private List<int> Items => NodeType switch
     {
@@ -54,16 +63,8 @@
         _ => new List<int>()
     };
 
-    private string FullStyle => $"{Style} color: var(--node-background-color);";
-    private string Style => NodeType switch
-    {
-        NodeType.Condition => "background-color: var(--condition-node-color);",
-        NodeType.ArrayOperation => "background-color: var(--array-operation-node-color);",
-        NodeType.ArithmeticOperation => "background-color: var(--arithmetic-operation-node-color);",
-        NodeType.ConvertTo => "background-color: var(--convert-to-node-color);",
-        NodeType.BooleanOperation => "background-color: var(--boolean-operation-node-color);",
-        _ => "background-color: var(--default-node-color);"
-    };
+    private string Style => TaskNode.GertNodeButtonStyle(NodeType);
+    private string FullStyle => $"{Style} color: var(--mud-palette-surface);";
 
     private string GetTypeString(int type)
     {

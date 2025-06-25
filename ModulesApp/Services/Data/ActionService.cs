@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Data;
 using ModulesApp.Models;
-using ModulesApp.Models.BackgroundServices;
 
 namespace ModulesApp.Services.Data;
 

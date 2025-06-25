@@ -9,53 +9,62 @@ public class DbConditionNode : DbTaskNode
 {
     public NodeConditionType ConditionType => (NodeConditionType)SubType;
 
-    private DbTaskLink? Left => TargetLinks.FirstOrDefault(l => l.TargetData);
-    private DbTaskLink? Right => TargetLinks.FirstOrDefault(l => !l.TargetData);
+    public DbConditionNode(TaskNode node) : base(node){}
 
-    public DbConditionNode(TaskNode node) : base(node)
-    {
-    }
+    public DbConditionNode(){}
 
-    public DbConditionNode()
+    private NodeValue GetLeftValue(ContextService context)
     {
-    }
-
-    public override NodeValue GetValue(DbTaskLink link, ContextService context)
-    {
-        if (Value.Type == NodeValueType.Waiting)
+        DbTaskLink? link;
+        if (InputType == NodeInputType.Single)
         {
-            Process(context);
+            link = TargetLinks.FirstOrDefault(l => l.TargetInput);
         }
-        var value = (Value.Type == NodeValueType.Invalid ||
-                          (link.SourcePositionAlignment == PortPositionAlignment.Start && Result) ||
-                          (link.SourcePositionAlignment == PortPositionAlignment.End && !Result))
-            ? Value
-            : new NodeValue.InvalidValue($"node: {Order}, condition invalid");
-        return value;
+        else
+        {
+            link = TargetLinks.FirstOrDefault(l => l.TargetInput && l.TargetPositionAlignment == PortPositionAlignment.Top);
+        }
+        if (link == null)
+        {
+            return new NodeValue.InvalidValue($"node: {Order}, no left input");
+        }
+        return link.GetValue(context);
+    }
+
+    private NodeValue GetRightValue(ContextService context)
+    {
+        if (InputType == NodeInputType.Double)
+        {
+            DbTaskLink? link = TargetLinks.FirstOrDefault(l => l.TargetInput && l.TargetPositionAlignment == PortPositionAlignment.Bottom);
+            if (link == null)
+            {
+                return new NodeValue.InvalidValue($"node: {Order}, no right input");
+            }
+            return link.GetValue(context);
+        }
+        return new NodeValue.NumberValue(DoubleVal1);
     }
 
     public override void Process(ContextService context)
     {
-        NodeValue leftValue = Left?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no left input");
-        Value = leftValue;
-        if (leftValue.Type == NodeValueType.Invalid)
-        {
-            return;
-        }
+        NodeValue leftValue = GetLeftValue(context);
+        NodeValue rightValue = GetRightValue(context);
 
-        NodeValue? rightValue = InputType == NodeInputType.Double
-            ? Right?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no right input")
-            : new NodeValue.NumberValue(DoubleVal1);
-
-        if (rightValue.Type == NodeValueType.Invalid)
+        if(rightValue.Type == NodeValueType.Invalid)
         {
             Value = rightValue;
             return;
         }
 
-        if (leftValue.Type == NodeValueType.Invalid && rightValue.Type == NodeValueType.Invalid)
+        if (leftValue.Type == NodeValueType.Invalid)
         {
-            Value = new NodeValue.InvalidValue($"node: {Order}, type error, both left and right are not numbers");
+            Value = leftValue;
+            return;
+        }
+
+        if (leftValue.Type != NodeValueType.Number && rightValue.Type != NodeValueType.Number)
+        {
+            Value = new NodeValue.InvalidValue($"node: {Order}, type error, left and right are not numbers");
             return;
         }
         else if (rightValue.Type != NodeValueType.Number)
@@ -68,12 +77,12 @@ public class DbConditionNode : DbTaskNode
             Value = new NodeValue.InvalidValue($"node: {Order}, type error, left is not a number");
             return;
         }
+
         else
         {
             var nLeft = (NodeValue.NumberValue)leftValue;
             var nRight = (NodeValue.NumberValue)rightValue;
-
-            Result = ConditionType switch
+            var result = ConditionType switch
             {
                 NodeConditionType.Equal => nLeft.Value == nRight.Value,
                 NodeConditionType.NotEqual => nLeft.Value != nRight.Value,
@@ -83,7 +92,8 @@ public class DbConditionNode : DbTaskNode
                 NodeConditionType.GreaterOrEqual => nLeft.Value >= nRight.Value,
                 _ => false
             };
+
+            Value = new NodeValue.BooleanValue(result);
         }
     }
-
 }

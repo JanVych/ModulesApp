@@ -26,10 +26,7 @@ public class ConditionNode : TaskNode
     private void AddPorts(NodeInputType input)
     {
         AddInputPorts(input);
-        //Output data port True
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Start, data: true));
-        //Output data port False
-        AddPort(new TaskPort(this, false, PortPositionAlignment.End, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: NodeValueType.Boolean));
     }
 
     public void AddInputPorts(NodeInputType input)
@@ -38,12 +35,12 @@ public class ConditionNode : TaskNode
         RemoveAllInputPorts();
         if (input == NodeInputType.Double)
         {
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Start, data: true));
-            AddPort(new TaskPort(this, true, PortPositionAlignment.End, data: false));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Top, dataType: NodeValueType.Number));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Bottom, dataType: NodeValueType.Number));
         }
         else
         {
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, dataType: NodeValueType.Number));
         }
     }
 }

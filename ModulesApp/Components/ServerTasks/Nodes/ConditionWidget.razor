@@ -4,9 +4,7 @@
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
-            BoolOutputText="true"
-            Header="@Node.ConditionType.ToLongString()"
-            MainColor="var(--condition-node-color)">
+            Header="@Node.ConditionType.ToLongString()">
 
     @if (Node.InputType == NodeInputType.Single)
     {
@@ -16,7 +14,10 @@
                          Margin="Margin.Dense"
                          Immediate="true" />
     }
-    <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="ToBool(Node.InputType)">
+    <MudSwitch T="bool" 
+        ValueChanged="SwitchInputType" 
+        Size="Size.Small" 
+        Value="ToBool(Node.InputType)">
         @Node.InputType input
     </MudSwitch>
 

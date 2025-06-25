@@ -4,9 +4,7 @@
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
-                BoolOutputText="false"
-                Header="@GetHeader()"
-                MainColor="var(--convert-to-node-color)">
+                Header="@GetHeader()">
 
 </TaskNodeWidget>
 
@@ -16,6 +14,6 @@
 
     private string GetHeader()
     {
-        return $"To {Node.ConvertToType}";
+        return $"To-{Node.ConvertToType}";
     }
 }

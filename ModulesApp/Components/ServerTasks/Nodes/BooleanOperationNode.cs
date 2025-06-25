@@ -29,17 +29,17 @@ public class BooleanOperationNode : TaskNode
         {
             InputType = NodeInputType.Single;
             //Input operation port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, dataType: NodeValueType.Boolean));
         }
         else
         {
             InputType = NodeInputType.Double;
             //Input right operation port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Start, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Top, dataType: NodeValueType.Any));
             //Input left operation port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.End, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Bottom, dataType: NodeValueType.Any));
         }
-        //Output data port
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
+        //Output port
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: NodeValueType.Boolean));
     }
 }

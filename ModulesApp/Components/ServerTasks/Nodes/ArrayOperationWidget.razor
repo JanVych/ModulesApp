@@ -4,9 +4,7 @@
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
-            BoolOutputText="false"
-            Header="@Node.OperationType.ToLongString()"
-            MainColor="var(--array-operation-node-color)">
+            Header="@Node.OperationType.ToLongString()">
 
     @if (Node.OperationType == NodeArrayOperationType.ArraySlice)
     {

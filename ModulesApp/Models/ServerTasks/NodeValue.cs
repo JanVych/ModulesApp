@@ -1,4 +1,6 @@
-﻿namespace ModulesApp.Models.ServerTasks;
+﻿using System.Text.Json;
+
+namespace ModulesApp.Models.ServerTasks;
 
 public enum NodeValueType
 {
@@ -9,14 +11,14 @@ public enum NodeValueType
     Array,
     Object,
     Invalid,
-    Any
+    Any,
+    NoData
 }
 
 public abstract class NodeValue
 {
     public abstract NodeValueType Type { get; }
     public abstract object? GetValue();
-
 
     public class Waiting() : NodeValue
     {
@@ -71,10 +73,10 @@ public abstract class NodeValue
                 {
                     clone.Add(new ArrayValue(array.GetValueClone()));
                 }
-                else if (v is ObjectValue obj)
-                {
-                    clone.Add(new ObjectValue(obj.Value));
-                }
+                //else if (v is ObjectValue obj)
+                //{
+                //    clone.Add(new ObjectValue(obj.Value));
+                //}
                 else if (v is StringValue str)
                 {
                     clone.Add(new StringValue(str.Value));
@@ -93,11 +95,48 @@ public abstract class NodeValue
     }
 
     // TODO
-    public class ObjectValue(Dictionary<string, object?> Value) : NodeValue
+    //public class ObjectValue(Dictionary<string, object?> Value) : NodeValue
+    //{
+    //    public Dictionary<string, object?> Value { get; init; } = Value;
+    //    public override Dictionary<string, object?> GetValue() => Value;
+    //    public override string? ToString() => Value.ToString() ?? string.Empty;
+    //    public override NodeValueType Type => NodeValueType.Object;
+    //}
+
+    public static NodeValue CreateFromJsonElement(JsonElement element, DbTaskNode node)
     {
-        public Dictionary<string, object?> Value { get; init; } = Value;
-        public override Dictionary<string, object?> GetValue() => Value;
-        public override string? ToString() => Value.ToString() ?? string.Empty;
-        public override NodeValueType Type => NodeValueType.Object;
+        return element.ValueKind switch
+        {
+            JsonValueKind.String => new StringValue(element.GetString() ?? string.Empty),
+            JsonValueKind.Number => new NumberValue(element.GetDouble()),
+            JsonValueKind.True => new BooleanValue(true),
+            JsonValueKind.False => new BooleanValue(false),
+            JsonValueKind.Array => new ArrayValue(element.EnumerateArray().Select(e => CreateFromJsonElement(e, node)).ToList()),
+            _ => new InvalidValue($"Invalid value type: {element.ValueKind}, in node: {node.Order}"),
+        };
+    }
+    public static bool IsValidType(JsonElement element, NodeValueType type)
+    {
+        return type switch
+        {
+            NodeValueType.Any => true,
+            NodeValueType.String => element.ValueKind == JsonValueKind.String,
+            NodeValueType.Number => element.ValueKind == JsonValueKind.Number,
+            NodeValueType.Boolean => element.ValueKind == JsonValueKind.True || element.ValueKind == JsonValueKind.False,
+            NodeValueType.Array => element.ValueKind == JsonValueKind.Array,
+            _ => false
+        };
+    }
+
+    public static bool GetBooleanValue(NodeValue value)
+    {
+        return value.Type switch
+        {
+            NodeValueType.Boolean => ((BooleanValue)value).Value,
+            NodeValueType.String => bool.TryParse(((StringValue)value).Value, out var result) && result,
+            NodeValueType.Number => ((NumberValue)value).Value != 0,
+            NodeValueType.Array => ((ArrayValue)value).Value.Count > 0,
+            _ => false
+        };
     }
 }

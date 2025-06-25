@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using ModulesApp.Interfaces;
 using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Services;
-using System.Text.Json;
 
 namespace ModulesApp.Models.ServerTasks;
 
@@ -40,9 +39,6 @@ public abstract class DbTaskNode : IDbNode
     [NotMapped]
     public NodeValue Value { get; set; } = new NodeValue.Waiting();
 
-    [NotMapped]
-    protected bool Result { get; set; }
-
     public DbTaskNode(TaskNode node)
     {
         Type = node.Type;
@@ -63,43 +59,19 @@ public abstract class DbTaskNode : IDbNode
 
         Order = node.Order;
     }
-    public DbTaskNode()
-    {
-    }
+    public DbTaskNode(){}
 
     public virtual NodeValue GetValue(DbTaskLink link, ContextService context)
     {
-        throw new NotImplementedException();
+        if (Value.Type == NodeValueType.Waiting)
+        {
+            Process(context);
+        }
+        return Value;
     }
 
     public virtual void Process(ContextService context)
     {
         throw new NotImplementedException();
-    }
-
-    protected static NodeValue ConvertFromJsonElement(JsonElement element, DbTaskNode node)
-    {
-        return element.ValueKind switch
-        {
-            JsonValueKind.String => new NodeValue.StringValue(element.GetString() ?? string.Empty),
-            JsonValueKind.Number => new NodeValue.NumberValue(element.GetDouble()),
-            JsonValueKind.True => new NodeValue.BooleanValue(true),
-            JsonValueKind.False => new NodeValue.BooleanValue(false),
-            JsonValueKind.Array => new NodeValue.ArrayValue(element.EnumerateArray().Select(e => ConvertFromJsonElement(e, node)).ToList()),
-            _ => new NodeValue.InvalidValue($"Invalid value type: {element.ValueKind}, in node: {node.Order}"),
-        };
-    }
-
-    protected static bool IsValidType(JsonElement element, NodeValueType type)
-    {
-        return type switch
-        {
-            NodeValueType.Any => true,
-            NodeValueType.String => element.ValueKind == JsonValueKind.String,
-            NodeValueType.Number => element.ValueKind == JsonValueKind.Number,
-            NodeValueType.Boolean => element.ValueKind == JsonValueKind.True || element.ValueKind == JsonValueKind.False,
-            NodeValueType.Array => element.ValueKind == JsonValueKind.Array,
-            _ => false
-        };
     }
 }

@@ -28,47 +28,137 @@
 
 <PageTitle>Tasks</PageTitle>
 
-<MudGrid Spacing="2">
+<div class="d-flex flex-column flex-grow-1 gap-1" style="height:100%;">
 
-    <MudItem xs="12" md="2">
-        <MudStack Spacing="2">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Class="mx-4 my-2" Typo="Typo.h4">Tasks</MudText>
-                <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Primary" OnClick="@AddNewTask" />
-            </MudStack>
-            <MudDivider />
-            <MudList T="DbTask" SelectedValue="_selectedTask" SelectedValueChanged="ChangeSelectedTask">
-                @foreach (var task in _tasks)
-                {
-                    <MudListItem Value="task">@task.Name</MudListItem>
-                }
-            </MudList>
-            <MudDivider />
-        </MudStack>
-    </MudItem>
+    <MudPaper Class="d-flex justify-space-between align-content-center px-2">
 
-    <MudItem xs="12" md="10">
+        <MudTooltip Text="@(_showTasksList ? "Hide tasks" : "Show tasks")">
+            <MudToggleIconButton Icon="@Icons.Material.Filled.List"
+                                 Color="@Color.Primary"
+                                 ToggledIcon="@Icons.Material.Filled.List"
+                                 ToggledColor="@Color.Default"
+                                 @bind-Toggled="_showTasksList" />
+        </MudTooltip>
+
         @if (_selectedTask != null)
         {
-            <MudPaper Class="pa-2">
-                <MudStack Row="true" Wrap="Wrap.Wrap">
-                    <MudTextField @bind-Value="_selectedTask.Name" Label="Name" Variant="Variant.Text" />
+            <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                <MudText Typo="Typo.h6" Class="align-self-center">
+                    @_selectedTask.Name
+                </MudText>
+            </MudHidden>
+        }
+
+        <MudStack Row=true Spacing="2">
+            <MudTooltip Text="Run">
+                <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled" Color="Color.Primary" Disabled="_runDisabled" OnClick="@RunTask" />
+            </MudTooltip>
+            <MudTooltip Text="Save">
+                <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveTask" />
+            </MudTooltip>
+            <MudTooltip Text="Delete">
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteTask" />
+            </MudTooltip>
+        </MudStack>
+
+        @if (_selectedTask != null)
+        {
+            <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                <MudText Typo="Typo.h6" Class="invisible align-self-center">
+                    @_selectedTask.Name
+                </MudText>
+            </MudHidden>
+        }
+
+        <MudTooltip Text="@(_showTaskSettings ? "Hide settings" : "Show settings")">
+            <MudToggleIconButton Icon="@Icons.Material.Filled.Settings"
+                                 Color="@Color.Primary"
+                                 ToggledIcon="@Icons.Material.Filled.Settings"
+                                 ToggledColor="@Color.Default"
+                                 @bind-Toggled="_showTaskSettings" />
+        </MudTooltip>
+
+    </MudPaper>
+
+    <div class="d-flex align-stretch flex-grow-1 overflow-y-auto gap-1">
+        @if (_showTasksList)
+        {
+            <MudPaper Class="d-flex flex-column gap-2 pa-2" Style="height: 100%; min-width:250px; max-width:250px" Elevation="1">
+                <div class="d-flex justify-space-between align-content-center">
+                    <MudText Class="mx-4 align-self-center" Typo="Typo.h5">Tasks</MudText>
+                    <MudTooltip Text="Add">
+                        <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Primary" OnClick="@AddNewTask" />
+                    </MudTooltip>
+                </div>
+                <MudDivider Class="flex-grow-0 " />
+                <MudList T="DbTask" SelectedValue="_selectedTask" SelectedValueChanged="ChangeSelectedTask" Class="flex-grow-1 overflow-y-auto ">
+                    @foreach (var task in _tasks)
+                    {
+                        <MudListItem Class="py-0" Value="task">@task.Name</MudListItem>
+                    }
+                </MudList>
+            </MudPaper>
+        }
+
+        @if (_currentDiagram != null)
+        {
+            <div class="d-flex flex-column flex-grow-1 gap-2">
+                <MudPaper Elevation="1" Class="d-flex flex-wrap gap-2 pa-2 ">
+                    <NodeAddButton NodeType="NodeType.FromMessage" OnClick="() => AddNode(NodeType.FromMessage)" />
+                    <NodeAddButton NodeType="NodeType.FromAny" OnClick="() => AddNode(NodeType.FromAny)" />
+                    <NodeAddButton NodeType="NodeType.Value" OnClick="() => AddNode(NodeType.Value)" />
+                    <NodeAddButton NodeType="NodeType.DateTime" OnClick="() => AddNode(NodeType.DateTime)" />
+
+                    <NodeAddComplexButton NodeType="NodeType.Condition" OnCLick="AddNode" />
+                    <NodeAddComplexButton NodeType="NodeType.ArrayOperation" OnCLick="AddNode" />
+                    <NodeAddComplexButton NodeType="NodeType.ArithmeticOperation" OnCLick="AddNode" />
+                    <NodeAddComplexButton NodeType="NodeType.ConvertTo" OnCLick="AddNode" />
+                    <NodeAddComplexButton NodeType="NodeType.BooleanOperation" OnCLick="AddNode" />
+
+                    <NodeAddButton NodeType="NodeType.DataDisplay" OnClick="() => AddNode(NodeType.DataDisplay)" />
+                    <NodeAddButton NodeType="NodeType.SendMessage" OnClick="() => AddNode(NodeType.SendMessage)" />
+                </MudPaper>
+
+                <MudPaper Elevation="1" Class="flex-grow-1" Style="min-height:200px">
+                    <CascadingValue Value="_currentDiagram" IsFixed="true">
+                        <DiagramCanvas>
+                            <Widgets>
+                                <GridWidget Size="30" Mode="GridMode.Point" BackgroundColor="var(--mud-palette-background)" />
+
+                                <NavigatorWidget Width="200"
+                                                 Height="120"
+                                                 Class="border border-secondary absolute"
+                                                 Style="bottom: 15px; right: 15px; background-color: var(--mud-palette-background);">
+                                </NavigatorWidget>
+                                <SelectionBoxWidget />
+                            </Widgets>
+                            <AdditionalHtml>
+                            </AdditionalHtml>
+                            <AdditionalSvg>
+                            </AdditionalSvg>
+                        </DiagramCanvas>
+                    </CascadingValue>
+                </MudPaper>
+            </div>
+        }
+
+        @if (_showTaskSettings && _selectedTask != null)
+        {
+            <MudPaper Class="d-flex flex-column gap-2 pa-2" Style="height: 100%; min-width:250px; max-width:250px" Elevation="1">
+                <MudText Class="mx-4" Typo="Typo.h5">Settings</MudText>
+                <MudDivider Class="flex-grow-0 " />
+                <MudTextField @bind-Value="_selectedTask.Name" Label="Name" Variant="Variant.Text" Class="flex-grow-0 " />
+
+                <div>
                     <MudSelect @bind-Value="_selectedTask.TriggerSourceType" Label="Trigger source">
 
                         @foreach (TargetType type in Enum.GetValues(typeof(TargetType)))
                         {
-                            <MudSelectItem Value="type"></MudSelectItem>
+                            <MudSelectItem Value="type" />
                         }
                     </MudSelect>
-                    @*                     @if (_selectedTask.TriggerSourceType != TargetType.None)
-                    {
-                        <MudSelect @bind-Value="_selectedTask.Type" Label="When">
-                            @foreach (TaskType type in Enum.GetValues(typeof(TaskType)))
-                            {
-                                <MudSelectItem Value="type"></MudSelectItem>
-                            }
-                        </MudSelect>
-                    } *@
+                </div>
+                <div>
                     @if (_selectedTask.TriggerSourceType == TargetType.Service)
                     {
                         <MudSelect @bind-Value="_selectedTask.BackgroundService" Label="Service">
@@ -96,72 +186,33 @@
                             }
                         </MudSelect>
                     }
-                    <div style="min-width: 30px" />
-                    <MudStack Row="true">
-                        <MudTooltip Text="Save">
-                            <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveTask" />
-                        </MudTooltip>
-                        <MudTooltip Text="Delete">
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteTask" />
-                        </MudTooltip>
-                        <MudTooltip Text="Run">
-                            <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled" Color="Color.Primary" OnClick="@RunTask" />
-                        </MudTooltip>
-                    </MudStack>
-                </MudStack>
+                </div>
+                <MudText Class="mx-4" Typo="Typo.h5">Debug</MudText>
+
+                <MudDivider Class="flex-grow-0 " />
+
+                <MudSwitch T="bool" Value="_showNodesId" ValueChanged="TogleNodesId" Color="Color.Primary">
+                    Show nodes id
+                </MudSwitch>
+
+                <div class="flex-grow-1 overflow-y-auto">
+                    @foreach (var line in _debugText)
+                    {
+                        <MudText Class="mx-4" Color="@line.Item1" Typo="Typo.body2">@line.Item2</MudText>
+                    }
+                </div>
             </MudPaper>
         }
-
-        <MudPaper Class="pa-2 my-2">
-            <MudStack Row="true" Wrap="Wrap.Wrap">
-                <NodeAddButton NodeType="NodeType.FromMessage" OnClick="() => AddNode(NodeType.FromMessage)" />
-                <NodeAddButton NodeType="NodeType.FromAny" OnClick="() => AddNode(NodeType.FromAny)" />
-                <NodeAddButton NodeType="NodeType.Value" OnClick="() => AddNode(NodeType.Value)" />
-                <NodeAddButton NodeType="NodeType.DateTime" OnClick="() => AddNode(NodeType.DateTime)" />
-
-                <NodeAddComplexButton NodeType="NodeType.Condition" OnCLick="AddNode" />
-                <NodeAddComplexButton NodeType="NodeType.ArrayOperation" OnCLick="AddNode" />
-                <NodeAddComplexButton NodeType="NodeType.ArithmeticOperation" OnCLick="AddNode" />
-                <NodeAddComplexButton NodeType="NodeType.ConvertTo" OnCLick="AddNode" />
-                <NodeAddComplexButton NodeType="NodeType.BooleanOperation" OnCLick="AddNode" />
-
-                <NodeAddButton NodeType="NodeType.DataDisplay" OnClick="() => AddNode(NodeType.DataDisplay)" />
-                <NodeAddButton NodeType="NodeType.SendMessage" OnClick="() => AddNode(NodeType.SendMessage)" />
-
-            </MudStack>
-        </MudPaper>
-
-        @if (_currentDiagram != null)
-        {
-            <MudPaper Style="width:100%; height:70vh">
-                <CascadingValue Value="_currentDiagram" IsFixed="true">
-                    <DiagramCanvas>
-                        <Widgets>
-                            <GridWidget Size="30" Mode="GridMode.Point" BackgroundColor="var(--mud-palette-background)" />
-
-                            <NavigatorWidget Width="200"
-                                             Height="120"
-                                             Class="border border-secondary absolute"
-                                             Style="bottom: 15px; right: 15px; background-color: var(--mud-palette-background);">
-                            </NavigatorWidget>
-
-                        </Widgets>
-                        <AdditionalHtml>
-
-                        </AdditionalHtml>
-                        <AdditionalSvg>
-
-                        </AdditionalSvg>
-                    </DiagramCanvas>
-                </CascadingValue>
-            </MudPaper>
-        }
-    </MudItem>
-</MudGrid>
-
+    </div>
+</div>
 
 @code
 {
+    bool _showTasksList = true;
+    bool _showTaskSettings = true;
+    bool _showNodesId = false;
+    List<(Color,string)> _debugText = [];
+
     private List<DbTask> _tasks = [];
 
     private DbTask? _selectedTask;
@@ -171,6 +222,8 @@
     private List<DbModule> _modules = [];
     private List<DbBackgroundService> _services = [];
     private List<DbDashboardEntity> _entities = [];
+
+    private bool _runDisabled = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -212,15 +265,18 @@
             _tasks = await _serverTaskService.GetAllTaskaAsync();
 
             await ChangeSelectedTask(_tasks?.FirstOrDefault());
-            // _tasksLoading = false;
             StateHasChanged();
         }
     }
 
     private void ClearDiagram()
     {
+        _debugText.Clear();
+        _showNodesId = false;
         if (_currentDiagram != null)
         {
+            _currentDiagram.SetPan(0, 0);
+            _currentDiagram.SetZoom(1.0f);
             _currentDiagram.Nodes.Clear();
             _currentDiagram.Links.Clear();
         }
@@ -290,15 +346,51 @@
     private async Task RunTask()
     {
         // var stopwatch = Stopwatch.StartNew();
+        _debugText.Clear();
+        _runDisabled = true;
         if (_selectedTask != null)
         {
-            await _serverTaskService.ExecuteTaskAsync(_serverContextService, _selectedTask);
+            await SaveTask();
+            await _serverTaskService.ExecuteTaskAsync(_serverContextService, _selectedTask, PrintDebugText);
         }
+        await Task.Delay(1000);
+        _runDisabled = false;
         // stopwatch.Stop();
         // Debug.WriteLine($"Elapsed Time: {stopwatch.ElapsedMilliseconds} ms");
     }
 
-    private void AddNode(NodeType type, int subType=0)
+    private void PrintDebugText(DbTaskNode node, NodeValue? value)
+    {
+        var text = $"Node: {node.Order} | {value?.ToString()}" ?? "null";
+        var color = value?.Type switch
+        {
+            NodeValueType.Invalid => Color.Warning,
+            _ => Color.Success
+        };
+        _debugText.Add((color, text));
+        if (_debugText.Count > 20)
+        {
+            _debugText.RemoveAt(0);
+        }
+        StateHasChanged();
+    }
+
+    private void TogleNodesId(bool value)
+    {
+        _showNodesId = value;
+        if (_currentDiagram != null)
+        {
+            foreach (TaskNode node in _currentDiagram.Nodes)
+            {
+                node.ShowIdentifier = value;
+                node.Refresh();
+            }
+        }
+        _currentDiagram?.Refresh();
+        StateHasChanged();
+    }
+
+    private void AddNode(NodeType type, int subType = 0)
     {
         if (_currentDiagram?.Container != null)
         {

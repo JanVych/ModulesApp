@@ -31,14 +31,14 @@ public class DataDisplayNode : TaskNode
         if (type == NodeInputType.Single)
         {
             //Trigger and data port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, dataType: NodeValueType.Any));
         }
         else
         {
             //Trigger port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Start, data: false));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Top, dataType: NodeValueType.NoData));
             //Data port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.End, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Bottom, dataType: NodeValueType.Any));
         }
     }
 }

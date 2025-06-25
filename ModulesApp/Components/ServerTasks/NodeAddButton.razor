@@ -1,8 +1,9 @@
-﻿@using ModulesApp.Interfaces
+﻿@using ModulesApp.Components.ServerTasks.Nodes
+@using ModulesApp.Interfaces
 
-<MudButton StartIcon="@Icon"
+<MudButton StartIcon="@TaskNode.GetNodeIconString(NodeType)"
            Variant="Variant.Filled"
-           Style="@NodeStyle"
+           Style="@TaskNode.GertNodeButtonStyle(NodeType)"
            OnClick="@OnClick">
     @NodeType.ToLongString()
 </MudButton>
@@ -12,29 +13,8 @@
     [Parameter] 
     [EditorRequired]
     public NodeType NodeType { get; set; }
+
     [Parameter]
     [EditorRequired]
     public EventCallback OnClick { get; set; }
-
-    private string NodeStyle => NodeType switch
-        {
-            NodeType.FromMessage => "background-color: var(--from-message-node-color); color: var(--node-background-color);",
-            NodeType.FromAny => "background-color: var(--from-any-node-color); color: var(--node-background-color);",
-            NodeType.Value => "background-color: var(--value-node-color); color: var(--node-background-color);",
-            NodeType.DateTime => "background-color: var(--date-time-node-color); color: var(--node-background-color);",
-            NodeType.DataDisplay => "background-color: var(--data-display-node-color); color: var(--node-background-color);",
-            NodeType.SendMessage => "background-color: var(--send-message-node-color); color: var(--node-background-color);",
-            _ => "background-color: var(--default-node-color); color: var(--node-background-color);"
-        };
-
-    private string Icon => NodeType switch
-    {
-        NodeType.FromMessage => Icons.Material.Filled.Message,
-        NodeType.FromAny => Icons.Material.Filled.Dataset,
-        NodeType.Value => Icons.Material.Filled.Numbers,
-        NodeType.DateTime => Icons.Material.Filled.CalendarMonth,
-        NodeType.DataDisplay => Icons.Material.Filled.DashboardCustomize,
-        NodeType.SendMessage => Icons.Material.Filled.Send,
-        _ => Icons.Material.Filled.Help
-    };
 }

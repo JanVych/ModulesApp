@@ -2,8 +2,7 @@
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
-            Header="Data-Display"
-            MainColor="var(--data-display-node-color)">
+            Header="Data-Display">
 
     <MudSelect T="long"
                Style="min-width:175px"
@@ -25,7 +24,8 @@
 
 @code 
 {
-    [Parameter] public DataDisplayNode Node { get; set; } = null!;
+    [Parameter] 
+    public DataDisplayNode Node { get; set; } = null!;
 
     private void SwitchInputType(bool inputType)
     {

@@ -19,11 +19,11 @@ public class DbTaskLink
 
     public PortPositionAlignment SourcePositionAlignment { get; set; }
     public bool SourceInput { get; set; } = false;
-    public bool SourceData { get; set; } = false;
+    public NodeValueType SourceDataType { get; set; } = NodeValueType.Any;
 
     public PortPositionAlignment TargetPositionAlignment { get; set; }
     public bool TargetInput { get; set; } = false;
-    public bool TargetData { get; set; } = false;
+    public NodeValueType TargetDataType { get; set; } = NodeValueType.Any;
 
 
     public DbTaskLink(TaskPort sourcePort, DbTaskNode sourceNode, TaskPort targetPort, DbTaskNode targetNode)
@@ -33,11 +33,11 @@ public class DbTaskLink
 
         SourcePositionAlignment = sourcePort.PositionAlignment;
         SourceInput = sourcePort.Input;
-        SourceData = sourcePort.Data;
+        SourceDataType = sourcePort.DataType;
 
         TargetPositionAlignment = targetPort.PositionAlignment;
         TargetInput = targetPort.Input;
-        TargetData = targetPort.Data;
+        TargetDataType = targetPort.DataType;
     }
 
     public DbTaskLink()

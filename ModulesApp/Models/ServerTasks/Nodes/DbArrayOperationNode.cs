@@ -8,32 +8,19 @@ public class DbArrayOperationNode : DbTaskNode
 {
     public NodeArrayOperationType OperationType => (NodeArrayOperationType)SubType;
 
-    public DbArrayOperationNode(TaskNode node) : base(node)
-    {
-    }
-
-    public DbArrayOperationNode()
-    {
-    }
-
-    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
-    {
-        if (Value.Type == NodeValueType.Waiting)
-        {
-            Process(context);
-        }
-        return Value;
-    }
-
+    public DbArrayOperationNode(TaskNode node) : base(node){}
+    public DbArrayOperationNode(){}
 
     public override void Process(ContextService context)
     {
-        Value = TargetLinks.FirstOrDefault(l => l.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no input");
+        Value = TargetLinks.FirstOrDefault(l => l.TargetInput)?.GetValue(context) 
+            ?? new NodeValue.InvalidValue($"node: {Order}, no input");
         if (Value.Type == NodeValueType.Invalid)
         {
             return;
         }
-        if(Value is NodeValue.ArrayValue array)
+
+        if (Value is NodeValue.ArrayValue array)
         {
             List<NodeValue> arrayCLone = array.GetValueClone();
 

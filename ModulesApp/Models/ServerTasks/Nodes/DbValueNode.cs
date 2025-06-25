@@ -1,27 +1,12 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
-using ModulesApp.Interfaces;
 using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
 public class DbValueNode : DbTaskNode
 {
-    public DbValueNode(TaskNode node) : base(node)
-    {
-    }
-
-    public DbValueNode()
-    {
-    }
-
-    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
-    {
-        if (Value.Type == NodeValueType.Waiting)
-        {
-            Process(context);
-        }
-        return Value;
-    }
+    public DbValueNode(TaskNode node) : base(node){}
+    public DbValueNode(){}
 
     public override void Process(ContextService context)
     {

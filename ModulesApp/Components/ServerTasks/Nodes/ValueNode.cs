@@ -12,11 +12,11 @@ public class ValueNode : TaskNode
     {
         Type = NodeType.Value;
         LongVal1 = (long)NodeValueType.String;
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: NodeValueType.String));
     }
 
     public ValueNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: (NodeValueType)LongVal1));
     }
 }

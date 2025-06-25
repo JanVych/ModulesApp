@@ -4,6 +4,7 @@ using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Services;
+using MudBlazor;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 
@@ -27,6 +28,9 @@ public abstract class TaskNode : NodeModel, IDbNode
     public long LongVal2 { get; set; }
     public long LongVal3 { get; set; }
 
+    // not in db
+    public bool ShowIdentifier { get; set; } = false;
+
     public TaskNode(ContextService context, Point? position = null) : base(position)
     {
         _context = context;
@@ -49,6 +53,7 @@ public abstract class TaskNode : NodeModel, IDbNode
         LongVal3 = dbNode.LongVal3;
         BoolVal1 = dbNode.BoolVal1;
     }
+
     public void RemoveAllInputPorts()
     {
         foreach (var port in Ports.ToList())
@@ -59,5 +64,52 @@ public abstract class TaskNode : NodeModel, IDbNode
                 RemovePort(port);
             }
         }
+    }
+
+    public static string GertNodeButtonStyle(NodeType type)
+    {
+        var style = $"background-color: var({GetNodeColorString(type)});";
+        if (type is NodeType.FromMessage or NodeType.FromAny or NodeType.Value
+            or NodeType.DateTime or NodeType.DataDisplay or NodeType.SendMessage)
+        {
+            style += " color: var(--mud-palette-surface);";
+        }
+        return style;
+    }
+
+    public static string GetNodeColorString(NodeType type)
+    {
+        return type switch
+        {
+            NodeType.FromMessage => "--mud-palette-primary-darken",
+            NodeType.FromAny => "--mud-palette-primary-darken",
+            NodeType.Value => "--mud-palette-primary-darken",
+            NodeType.DateTime => "--mud-palette-primary-darken",
+            NodeType.DataDisplay => "--mud-palette-success-darken",
+            NodeType.SendMessage => "--mud-palette-success-darken",
+            NodeType.Condition => "--mud-palette-info-darken",
+            NodeType.ArrayOperation => "--mud-palette-tertiary-darken",
+            NodeType.ArithmeticOperation => "--mud-palette-tertiary-darken",
+            NodeType.ConvertTo => "--mud-palette-tertiary-darken",
+            NodeType.BooleanOperation => "--mud-palette-tertiary-darken",
+            _ => "--mud-palette-info-darken"
+        };
+    }
+
+
+    public static string GetNodeIconString(NodeType type)
+    {
+        return type switch
+        {
+            NodeType.FromMessage => Icons.Material.Filled.Message,
+            NodeType.FromAny => Icons.Material.Filled.Message,
+            NodeType.Value => Icons.Material.Filled.Numbers,
+            NodeType.DateTime => Icons.Material.Filled.CalendarMonth,
+            NodeType.DataDisplay => Icons.Material.Filled.DashboardCustomize,
+            NodeType.SendMessage => Icons.Material.Filled.Send,
+            NodeType.Condition => string.Empty,
+            NodeType.ArrayOperation => Icons.Material.Filled.DataArray,
+            _ => string.Empty
+        };
     }
 }

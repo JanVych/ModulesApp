@@ -8,50 +8,62 @@ namespace ModulesApp.Models.ServerTasks.Nodes;
 public class DbArithmeticOperationNode : DbTaskNode
 {
     public NodeArithmeticOperationType OperationType => (NodeArithmeticOperationType)SubType;
-    private DbTaskLink? Left => TargetLinks.FirstOrDefault(l => l.TargetPositionAlignment == PortPositionAlignment.Start);
-    private DbTaskLink? Right => TargetLinks.FirstOrDefault(l => l.TargetPositionAlignment == PortPositionAlignment.End);
 
-    public DbArithmeticOperationNode(TaskNode node) : base(node)
-    {
-    }
-    public DbArithmeticOperationNode()
-    {
-    }
+    public DbArithmeticOperationNode(TaskNode node) : base(node){}
+    public DbArithmeticOperationNode(){}
 
-    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
+    private NodeValue GetLeftValue(ContextService context)
     {
-        if (Value.Type == NodeValueType.Waiting)
+        DbTaskLink? link;
+        if (InputType == NodeInputType.Single)
         {
-            Process(context);
+            link = TargetLinks.FirstOrDefault(l => l.TargetInput);
         }
-        return Value;
+        else
+        {
+            link = TargetLinks.FirstOrDefault(l => l.TargetInput && l.TargetPositionAlignment == PortPositionAlignment.Top);
+        }
+        if (link == null)
+        {
+            return new NodeValue.InvalidValue($"node: {Order}, no left input");
+        }
+        return link.GetValue(context);
+    }
+
+    private NodeValue GetRightValue(ContextService context)
+    {
+        if (InputType == NodeInputType.Double)
+        {
+            DbTaskLink? link = TargetLinks.FirstOrDefault(l => l.TargetInput && l.TargetPositionAlignment == PortPositionAlignment.Bottom);
+            if (link == null)
+            {
+                return new NodeValue.InvalidValue($"node: {Order}, no right input");
+            }
+            return link.GetValue(context);
+        }
+        return new NodeValue.NumberValue(DoubleVal1);
     }
 
     public override void Process(ContextService context)
     {
-        NodeValue leftValue;
-        if (InputType == NodeInputType.Single)
+        NodeValue leftValue = GetLeftValue(context);
+        NodeValue rightValue = GetRightValue(context);
+
+        if (rightValue.Type == NodeValueType.Invalid)
         {
-            leftValue = TargetLinks.FirstOrDefault()?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no left input");
+            Value = rightValue;
+            return;
         }
-        else
-        {
-            leftValue = Left?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no left input");
-        }
-        
-        if(leftValue.Type == NodeValueType.Invalid)
+
+        if (leftValue.Type == NodeValueType.Invalid)
         {
             Value = leftValue;
             return;
         }
 
-        NodeValue? rightValue = InputType == NodeInputType.Double
-            ? Right?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no right input")
-            : new NodeValue.NumberValue(DoubleVal1);
-
-        if (leftValue.Type == NodeValueType.Invalid && rightValue.Type == NodeValueType.Invalid)
+        if (leftValue.Type != NodeValueType.Number && rightValue.Type != NodeValueType.Number)
         {
-            Value = new NodeValue.InvalidValue($"node: {Order}, type error, both left and right are not numbers");
+            Value = new NodeValue.InvalidValue($"node: {Order}, type error, left and right are not numbers");
             return;
         }
         else if(rightValue.Type != NodeValueType.Number)

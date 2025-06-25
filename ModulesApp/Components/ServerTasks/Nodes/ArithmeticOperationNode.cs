@@ -27,7 +27,7 @@ public class ArithmeticOperationNode : TaskNode
     {
         AddInputPorts(input);
         //Output data port
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: NodeValueType.Number));
     }
 
     public void AddInputPorts(NodeInputType input)
@@ -37,14 +37,14 @@ public class ArithmeticOperationNode : TaskNode
         if (input == NodeInputType.Double)
         {
             //Input right operation port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Start, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Top, dataType: NodeValueType.Number));
             //Input left operation port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.End, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Bottom, dataType: NodeValueType.Number));
         }
         else
         {
             //Input right operation port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, dataType: NodeValueType.Number));
         }
     }
 }

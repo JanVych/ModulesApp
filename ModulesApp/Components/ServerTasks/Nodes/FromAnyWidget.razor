@@ -1,10 +1,10 @@
-﻿@using ModulesApp.Interfaces
+﻿@using ModulesApp.Components.ServerTasks.Ports
+@using ModulesApp.Interfaces
 @using ModulesApp.Models.ServerTasks
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
-                Header="From-Any"
-                MainColor="var(--from-any-node-color)">
+                Header="From-Any">
     <MudSelect T="long"
                ValueChanged="OnTypeChanged"
                Value="@Node.LongVal2"
@@ -55,15 +55,9 @@
             }
         </MudSelect>
     }
-
-    <MudTextField T="string"
-                  @bind-Value="Node.StringVal1"
-                  Label="Key"
-                  Variant="Variant.Outlined"
-                  Margin="Margin.Dense" />
-
     <MudSelect T="long"
-               @bind-Value="Node.LongVal3"
+               Value="Node.LongVal3"
+               ValueChanged="ChangeType"
                Variant="Variant.Outlined"
                Label="Type"
                Margin="Margin.Dense">
@@ -74,11 +68,17 @@
         <MudSelectItem Value="(long)NodeValueType.Array">@NodeValueType.Array</MudSelectItem>
     </MudSelect>
 
+    <MudTextField T="string"
+                  @bind-Value="Node.StringVal1"
+                  Label="Key"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense" />
 </TaskNodeWidget>
 
 @code
 {
-    [Parameter] public FromAnyNode Node { get; set; } = null!;
+    [Parameter] 
+    public FromAnyNode Node { get; set; } = null!;
 
     private async Task OnTypeChanged(long type)
     {
@@ -98,5 +98,12 @@
             Node.LongVal1 = Node.Entities.FirstOrDefault()?.Id ?? 0;
         }
         Node.LongVal2 = type;
+    }
+
+    private void ChangeType(long value)
+    {
+        Node.LongVal3 = value;
+        var port = Node.Ports.FirstOrDefault() as TaskPort;
+        port!.DataType = (NodeValueType)value;
     }
 }

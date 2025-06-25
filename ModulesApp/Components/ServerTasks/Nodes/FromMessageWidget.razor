@@ -1,16 +1,17 @@
-﻿@using ModulesApp.Interfaces
+﻿@using ModulesApp.Components.ServerTasks.Ports
+@using ModulesApp.Interfaces
 @using ModulesApp.Models.ServerTasks
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
-Header="From-Message"
-MainColor="var(--from-message-node-color)">
+                Header="From-Message">
 
     <MudSelect T="long"
-    @bind-Value="Node.LongVal1"
-    Variant="Variant.Outlined"
-    Label="Type"
-    Margin="Margin.Dense">
+        Value="Node.LongVal1"
+               ValueChanged="ChangeType"
+               Variant="Variant.Outlined"
+               Label="Type"
+               Margin="Margin.Dense">
         <MudSelectItem Value="(long)NodeValueType.Any">@NodeValueType.Any</MudSelectItem>
         <MudSelectItem Value="(long)NodeValueType.String">@NodeValueType.String</MudSelectItem>
         <MudSelectItem Value="(long)NodeValueType.Number">@NodeValueType.Number</MudSelectItem>
@@ -28,5 +29,13 @@ MainColor="var(--from-message-node-color)">
 
 @code
 {
-    [Parameter] public FromMessageNode Node { get; set; } = null!;
+    [Parameter] 
+    public FromMessageNode Node { get; set; } = null!;
+
+    private void ChangeType(long value)
+    {
+        Node.LongVal1 = value;
+        var port = Node.Ports.FirstOrDefault() as TaskPort;
+        port!.DataType = (NodeValueType)value;
+    }
 }

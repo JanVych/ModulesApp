@@ -1,4 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
+using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Services;
 
@@ -6,41 +7,57 @@ namespace ModulesApp.Models.ServerTasks.Nodes;
 
 public class DbDataDisplayNode : DbTaskNode
 {
-    public DbDataDisplayNode(TaskNode node) : base(node)
-    {
-    }
+    public DbDataDisplayNode(TaskNode node) : base(node){}
+    public DbDataDisplayNode(){}
 
-    public DbDataDisplayNode()
+    private NodeValue GetInputValue(ContextService context)
     {
-    }
-
-    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
-    {
-        if (Value.Type == NodeValueType.Waiting)
+        DbTaskLink? link;
+        if (InputType == NodeInputType.Single)
         {
-            Process(context);
+            link = TargetLinks.FirstOrDefault();
         }
-        return Value;
+        else
+        {
+            link = TargetLinks.FirstOrDefault(l => l.TargetPositionAlignment == PortPositionAlignment.Bottom);
+        }
+        if (link == null)
+        {
+            return new NodeValue.InvalidValue($"node: {Order}, no data input");
+        }
+        return link.GetValue(context);
+    }
+
+    private NodeValue GetInputTriggerValue(ContextService context)
+    {
+        return TargetLinks?.FirstOrDefault(l => l.TargetPositionAlignment == PortPositionAlignment.Top)
+            ?.GetValue(context) ??
+            new NodeValue.InvalidValue($"node: {Order}, no trigger input");
     }
 
     public override void Process(ContextService context)
     {
-        NodeValue conditional;
+        Value = GetInputValue(context);
+        if (Value.Type == NodeValueType.Invalid)
+        {
+            return;
+        }
+
         if (InputType == NodeInputType.Double)
         {
-            conditional = TargetLinks.FirstOrDefault(n => !n.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order},had no input");
-            if (conditional.Type == NodeValueType.Invalid)
+            var triggerValue = GetInputTriggerValue(context);
+            if (triggerValue.Type == NodeValueType.Invalid)
             {
-                Value = conditional;
+                Value = triggerValue;
+                return;
+            }
+            var result = NodeValue.GetBooleanValue(triggerValue);
+            if (!result)
+            {
+                Value = new NodeValue.InvalidValue($"node: {Order}, trigger input was false");
+                return;
             }
         }
-        if (Value.Type != NodeValueType.Invalid)
-        {
-            Value = TargetLinks.FirstOrDefault(l => l.TargetData)?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no input");
-            if (Value.Type != NodeValueType.Invalid)
-            {
-                context.SendToDashboardEntity(LongVal1, "Value", Value.GetValue());
-            }
-        }
+        context.SendToDashboardEntity(LongVal1, "Value", Value.GetValue());
     }
 }

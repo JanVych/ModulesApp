@@ -2,11 +2,17 @@
 @using Blazor.Diagrams.Core.Models
 @using ModulesApp.Components.ServerTasks.Ports
 @using ModulesApp.Interfaces
+@using ModulesApp.Models.ServerTasks
 @using MudBlazor
 
 <div class="node">
     <div class="node-header" style="@GetBackgroundStyle()">
-        @Header
+        <MudIcon Icon="@TaskNode.GetNodeIconString(Node.Type)"/>
+        <span class="node-header-text">@Header</span>
+        @if(Node.ShowIdentifier)
+        {
+            <span class="node-header-text">Id: @Node.Order</span>
+        }
     </div>
 
     <div class="node-content">
@@ -15,40 +21,41 @@
 
     @foreach (TaskPort port in Node.Ports)
     {
-        if (port.Input && port.PositionAlignment == PortPositionAlignment.Center)
+        if (port.Input && port.PositionAlignment == PortPositionAlignment.Top)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port in middle" Style="@GetPortStyle(port.Data)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port in first" Style="@GetPortStyle(port.DataType)" />
+            <div class="port-text port-input port-top">@GetPortSymbol(port.DataType)</div>
         }
 
-        else if (port.Input && port.PositionAlignment == PortPositionAlignment.Start)
+        else if (port.Input && port.PositionAlignment == PortPositionAlignment.Center)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port in first" Style="@GetPortStyle(port.Data)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port in middle" Style="@GetPortStyle(port.DataType)" />
+            <div class="port-text port-input port-center">@GetPortSymbol(port.DataType)</div>
         }
 
-        else if (port.Input && port.PositionAlignment == PortPositionAlignment.End)
+        else if (port.Input && port.PositionAlignment == PortPositionAlignment.Bottom)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port in second" Style="@GetPortStyle(port.Data)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port in second" Style="@GetPortStyle(port.DataType)" />
+            <div class="port-text port-input port-bottom">@GetPortSymbol(port.DataType)</div>
         }
 
         else if (!port.Input && port.PositionAlignment == PortPositionAlignment.Center)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port out middle" Style="@GetPortStyle(port.Data)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port out middle" Style="@GetPortStyle(port.DataType)" />
+            <div class="port-text port-output port-center">@GetPortSymbol(port.DataType)</div>
         }
 
-        else if (!port.Input && port.PositionAlignment == PortPositionAlignment.Start)
+        else if (!port.Input && port.PositionAlignment == PortPositionAlignment.Top)
         {
-            <PortRenderer @key="port" Port="port" Class="diagram-port out first" Style="@GetPortStyle(port.Data)" />
+            <PortRenderer @key="port" Port="port" Class="diagram-port out first" Style="@GetPortStyle(port.DataType)" />
+            <div class="port-text port-output port-top">@GetPortSymbol(port.DataType)</div>
         }
-        else if (!port.Input && port.PositionAlignment == PortPositionAlignment.End)
-        {
-            <PortRenderer @key="port" Port="port" Class="diagram-port out second" Style="@GetPortStyle(port.Data)" />
-        }
-    }
 
-    @if (BoolOutputText)
-    {
-        <div class="output-text true">T</div>
-        <div class="output-text false">F</div>
+        else if (!port.Input && port.PositionAlignment == PortPositionAlignment.Bottom)
+        {
+            <PortRenderer @key="port" Port="port" Class="diagram-port out second" Style="@GetPortStyle(port.DataType)" />
+            <div class="port-text port-output port-bottom">@GetPortSymbol(port.DataType)</div>
+        }
     }
 </div>
 
@@ -61,26 +68,33 @@
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public bool BoolOutputText { get; set; } = false;
-
-    [Parameter]
     public string Header { get; set; } = string.Empty;
 
-    [Parameter]
-    public string MainColor { get; set; } = "var(--default-node-color)";
+    private string _mainColor => TaskNode.GetNodeColorString(Node.Type);
 
-
-    private string GetPortStyle(bool dataPort)
+    private string GetPortStyle(NodeValueType type)
     {
-        if (dataPort)
+        if (type == NodeValueType.NoData)
         {
-            return $"background-color: {MainColor}; border-color: {MainColor};";
+            return $"border-color: var({_mainColor});";
         }
         else
         {
-            return $"border-color: {MainColor};";
+            return $"background-color: var({_mainColor}); border-color: var({_mainColor});";
         }
     }
 
-    private string GetBackgroundStyle() => $"background-color: {MainColor};";
+    private string GetBackgroundStyle() => $"background-color: var({_mainColor});";
+
+    private string GetPortSymbol(NodeValueType dataPort)
+    {
+        return dataPort switch
+        {
+            NodeValueType.Boolean => "B",
+            NodeValueType.Number => "N",
+            NodeValueType.String => "S",
+            NodeValueType.Array => "A",
+            _ => ""
+        };
+    }
 }

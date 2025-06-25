@@ -2,11 +2,11 @@
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
-            Header="Date-Time-Now"
-                MainColor="var(--date-time-node-color )">
+            Header="Date-Time-Now">
 
     <MudSelect T="long"
-               @bind-Value="Node.LongVal1"
+        Value="Node.LongVal1"
+               ValueChanged="ChangeType"
                Variant="Variant.Outlined"
                Label="Type"
                Style="min-width: 160px"
@@ -27,5 +27,12 @@
 
 @code
 {
-    [Parameter] public DateTimeNode Node { get; set; } = null!;
+    [Parameter] 
+    public DateTimeNode Node { get; set; } = null!;
+
+    private void ChangeType(long value)
+    {
+        Node.LongVal1 = value;
+        Node.GetPortType((NodeDateTimeOutputType) value);
+    }
 }

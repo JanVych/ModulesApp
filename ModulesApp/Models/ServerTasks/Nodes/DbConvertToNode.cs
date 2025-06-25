@@ -1,6 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Helpers;
-using ModulesApp.Interfaces;
 using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
@@ -9,28 +8,15 @@ public class DbConvertToNode : DbTaskNode
 {
     public NodeValueType ConvertToType => (NodeValueType)SubType;
 
-    private DbTaskLink? Input => TargetLinks.FirstOrDefault();
+    public DbConvertToNode(TaskNode node) : base(node){}
 
-    public DbConvertToNode(TaskNode node) : base(node)
-    {
-    }
-
-    public DbConvertToNode()
-    {
-    }
-
-    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
-    {
-        if (Value.Type == NodeValueType.Waiting)
-        {
-            Process(context);
-        }
-        return Value;
-    }
+    public DbConvertToNode(){}
 
     public override void Process(ContextService context)
     {
-        Value = Input?.GetValue(context) ?? new NodeValue.InvalidValue($"node: {Order}, no input");
+        Value = TargetLinks.FirstOrDefault()?.GetValue(context) ?? 
+            new NodeValue.InvalidValue($"node: {Order}, no input");
+
         if (Value.Type != NodeValueType.Invalid)
         {
             if (ConvertToType == NodeValueType.String)

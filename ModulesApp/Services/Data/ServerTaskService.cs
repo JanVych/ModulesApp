@@ -195,7 +195,7 @@ public class ServerTaskService
         }
     }
 
-    public async Task ExecuteTaskAsync(ContextService serverContext, DbTask task)
+    public async Task ExecuteTaskAsync(ContextService serverContext, DbTask task, Action<DbTaskNode,NodeValue?>? debugOutput = null)
     {
         var nodes = await GetNodesAsync(task);
 
@@ -205,7 +205,7 @@ public class ServerTaskService
             {
                 //node.Process(serverContext);
                 var value = node.GetValue(null, serverContext);
-               // Console.WriteLine($"Node: {node.Order}, Value: {value}");
+                debugOutput?.Invoke(node, value);
             }
         }
     }

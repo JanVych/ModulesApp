@@ -18,7 +18,6 @@ public class ConvertToNode : TaskNode
         AddPorts();
 
     }
-
     public ConvertToNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         AddPorts();
@@ -27,8 +26,8 @@ public class ConvertToNode : TaskNode
     private void AddPorts()
     {
         //Input port
-        AddPort(new TaskPort(this, true, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, true, PortPositionAlignment.Center, dataType: NodeValueType.Any));
         //Output port
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, data: true));
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: (NodeValueType)SubType));
     }
 }

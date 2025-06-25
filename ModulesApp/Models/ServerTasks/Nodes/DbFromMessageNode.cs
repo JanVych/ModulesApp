@@ -6,22 +6,8 @@ namespace ModulesApp.Models.ServerTasks.Nodes;
 
 public class DbFromMessageNode : DbTaskNode
 {
-    public DbFromMessageNode(TaskNode node) : base(node)
-    {
-    }
-
-    public DbFromMessageNode()
-    {
-    }
-
-    public override NodeValue GetValue(DbTaskLink dbLink, ContextService context)
-    {
-        if (Value.Type == NodeValueType.Waiting)
-        {
-            Process(context);
-        }
-        return Value;
-    }
+    public DbFromMessageNode(TaskNode node) : base(node){}
+    public DbFromMessageNode(){}
 
     public override void Process(ContextService context)
     {
@@ -56,11 +42,11 @@ public class DbFromMessageNode : DbTaskNode
             return;
         }
 
-        if (!IsValidType(jValue, (NodeValueType)LongVal1))
+        if (!NodeValue.IsValidType(jValue, (NodeValueType)LongVal1))
         {
-            Value = new NodeValue.InvalidValue($"Value is not {(NodeValueType)LongVal1}, from {Task.TriggerSourceType}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"Value is not {(NodeValueType)LongVal1}, but: {jValue.ValueKind}, from {Task.TriggerSourceType}, in node: {Order}");
             return;
         }
-        Value = ConvertFromJsonElement((JsonElement)value, this);
+        Value = NodeValue.CreateFromJsonElement(jValue, this);
     }
 }

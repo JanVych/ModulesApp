@@ -1,36 +1,27 @@
 ﻿using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
+using ModulesApp.Models.ServerTasks;
 
 namespace ModulesApp.Components.ServerTasks.Ports;
 
 public enum PortPositionAlignment
 {
-    Start,
+    Top,
     Center,
-    End,
-}
-
-public enum PortDataType
-{
-    None,
-    String,
-    Number,
-    Boolean,
-    Array,
-    Json,
+    Bottom,
 }
 
 public class TaskPort : PortModel
 {
-    public bool Data { get; set; }
+    public NodeValueType DataType { get; set; }
     public bool Input { get; set; } = false;
     public PortPositionAlignment PositionAlignment { get; set; }
 
-    public TaskPort(NodeModel parent, bool input, PortPositionAlignment positionAlignment, Point? position = null, Size? size = null, bool data = false) 
+    public TaskPort(NodeModel parent, bool input, PortPositionAlignment positionAlignment, Point? position = null, Size? size = null, NodeValueType dataType = NodeValueType.Any) 
         : base(parent, input ? PortAlignment.Left : PortAlignment.Right, position, size)
     {
-        Data = data;
+        DataType = dataType;
         Input = input;
         PositionAlignment = positionAlignment;
     }
@@ -43,15 +34,15 @@ public class TaskPort : PortModel
         if (other is not TaskPort otherPort)
             return false;
 
-        //not data port, change link style
-        if (!otherPort.Data)
-        {
-            if (Links.FirstOrDefault() is LinkModel link)
-            {
-                link.Color = "grey";
-                link.Width = 2;
-            }
-        }
+        ////not data port, change link style
+        //if (!otherPort.DataType)
+        //{
+        //    if (Links.FirstOrDefault() is LinkModel link)
+        //    {
+        //        link.Color = "grey";
+        //        link.Width = 2;
+        //    }
+        //}
         
         // Input ports can have only one link
         if (otherPort.Input && otherPort.Links.Count != 0)
