@@ -23,21 +23,6 @@ public class DbModuleProgram
 
     public string NormalizedPath => Path.Replace("\\", System.IO.Path.DirectorySeparatorChar.ToString());
 
-    public async Task LoadtProgramFiles() 
-    {
-        try
-        {
-            foreach (var f in Files)
-            {
-                f.Content = await File.ReadAllTextAsync(f.Path);
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
-    }
-
     public class ModuleBinFile
     {
         public string Name { get; set; } = string.Empty;
@@ -89,15 +74,15 @@ public class DbModuleProgram
         });
         files.Add(new()
         {
-            Name = "main-project-1",
-            Path = System.IO.Path.Combine(path, "main-project-1.bin"),
-            Address = 0x30000
-        });
-        files.Add(new()
-        {
             Name = "partition_table",
             Path = System.IO.Path.Combine(path, "partition_table", "partition-table.bin"),
             Address = 0x8000
+        });
+        files.Add(new()
+        {
+            Name = "nvs_data",
+            Path = System.IO.Path.Combine(Path, "nvs_data.bin"),
+            Address = 0x9000
         });
         files.Add(new()
         {
@@ -107,10 +92,26 @@ public class DbModuleProgram
         });
         files.Add(new()
         {
-            Name = "phy_init_data",
-            Path = System.IO.Path.Combine(path, "phy_init_data.bin"),
-            Address = 0x2b000
+            Name = "main-project-1",
+            Path = System.IO.Path.Combine(path, "main-project-1.bin"),
+            Address = 0x30000
         });
         BinFiles = files;
+    }
+
+    public async Task LoadtProgramFiles()
+    {
+        try
+        {
+            foreach (var f in Files)
+            {
+                f.Content = await File.ReadAllTextAsync(f.Path);
+            }
+            Files = Files.OrderBy(f => f.Name.EndsWith(".c", StringComparison.OrdinalIgnoreCase) ? 0 : 1).ToList();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
 }

@@ -22,7 +22,7 @@ public class ModuleProgramManager
     }
     public void BuildProgram(DbModuleProgram program, DataReceivedEventHandler? outputHandler)
     {
-        RunCMDCommand(program, "build", outputHandler);
+        RunEspIdfCommand(program, "idf.py build", outputHandler);
     }
 
     public async Task CleanProgramAsync(DbModuleProgram program, DataReceivedEventHandler outputHandler)
@@ -31,7 +31,79 @@ public class ModuleProgramManager
     }
     public void CleanProgram(DbModuleProgram program, DataReceivedEventHandler? outputHandler)
     {
-        RunCMDCommand(program, "fullclean", outputHandler);
+        RunEspIdfCommand(program, "idf.py fullclean", outputHandler);
+    }
+
+    public async Task BuildNvsDataAync(DbModuleProgram program, DataReceivedEventHandler? outputHandler)
+    {
+        await Task.Run(() => BuildNvsData(program, outputHandler));
+    }
+    public void BuildNvsData(DbModuleProgram program, DataReceivedEventHandler? outputHandler)
+    {
+        var idfPath = Path.GetFullPath(program.Firmware.IDF.Path);
+        var commandPath = Path.Combine(idfPath, "components", "nvs_flash", "nvs_partition_generator", "nvs_partition_gen.py");
+        var csvFile = "nvs_data.csv";
+        var binFile = "nvs_data.bin";
+        var partitionSize = "0x20000";
+
+        var command = $"python \"{commandPath}\" generate \"{csvFile}\" \"{binFile}\" {partitionSize}";
+        RunEspIdfCommand(program, command, OutputHandler);
+    }
+
+    private static void RunEspIdfCommand(DbModuleProgram program, string command, DataReceivedEventHandler? outputHandler)
+    {
+        var programPath = Path.GetFullPath(program.Path);
+        var idfPath = Path.GetFullPath(program.Firmware.IDF.Path);
+
+        if (!Directory.Exists(programPath))
+        {
+            InvokeOutputHandler(outputHandler, $"Program path does not exist: {programPath}");
+            return;
+        }
+        if(!Directory.Exists(idfPath))
+        {
+            InvokeOutputHandler(outputHandler, $"IDF path does not exist: {idfPath}");
+            return;
+        }
+        RunEspIdfProcess(idfPath, programPath, command, outputHandler);
+    }
+
+    private static void RunEspIdfProcess(string idfAbsolutePath, string programAbsolutePath, string command, DataReceivedEventHandler? outputHandler)
+    {
+        using Process cmdProcess = new();
+        cmdProcess.StartInfo.WorkingDirectory = programAbsolutePath;
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            cmdProcess.StartInfo.FileName = "cmd.exe";
+            cmdProcess.StartInfo.Arguments = $"/C {idfAbsolutePath}\\install.bat && {idfAbsolutePath}\\export.bat && {command}";
+        }
+
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // TODO fix install.sh ?
+            cmdProcess.StartInfo.FileName = "/bin/bash";
+            cmdProcess.StartInfo.Arguments = $"-c \"source {idfAbsolutePath}/export.sh && {command}\"";
+        }
+
+        cmdProcess.StartInfo.RedirectStandardOutput = true;
+        cmdProcess.StartInfo.RedirectStandardError = true;
+        cmdProcess.StartInfo.UseShellExecute = false;
+        cmdProcess.StartInfo.CreateNoWindow = true;
+
+        if (outputHandler != null)
+        {
+            cmdProcess.OutputDataReceived += outputHandler;
+            cmdProcess.ErrorDataReceived += outputHandler;
+        }
+
+        cmdProcess.Start();
+        if (outputHandler != null)
+        {
+            cmdProcess.BeginOutputReadLine();
+            cmdProcess.BeginErrorReadLine();
+        }
+        cmdProcess.WaitForExit();
     }
 
     public async Task<DbModuleProgram?> CreateNewProgram(DbModuleProgram program, DbModuleFirmware firmware)
@@ -82,58 +154,6 @@ public class ModuleProgramManager
         }
     }
 
-    private static void RunCMDCommand(DbModuleProgram program, string command, DataReceivedEventHandler? outputHandler)
-    {
-        var programPath = Path.GetFullPath(program.Path);
-        var idfPath = program.Firmware.IDF.NormalizedPath;
-
-        if (!Directory.Exists(programPath))
-        {
-            Console.WriteLine($"Path: {programPath}, does not exist");
-            return;
-        }
-        if(!Directory.Exists(idfPath))
-        {
-            Console.WriteLine($"Path: {idfPath}, does not exist");
-            return;
-        }
-        RunCMDProcess(idfPath, programPath, command, outputHandler);
-    }
-
-    private static void RunCMDProcess(string idfAbsolutePath, string programAbsolutePath, string command, DataReceivedEventHandler? outputHandler)
-    {
-        Process cmdProcess = new();
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            cmdProcess.StartInfo.WorkingDirectory = programAbsolutePath;
-            cmdProcess.StartInfo.FileName = "cmd.exe";
-            cmdProcess.StartInfo.Arguments = $"/C {idfAbsolutePath}\\install.bat && {idfAbsolutePath}\\export.bat && idf.py {command}";
-            //cmdProcess.StartInfo.Arguments = $"/C {idfAbsolutePath}\\export.bat && idf.py {command}";
-        }
-
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            // TODO install.sh ?
-            cmdProcess.StartInfo.WorkingDirectory = programAbsolutePath;
-            cmdProcess.StartInfo.FileName = "/bin/bash";
-            cmdProcess.StartInfo.Arguments = $"-c \"source {idfAbsolutePath}/export.sh && idf.py {command}\"";
-        }
-
-
-        cmdProcess.StartInfo.RedirectStandardOutput = true;
-        cmdProcess.StartInfo.UseShellExecute = false;
-        cmdProcess.StartInfo.CreateNoWindow = false;
-        if (outputHandler != null)
-        {
-            cmdProcess.OutputDataReceived += new DataReceivedEventHandler(outputHandler);
-        }
-
-        cmdProcess.Start();
-        cmdProcess.BeginOutputReadLine();
-        cmdProcess.WaitForExit();
-    }
-
     private static void CopyAllFromDirectory(string from, string to)
     {
         var dir = new DirectoryInfo(from);
@@ -159,11 +179,23 @@ public class ModuleProgramManager
         }
     }
 
-    //private static void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
-    //{
-    //    if (!string.IsNullOrEmpty(outLine.Data))
-    //    {
-    //        Debug.WriteLine(outLine.Data);
-    //    }
-    //}
+    private static void InvokeOutputHandler(DataReceivedEventHandler? handler, string message)
+    {
+        if (handler == null) return;
+
+        var ctor = typeof(DataReceivedEventArgs)
+            .GetConstructor(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                            null, [typeof(string)], null);
+
+        var args = ctor?.Invoke([message]) as DataReceivedEventArgs;
+        handler.Invoke(null, args!);
+    }
+
+    private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+    {
+        if (!string.IsNullOrEmpty(outLine.Data))
+        {
+            Console.WriteLine(outLine.Data);
+        }
+    }
 }

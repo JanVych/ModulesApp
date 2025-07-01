@@ -24,7 +24,7 @@ public class BackgroundServiceManager
         {
             if(s.Status == BackgroundServiceStatus.Active)
             {
-                ScheduleJobAsync(s, scheduler).GetAwaiter().GetResult();
+                await ScheduleJobAsync(s, scheduler);
             }
         }
     }

@@ -16,7 +16,7 @@
 <div>
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
         <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
-        @if (_service is not null)
+        @if (_service != null)
         {
             <MudText Typo="Typo.h4">@_service.Name</MudText>
         }
@@ -24,7 +24,7 @@
 
     <MudDivider Class="mb-2" />
 
-    @if (_service is null)
+    @if (_service == null)
     {
         <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
     }

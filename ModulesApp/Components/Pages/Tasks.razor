@@ -61,14 +61,11 @@
             </MudTooltip>
         </MudStack>
 
-        @if (_selectedTask != null)
-        {
-            <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
-                <MudText Typo="Typo.h6" Class="invisible align-self-center">
-                    @_selectedTask.Name
-                </MudText>
-            </MudHidden>
-        }
+        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+            <MudText Typo="Typo.h6" Class="invisible align-self-center">
+                @_selectedTask?.Name
+            </MudText>
+        </MudHidden>
 
         <MudTooltip Text="@(_showTaskSettings ? "Hide settings" : "Show settings")">
             <MudToggleIconButton Icon="@Icons.Material.Filled.Settings"
@@ -147,6 +144,7 @@
             <MudPaper Class="d-flex flex-column gap-2 pa-2" Style="height: 100%; min-width:250px; max-width:250px" Elevation="1">
                 <MudText Class="mx-4" Typo="Typo.h5">Settings</MudText>
                 <MudDivider Class="flex-grow-0 " />
+
                 <MudTextField @bind-Value="_selectedTask.Name" Label="Name" Variant="Variant.Text" Class="flex-grow-0 " />
 
                 <div>
@@ -187,8 +185,8 @@
                         </MudSelect>
                     }
                 </div>
-                <MudText Class="mx-4" Typo="Typo.h5">Debug</MudText>
 
+                <MudText Class="mx-4 mt-4" Typo="Typo.h5">Debug</MudText>
                 <MudDivider Class="flex-grow-0 " />
 
                 <MudSwitch T="bool" Value="_showNodesId" ValueChanged="TogleNodesId" Color="Color.Primary">

@@ -1,13 +1,13 @@
 ﻿import { Transport, ESPLoader, HardReset } from './esptool_bundle.js';
 
 const Status = {
-    None: 0,
+    DIsconnected: 0,
     Connected: 1,
     Listening: 2
 };
 
 let _dotNetObject;
-let _status = Status.None;
+let _status = Status.DIsconnected;
 let _transport;
 let _port;
 let _espLoader;
@@ -68,7 +68,7 @@ export async function disconnect() {
             await _transport.waitForUnlock(1500);
             log("disconnected");
         }
-        setStatus(Status.None);
+        setStatus(Status.DIsconnected);
         cleanUp();
     }
     catch (error) {
@@ -185,5 +185,5 @@ function cleanUp() {
     _port = null;
     _espLoader = null;
     _chip = null
-    setStatus(Status.None);
+    setStatus(Status.DIsconnected);
 }

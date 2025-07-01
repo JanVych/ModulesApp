@@ -1,0 +1,94 @@
+﻿@using ModulesApp.Models.ModulesPrograms
+@using ModulesApp.Services
+@using ModulesApp.Services.Data
+
+@inject NavigationManager _navigationManager
+@inject ModuleProgramService _moduleProgramService
+@inject ModuleProgramManager _moduleprogramManager
+
+
+@page "/programs/add"
+@attribute [Authorize]
+
+<PageTitle>Add Program</PageTitle>
+
+<div>
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
+        <MudText Typo="Typo.h4">@_program.Name</MudText>
+    </MudStack>
+
+    <MudDivider Class="mb-2" />
+
+     <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
+
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudText Typo="Typo.h5">Add new program</MudText>
+
+                <MudStack Spacing="4">
+                    <MudDivider Class="mt-2" />
+                    <MudTextField Label="Program Name" @bind-Value="_program.Name" Style="max-width: 300px" />
+                    @if (_firmwares == null)
+                    {
+                        <MudProgressCircular Indeterminate="true" Color="@Color.Primary" />
+                    }
+                    else
+                    {
+                        <MudSelect @bind-Value="_selectedFirmware" Label="Firmware" Style="max-width: 300px">
+                            @foreach (var f in _firmwares)
+                            {
+                                <MudSelectItem Value="@f">@f.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                        <MudTextField Label="IDF version" Value="_selectedFirmware?.IDF.Version" ReadOnly=true Style="max-width: 300px" />
+                        
+                        <MudButton Style="max-width: 200px" Color="@Color.Primary" Variant="Variant.Filled" Disabled="_programCreating" OnClick="SaveNewProgram">
+                            Add
+                        </MudButton>
+
+                        <MudProgressLinear Color="Color.Primary" Indeterminate="_programCreating" Style="max-width: 300px"/>
+                    }
+                </MudStack>
+            </MudPaper>
+        </MudStack>
+</div>
+
+@code
+{
+    private DbModuleProgram _program = new()
+    {
+        Name = "new_" + DateTime.Now.Millisecond,
+    };
+
+    private bool _programCreating = false;
+
+    private List<DbModuleFirmware>? _firmwares;
+    private DbModuleFirmware? _selectedFirmware;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _firmwares = await _moduleProgramService.GetFirmwareListAsync();
+            _selectedFirmware = _firmwares?.FirstOrDefault();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveNewProgram()
+    {
+        _programCreating = true;
+        if (_selectedFirmware != null)
+        {
+            await _moduleprogramManager.CreateNewProgram(_program, _selectedFirmware);
+            await Task.Delay(1000);
+        }
+        _programCreating = false;
+        GoBack();
+    }
+
+    private void GoBack()
+    {
+        _navigationManager.NavigateTo("/programs");
+    }
+}

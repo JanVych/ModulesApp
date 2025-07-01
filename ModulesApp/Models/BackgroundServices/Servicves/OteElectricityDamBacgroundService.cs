@@ -39,7 +39,7 @@ public class OteElectricityDamBacgroundService : BackgroundService
             }
             MessageData["TodayAmmounts"] = ammounts;
             MessageData["TodayPrices"] = prices;
-            MessageData["CurrentPrice"] = prices[DateTime.Now.Hour - 1];
+            MessageData["CurrentPrice"] = prices[DateTime.Now.Hour];
         }
         catch (Exception ex)
         {

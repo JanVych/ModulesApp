@@ -42,7 +42,9 @@
     </MudDrawer>
 
     <MudMainContent Class="mt-10 px-2 pt-4" Style="height: calc(100vh - 48px)">
-        @Body
+        <CascadingValue Value="@_isDarkMode">
+            @Body
+        </CascadingValue>
     </MudMainContent>
 </MudLayout>
 

@@ -1,9 +1,13 @@
-﻿@using ModulesApp.Models.ModulesPrograms
+﻿@using ModulesApp.Models
+@using ModulesApp.Models.ModulesPrograms
+@using ModulesApp.Services
 @using ModulesApp.Services.Data
 @using System.Text
 
 @inject NavigationManager _navigationManager
 @inject ModuleProgramService _moduleProgramService
+@inject ModuleProgramManager _moduleProgramManager
+@inject ModuleService _moduleService
 @inject IJSRuntime JS
 
 @implements IAsyncDisposable
@@ -13,100 +17,120 @@
 
 <PageTitle>Add module</PageTitle>
 
-<MudStack Spacing="4">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+<div class="d-flex flex-column flex-grow-1 gap-2" style="height:100%;">
+    <div>
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
             <MudText Typo="Typo.h4">Add module</MudText>
         </MudStack>
-    </MudStack>
+        <MudDivider/>
+    </div>
 
-    <MudDivider Class="mb-2" />
+    <MudPaper Class="d-flex justify-space-between align-content-center flex-wrap gap-2 py-2 px-6">
 
-    <MudStack Row="true" Spacing="8" Wrap="Wrap.Wrap" AlignItems="AlignItems.Baseline" StretchItems="StretchItems.None" Justify="Justify.FlexStart">
-        <MudText T="Status" Typo="Typo.h6">
+        <MudText Class="align-self-center" Typo="Typo.h6">
             @_status
         </MudText>
-        <MudButton OnClick="Listen" Disabled="(_status != Status.None)" Variant="Variant.Outlined"  Color="Color.Primary">Listen</MudButton>
-        <MudButton OnClick="Connect" Disabled="(_status != Status.None)" Variant="Variant.Outlined" Color="Color.Primary">Connect</MudButton>
-        <MudButton OnClick="Disconnect" Disabled="(_status == Status.None)"  Variant="Variant.Outlined" Color="Color.Primary">Disconnect</MudButton>
-        <MudButton OnClick="CleanCocnsole" Variant="Variant.Outlined" Color="Color.Primary">Clean</MudButton>
-        @* <MudButton OnClick="HardReset" Variant="Variant.Outlined" Color="Color.Primary">Reset</MudButton> *@
-    </MudStack>
 
-    <MudStack Row="true" Spacing="8" Wrap="Wrap.Wrap" AlignItems="AlignItems.Baseline" StretchItems="StretchItems.None" Justify="Justify.FlexStart">
-        <MudButton OnClick="EraseFlash" Disabled="(_status != Status.Connected)" Variant="Variant.Outlined" Color="Color.Primary">Erase flash</MudButton>
-        <MudButton OnClick="FlashFiles" Disabled="(_status != Status.Connected)" Variant="Variant.Outlined" Color="Color.Primary">Flash files</MudButton>
-
-        <div>
-            <MudSelect T="DbModuleProgram" ValueChanged="SelectedProgramChanged" Disabled="((_status != Status.Connected) || _isCustoFilesChosen)" 
-            Variant="Variant.Outlined"
-            Margin="Margin.Dense" Style="max-width:300px;">
-                @foreach (var program in _programs)
-                {
-                    <MudSelectItem Value="@program">@program.Name</MudSelectItem>
-                }
-            </MudSelect>
+        <div class="d-flex gap-4">
+            
+            <MudButton OnClick="Listen" Disabled="(_status != Status.DIsconnected)" Variant="Variant.Filled" Color="Color.Primary">Listen</MudButton>
+            <MudButton OnClick="Connect" Disabled="(_status != Status.DIsconnected)" Variant="Variant.Filled" Color="Color.Primary">Connect</MudButton>
+            <MudButton OnClick="Disconnect" Disabled="(_status == Status.DIsconnected)" Variant="Variant.Filled" Color="Color.Primary">Disconnect</MudButton>
         </div>
 
-        <MudSwitch T="bool" ValueChanged="CustomFilesSwitchChanged" Label="Custom files" Disabled="(_status != Status.Connected)" 
-        Color="Color.Primary" />
-
-        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFile" Disabled="(_status != Status.Connected)" Accept=".bin">
-            <ActivatorContent>
-                <MudButton Variant="Variant.Outlined"
-                Color="Color.Primary"
-                StartIcon="@Icons.Material.Filled.CloudUpload">
-                    Upload Files
-                </MudButton>
-            </ActivatorContent>
-        </MudFileUpload>
-
-    </MudStack>
+        <div class="d-flex gap-4">
+            <MudButton OnClick="EraseFlash" Disabled="(_status != Status.Connected || _disableActions)" Variant="Variant.Filled" Color="Color.Primary">Erase flash</MudButton>
+            <MudButton OnClick="FlashFiles" Disabled="(_status != Status.Connected || _disableActions)" Variant="Variant.Filled" Color="Color.Primary">Flash files</MudButton>
+        </div>
+        
+    </MudPaper>
 
     <MudExpansionPanels>
-        <MudExpansionPanel Text="Files" Expanded="false">
-            <MudSimpleTable Elevation="0">
-                <tbody>
-                    @foreach (var f in _binFiles)
-                    {
-                        <tr>
-                            <td>@f.Name</td>
-                            <td>
-                                <MudNumericField @bind-Value="f.Address" Disabled="(!_isCustoFilesChosen)" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense"
-                                Label="Flash address" Style="max-width:300px;" />
-                            </td>
-                            @if (_isCustoFilesChosen)
-                            {
-                                <td>
-                                    <MudButton Color="Color.Primary" Variant="Variant.Outlined">
-                                        Select file
-                                    </MudButton>
-                                </td>
-                                <td>
-                                    <MudIconButton Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteFile(f))" />
-                                </td>
-                            }
-                        </tr>
-                    }
-                </tbody>
-            </MudSimpleTable>
-        </MudExpansionPanel>
+        <MudExpansionPanel Expanded="false">
+            <TitleContent>
+                <MudText Typo="Typo.h6">
+                    Configuration
+                </MudText>
+            </TitleContent>
+            <ChildContent>
+                <div class="d-flex flex-grow-1 flex-wrap gap-2">
+                    <div class="d-flex flex-column flex-grow-1 align-stretch gap-2">
+                        <MudText Typo="Typo.subtitle1">
+                            Connection
+                        </MudText>
+                        <MudDivider Class="flex-grow-0" />
+                        <MudTextField Label="Module name" @bind-Value="_moduleName" Class="flex-grow-0" Variant="Variant.Text" Style="max-width:300px;" Disabled="_isCustoFilesChosen" />
+                        <MudTextField Label="Server address" @bind-Value="_serverAddress" Class="flex-grow-0" Variant="Variant.Text" Style="max-width:300px;" Disabled="_isCustoFilesChosen" />
+                        <MudTextField Label="Wifi ssid" @bind-Value="_wifiSsid" Class="flex-grow-0" Variant="Variant.Text" Style="max-width:300px;"  Disabled="_isCustoFilesChosen" />
+                        <MudTextField Label="Wifi password" @bind-Value="_wifiPassword" Class="flex-grow-0" Variant="Variant.Text" Style="max-width:300px;" Disabled="_isCustoFilesChosen" />
+                    </div>
+
+                    <div class="d-flex flex-column flex-grow-1 align-stretch gap-2">
+                        <MudText Typo="Typo.subtitle1">
+                            Files
+                        </MudText>
+                        <MudDivider Class="flex-grow-0" />
+
+                        <div>
+                            <MudSelect T="DbModuleProgram" ValueChanged="SelectedProgramChanged" Disabled="_isCustoFilesChosen"
+                                       Variant="Variant.Outlined" Label="Select Program"
+                                       Margin="Margin.Dense" Style="max-width:300px;">
+                                @foreach (var program in _programs)
+                                {
+                                    <MudSelectItem Value="@program">@program.Name</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </div>
+                        <MudSwitch T="bool" ValueChanged="CustomFilesSwitchChanged" Label="Custom files"
+                                   Color="Color.Primary" />
+
+                        <MudFileUpload T="IBrowserFile" FilesChanged="UploadFile" Disabled="!_isCustoFilesChosen" Accept=".bin">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                                    Upload File
+                                </MudButton>
+                            </ActivatorContent>
+                        </MudFileUpload>
+
+                        @foreach (var f in _binFiles)
+                        {
+                            <div class="d-flex flex-grow-0 flex-wrap justify-start gap-3">
+                                <MudText Class="align-self-center" Typo="Typo.body1">@f.Name</MudText>
+                                <div>
+                                    <MudNumericField @bind-Value="f.Address" Disabled="!_isCustoFilesChosen" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                                     Label="Flash address" Style="min-width:100px; max-width:300px" />
+                                </div>
+                                @if (_isCustoFilesChosen)
+                                {
+                                    <MudIconButton Class="align-self-center" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteFile(f))" />
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </ChildContent>
+        </MudExpansionPanel> 
     </MudExpansionPanels>
 
-    <MudStack StretchItems="StretchItems.All">
-        <MudPaper Outlined="false">
-            <MudTextField T="string" ReadOnly="true" Variant="Variant.Outlined" Lines="30" Value="@_consoleText"/>
-        </MudPaper>
-    </MudStack>
+    <MudPaper Class="flex-grow-1">
+        <div style="position:absolute; right: 20px;">
+            <MudIconButton Icon="@Icons.Material.Filled.CleaningServices" Color="Color.Primary" Size="Size.Medium" OnClick="CleanCocnsole" />
+        </div>
+        <textarea readonly class="pa-2" style="width: 100%; height: 100%; background-color: transparent; color: var(--mud-palette-text-primary); outline: none; resize: none;">>
+            @_consoleText
+        </textarea>
+    </MudPaper>
+</div>
 
-</MudStack>
 
 @code 
 {
     public enum Status
     {
-        None,
+        DIsconnected,
         Connected,
         Listening
     }
@@ -125,6 +149,13 @@
     private List<DbModuleProgram.ModuleBinFile> _customProgramBinFiles = [];
 
     private List<DbModuleProgram.ModuleBinFile> _binFiles = [];
+
+    private bool _disableActions = false;
+
+    private string _serverAddress = "https://someAddress";
+    private string _moduleName = "someName";
+    private string _wifiSsid = "someSsid";
+    private string _wifiPassword = "somePassword";
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -170,11 +201,18 @@
     {
         if(_JSmodule != null)
         {
+            _disableActions = true;
             if(!_isCustoFilesChosen && _selectedProgram != null)
             {
+                var module = CreateNewModule();
+                CreateCsvNvsDataFile(_selectedProgram, module);
+                _consoleText += "wait...";
+                await _moduleProgramManager.BuildNvsDataAync(_selectedProgram, null);
+                _consoleText += "nvs_data.bin created";
                 await _selectedProgram.LoadBinFilesData();
             }
             await _JSmodule.InvokeVoidAsync("flashFiles", _binFiles);
+            _disableActions = false;
         }
     }
 
@@ -182,7 +220,9 @@
     {
         if (_JSmodule != null)
         {
+            _disableActions = true;
             await _JSmodule.InvokeVoidAsync("eraseFlash");
+            _disableActions = false;
         }
     }
 
@@ -259,6 +299,43 @@
                 Address = 0x0,
                 Data = builder.ToString()
             });
+    }
+
+    private void CreateCsvNvsDataFile(DbModuleProgram program, DbModule module)
+    {
+        string[] data = new string[]
+            {
+                "key,type,encoding,value",
+                "config,namespace,,",
+                $"ServerAddress,data,string,\"{_serverAddress}\"",
+                $"WifiSsid,data,string,\"{_wifiSsid}\"",
+                $"WifiPassword,data,string,\"{_wifiPassword}\"",
+                $"ModuleName,data,string,\"{_moduleName}\"",
+                $"ModuleKey,data,string,\"{module.Key}\"",
+                $"ModuleId,data,string,\"{module.Id}\"",
+                $"ProgramName,data,string,\"{program.Name}\""
+            };
+        try
+        {
+            File.WriteAllLines(Path.Combine(program.Path, "nvs_data.csv"), data);
+            _consoleText += "CSV file created successfully.\n";
+        }
+        catch (Exception ex)
+        {
+            _consoleText += $"Error creating CSV file: {ex.Message}\n";
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private DbModule CreateNewModule()
+    {
+        DbModule module = new();
+        module.LastResponse = DateTime.Now;
+        module.Id = 0;
+        module.Key = module.LastResponse.GetHashCode().ToString();
+        module.Name = _moduleName;
+        _moduleService.Add(module);
+        return module;
     }
 
     private void DeleteFile(DbModuleProgram.ModuleBinFile file)
