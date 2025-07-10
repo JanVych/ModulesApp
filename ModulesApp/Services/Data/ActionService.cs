@@ -20,11 +20,24 @@ public class ActionService
         context.SaveChanges();
     }
 
-    public void Delete(IEnumerable<DbAction> actions)
+    public async Task AddOrReplaceAsync(string key, object? value, long? moduleId, long? backgroundServiceId)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        context.Actions.RemoveRange(actions);
-        context.SaveChanges();
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+
+        await context.Actions
+            .Where(x => x.Key == key && x.ModuleId == moduleId && x.BackgroundServiceId == backgroundServiceId)
+            .ExecuteDeleteAsync();
+
+        var newAction = new DbAction
+        {
+            Key = key,
+            Value = value,
+            ModuleId = moduleId,
+            BackgroundServiceId = backgroundServiceId
+        };
+
+        context.Actions.Add(newAction);
+        await context.SaveChangesAsync();
     }
 
     public async Task<List<DbAction>> GetListAndDeleteAsync(DbModule module)

@@ -98,18 +98,20 @@ public class ModulesController : ControllerBase
     private string? RegisterNewModule(DbModule module)
     {
         // add new module to DB,
-        // TODO
+        // TODO remove
         module.LastResponse = DateTime.Now;
         module.Id = 0;
         module.Key = module.LastResponse.GetHashCode().ToString();
         module.Name = $"esp-32-{module.LastResponse.GetHashCode() % 1_000_000}";
         _moduleService.Add(module);
         // registr new module
-        var dict = new Dictionary<string, string>
+        var dict = new Dictionary<string, object>
         {
             { "SetModuleId", module.Id.ToString() },
             { "SetModuleName", module.Name },
-            { "SetModuleKey", module.Key }
+            { "SetModuleKey", module.Key },
+            { "SetCommInterval", module.CommInterval },
+            { "SetServerAddress", Request.Host.ToString() },
         };
         return JsonSerializer.Serialize(dict);
     }

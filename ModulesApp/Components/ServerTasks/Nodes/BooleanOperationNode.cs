@@ -29,7 +29,7 @@ public class BooleanOperationNode : TaskNode
         {
             InputType = NodeInputType.Single;
             //Input operation port
-            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, dataType: NodeValueType.Boolean));
+            AddPort(new TaskPort(this, true, PortPositionAlignment.Center, dataType: NodeValueType.Any));
         }
         else
         {

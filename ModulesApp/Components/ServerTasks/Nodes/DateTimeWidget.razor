@@ -33,6 +33,6 @@
     private void ChangeType(long value)
     {
         Node.LongVal1 = value;
-        Node.GetPortType((NodeDateTimeOutputType) value);
+        Node.UpdatePort((NodeDateTimeOutputType) Node.LongVal1);
     }
 }

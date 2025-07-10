@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ModulesApp.Data;
 
@@ -10,9 +11,11 @@ using ModulesApp.Data;
 namespace ModulesApp.Migrations
 {
     [DbContext(typeof(SQLiteDbContext))]
-    partial class SQLiteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250707155253_mig5")]
+    partial class mig5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -332,7 +335,7 @@ namespace ModulesApp.Migrations
                     b.Property<string>("Chip")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("CommInterval")
+                    b.Property<int>("CommunicationIntervalSeconds")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Data")
@@ -371,10 +374,10 @@ namespace ModulesApp.Migrations
                     b.Property<string>("ProgramVersion")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("WifiPassword")
+                    b.Property<string>("WifiCurrent")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("WifiSsid")
+                    b.Property<string>("WifiPasswordCurrent")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

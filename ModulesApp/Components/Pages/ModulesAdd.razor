@@ -47,7 +47,7 @@
     </MudPaper>
 
     <MudExpansionPanels>
-        <MudExpansionPanel Expanded="false">
+        <MudExpansionPanel Expanded="true">
             <TitleContent>
                 <MudText Typo="Typo.h6">
                     Configuration
@@ -57,18 +57,7 @@
                 <div class="d-flex flex-grow-1 flex-wrap gap-2">
                     <div class="d-flex flex-column flex-grow-1 align-stretch gap-2">
                         <MudText Typo="Typo.subtitle1">
-                            Connection
-                        </MudText>
-                        <MudDivider Class="flex-grow-0" />
-                        <MudTextField Label="Module name" @bind-Value="_moduleName" Class="flex-grow-0" Variant="Variant.Text" Style="max-width:300px;" Disabled="_isCustoFilesChosen" />
-                        <MudTextField Label="Server address" @bind-Value="_serverAddress" Class="flex-grow-0" Variant="Variant.Text" Style="max-width:300px;" Disabled="_isCustoFilesChosen" />
-                        <MudTextField Label="Wifi ssid" @bind-Value="_wifiSsid" Class="flex-grow-0" Variant="Variant.Text" Style="max-width:300px;"  Disabled="_isCustoFilesChosen" />
-                        <MudTextField Label="Wifi password" @bind-Value="_wifiPassword" Class="flex-grow-0" Variant="Variant.Text" Style="max-width:300px;" Disabled="_isCustoFilesChosen" />
-                    </div>
-
-                    <div class="d-flex flex-column flex-grow-1 align-stretch gap-2">
-                        <MudText Typo="Typo.subtitle1">
-                            Files
+                            Settings
                         </MudText>
                         <MudDivider Class="flex-grow-0" />
 
@@ -94,22 +83,56 @@
                                 </MudButton>
                             </ActivatorContent>
                         </MudFileUpload>
+                    </div>
+
+                    @if (!_isCustoFilesChosen)
+                    {
+                        <div class="d-flex flex-column flex-grow-1 align-stretch gap-2">
+                            <MudText Typo="Typo.subtitle1">
+                                Module Settings
+                            </MudText>
+                            <MudDivider Class="flex-grow-0" />
+                            <MudTextField Label="Module name" @bind-Value="_moduleName" Class="flex-grow-0" Variant="Variant.Text"
+                                          Style="max-width:300px;" />
+                            <MudTextField Label="Server address" @bind-Value="_serverAddress" Class="flex-grow-0" Variant="Variant.Text"
+                                          Style="max-width:300px;" />
+                            <MudTextField Label="Wifi ssid" @bind-Value="_wifiSsid" Class="flex-grow-0" Variant="Variant.Text"
+                                          Style="max-width:300px;" />
+
+                            <MudTextField Label="Wifi password" @bind-Value="_wifiPassword" Class="flex-grow-0" Variant="Variant.Text"
+                                          Style="max-width:300px;" Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon"
+                                          AdornmentAriaLabel="Show Password" InputType="@_passwordInputType" OnAdornmentClick="PasswordButtonCLick" />
+
+                            <MudNumericField Label="Communication interval" @bind-Value="_communicationInterval" Class="flex-grow-0" Variant="Variant.Text"
+                                             Style="max-width:300px;" Min="5" Max="86400" />
+                        </div>
+                    }
+
+                    <div class="d-flex flex-column flex-grow-1 align-stretch gap-2">
+                        <MudText Typo="Typo.subtitle1">
+                            Files
+                        </MudText>
+                        <MudDivider Class="flex-grow-0" />
 
                         @foreach (var f in _binFiles)
                         {
-                            <div class="d-flex flex-grow-0 flex-wrap justify-start gap-3">
-                                <MudText Class="align-self-center" Typo="Typo.body1">@f.Name</MudText>
+                            <MudStack Row=true Justify="Justify.FlexStart" Spacing="2">
+                                <MudText Class="align-self-center" Typo="Typo.body1" Style="width:200px">
+                                    @f.Name
+                                </MudText>
                                 <div>
                                     <MudNumericField @bind-Value="f.Address" Disabled="!_isCustoFilesChosen" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense"
-                                                     Label="Flash address" Style="min-width:100px; max-width:300px" />
+                                                     Label="Flash address" Style="min-width:100px; max-width:350px" Min="4096"/>
                                 </div>
                                 @if (_isCustoFilesChosen)
                                 {
                                     <MudIconButton Class="align-self-center" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" OnClick="(() => DeleteFile(f))" />
                                 }
-                            </div>
+                            </MudStack>
                         }
+
                     </div>
+
                 </div>
             </ChildContent>
         </MudExpansionPanel> 
@@ -152,16 +175,25 @@
 
     private bool _disableActions = false;
 
-    private string _serverAddress = "https://someAddress";
+    private bool _isShow = false;
+    private InputType _passwordInputType = InputType.Password;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    private string _serverAddress = string.Empty;
     private string _moduleName = "someName";
     private string _wifiSsid = "someSsid";
     private string _wifiPassword = "somePassword";
+    private int _communicationInterval = 60;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            _serverAddress = _navigationManager.BaseUri
+                .Replace("https://", string.Empty)
+                .Replace("http://", string.Empty);
+
             await JS.InvokeAsync<IJSObjectReference>("import", "./js/esptool_bundle.js");
             _JSmodule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/esptool_connection.js");
             _dotNetObjectRef = DotNetObjectReference.Create(this);
@@ -206,9 +238,9 @@
             {
                 var module = CreateNewModule();
                 CreateCsvNvsDataFile(_selectedProgram, module);
-                _consoleText += "wait...";
+                _consoleText += "wait...\n";
                 await _moduleProgramManager.BuildNvsDataAync(_selectedProgram, null);
-                _consoleText += "nvs_data.bin created";
+                _consoleText += "nvs_data.bin created\n";
                 await _selectedProgram.LoadBinFilesData();
             }
             await _JSmodule.InvokeVoidAsync("flashFiles", _binFiles);
@@ -296,7 +328,7 @@
         _customProgramBinFiles.Add(new DbModuleProgram.ModuleBinFile()
             {
                 Name = file.Name,
-                Address = 0x0,
+                Address = 4096,
                 Data = builder.ToString()
             });
     }
@@ -304,17 +336,18 @@
     private void CreateCsvNvsDataFile(DbModuleProgram program, DbModule module)
     {
         string[] data = new string[]
-            {
-                "key,type,encoding,value",
-                "config,namespace,,",
-                $"ServerAddress,data,string,\"{_serverAddress}\"",
-                $"WifiSsid,data,string,\"{_wifiSsid}\"",
-                $"WifiPassword,data,string,\"{_wifiPassword}\"",
-                $"ModuleName,data,string,\"{_moduleName}\"",
-                $"ModuleKey,data,string,\"{module.Key}\"",
-                $"ModuleId,data,string,\"{module.Id}\"",
-                $"ProgramName,data,string,\"{program.Name}\""
-            };
+        {
+            "key,type,encoding,value",
+            "config,namespace,,",
+            $"ServerAddress,data,string,\"{_serverAddress}\"",
+            $"WifiSsid,data,string,\"{_wifiSsid}\"",
+            $"WifiPassword,data,string,\"{_wifiPassword}\"",
+            $"ModuleName,data,string,\"{_moduleName}\"",
+            $"ModuleKey,data,string,\"{module.Key}\"",
+            $"ModuleId,data,i64,{module.Id}",
+            $"ProgramName,data,string,\"{program.Name}\"",
+            $"CommInterval,data,i32,{_communicationInterval}",
+        };
         try
         {
             File.WriteAllLines(Path.Combine(program.Path, "nvs_data.csv"), data);
@@ -334,7 +367,12 @@
         module.Id = 0;
         module.Key = module.LastResponse.GetHashCode().ToString();
         module.Name = _moduleName;
-        _moduleService.Add(module);
+        module.CommInterval = _communicationInterval;
+        module.WifiSsid = _wifiSsid;
+        module.WifiPassword = _wifiPassword;
+        module = _moduleService.Add(module);
+        module.ProgramName = _selectedProgram?.Name ?? "Unkown";
+        module.FirmwareVersion = _selectedProgram?.Firmware.Version ?? "Unkown";
         return module;
     }
 
@@ -346,6 +384,22 @@
     private void GoBack()
     {
         _navigationManager.NavigateTo("/modules");
+    }
+
+    void PasswordButtonCLick()
+    {
+        @if (_isShow)
+        {
+            _isShow = false;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInputType = InputType.Password;
+        }
+        else
+        {
+            _isShow = true;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInputType = InputType.Text;
+        }
     }
 
     public async ValueTask DisposeAsync()

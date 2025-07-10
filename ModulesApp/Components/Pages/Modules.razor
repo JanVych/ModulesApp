@@ -47,7 +47,7 @@
             @context.FreeHeapText()
         </MudTd>
 
-        <MudTd DataLabel="Wifi network">@context.WifiCurrent</MudTd>
+        <MudTd DataLabel="Wifi network">@context.WifiSsid</MudTd>
         <MudTd DataLabel="Firmware Version">@context.FirmwareVersion</MudTd>
 
         <MudTd DataLabel="Actions">
@@ -65,7 +65,7 @@
     </RowTemplate>
 </MudTable>
 
-<MudButton OnClick="Add" Class="ma-2" Variant="Variant.Outlined" Color="Color.Primary">Add</MudButton>
+<MudIconButton Class="ma-2" Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Medium" OnClick="Add" />
 
 
 <MudMessageBox @ref="_mudMessageBox" Title="Warning" CancelText="Cancel">

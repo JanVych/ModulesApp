@@ -12,12 +12,18 @@ public class DateTimeNode : TaskNode
     {
         Type = NodeType.DateTime;
         LongVal1 = (long)NodeDateTimeOutputType.DateTimeString;
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: NodeValueType.String));
+        UpdatePort(NodeDateTimeOutputType.DateString);
     }
 
     public DateTimeNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
-        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: GetPortType((NodeDateTimeOutputType)LongVal1)));
+        UpdatePort((NodeDateTimeOutputType) LongVal1);
+    }
+
+    public void UpdatePort(NodeDateTimeOutputType type)
+    { 
+        RemoveAllOutputPorts();
+        AddPort(new TaskPort(this, false, PortPositionAlignment.Center, dataType: GetPortType(type)));
     }
 
     public NodeValueType GetPortType(NodeDateTimeOutputType type)

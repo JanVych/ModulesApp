@@ -47,33 +47,35 @@
                     @_selectedTask.Name
                 </MudText>
             </MudHidden>
+
+            <MudStack Row=true Spacing="2">
+                <MudTooltip Text="Run">
+                    <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled" Color="Color.Primary" Disabled="_runDisabled" OnClick="@RunTask" />
+                </MudTooltip>
+                <MudTooltip Text="Save">
+                    <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveTask" />
+                </MudTooltip>
+                <MudTooltip Text="Delete">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteTask" />
+                </MudTooltip>
+            </MudStack>
+
+            <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+                <MudText Typo="Typo.h6" Class="invisible align-self-center">
+                    @_selectedTask?.Name
+                </MudText>
+            </MudHidden>
+
+            <MudTooltip Text="@(_showTaskSettings ? "Hide settings" : "Show settings")">
+                <MudToggleIconButton Icon="@Icons.Material.Filled.Settings"
+                                     Color="@Color.Primary"
+                                     ToggledIcon="@Icons.Material.Filled.Settings"
+                                     ToggledColor="@Color.Default"
+                                     @bind-Toggled="_showTaskSettings" />
+            </MudTooltip>
         }
 
-        <MudStack Row=true Spacing="2">
-            <MudTooltip Text="Run">
-                <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled" Color="Color.Primary" Disabled="_runDisabled" OnClick="@RunTask" />
-            </MudTooltip>
-            <MudTooltip Text="Save">
-                <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveTask" />
-            </MudTooltip>
-            <MudTooltip Text="Delete">
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteTask" />
-            </MudTooltip>
-        </MudStack>
-
-        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
-            <MudText Typo="Typo.h6" Class="invisible align-self-center">
-                @_selectedTask?.Name
-            </MudText>
-        </MudHidden>
-
-        <MudTooltip Text="@(_showTaskSettings ? "Hide settings" : "Show settings")">
-            <MudToggleIconButton Icon="@Icons.Material.Filled.Settings"
-                                 Color="@Color.Primary"
-                                 ToggledIcon="@Icons.Material.Filled.Settings"
-                                 ToggledColor="@Color.Default"
-                                 @bind-Toggled="_showTaskSettings" />
-        </MudTooltip>
+        
 
     </MudPaper>
 

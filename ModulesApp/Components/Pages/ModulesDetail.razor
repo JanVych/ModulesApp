@@ -3,6 +3,7 @@
 @using ModulesApp.Services.Data
 @using System.Text.Json
 
+@inject ActionService _actionService
 @inject ModuleService _moduleService
 @inject NavigationManager _navigationManager
 @inject NotifyService _notifyService
@@ -14,7 +15,7 @@
 
 <PageTitle>Module Dteail</PageTitle>
 
-<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4">
+<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
         <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
         @if (_module is not null)
@@ -22,6 +23,13 @@
             <MudText Typo="Typo.h4">@_module.Name</MudText>
         }
     </MudStack>
+
+    <MudStack Row=true>
+        <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" Size="Size.Medium" OnClick="SaveModule"
+                       Disabled="_hasError" />
+        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" Size="Size.Medium" OnClick="DeleteModule" />
+    </MudStack>
+
     <MudIconButton Icon="@Icons.Material.Filled.Refresh" Size="Size.Large" OnClick="OnModulesChanged" />
 </MudStack>
 
@@ -50,10 +58,19 @@ else
                     <tr>
                         <td>Name</td>
                         <td>
-                            <MudStack Row="true" AlignItems="AlignItems.Baseline">
-                                <MudTextField @bind-Value="_module.Name" Variant="Variant.Text" Margin="Margin.Dense" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="SaveModule" />
-                            </MudStack>
+                            <MudTextField @bind-Value="_newModuleName" Variant="Variant.Text" Margin="Margin.Dense" Style="max-width:400px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Communication interval</td>
+                        <td>
+                            <MudTextField @bind-Value="_newCommunicationInterval" Variant="Variant.Text" Margin="Margin.Dense" Style="max-width:400px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Server address</td>
+                        <td>
+                            <MudTextField @bind-Value="_newServerAddress" Variant="Variant.Text" Margin="Margin.Dense" Style="max-width:400px" />
                         </td>
                     </tr>
                     <tr>
@@ -81,8 +98,18 @@ else
                         <td>@_module?.FreeHeapText()</td>
                     </tr>
                     <tr>
-                        <td>Wifi network</td>
-                        <td>@_module?.WifiCurrent</td>
+                        <td>Wifi ssid</td>
+                        <td>
+                            <MudTextField @bind-Value="_newWifiSsid" Variant="Variant.Text" Margin="Margin.Dense" Style="max-width:400px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Wifi password</td>
+                        <td>
+                            <MudTextField @bind-Value="_newWifiPassword" Variant="Variant.Text" Margin="Margin.Dense" Style="max-width:400px"
+                                          Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon" OnAdornmentClick="PasswordButtonCLick"
+                                          AdornmentAriaLabel="Show Password" InputType="@_passwordInput" />
+                        </td>
                     </tr>
                     <tr>
                         <td>Last Response</td>
@@ -151,15 +178,41 @@ else
     public long ModuleId { get; set; }
 
     private DbModule? _module;
+    private string _serverAddress = string.Empty;
+
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+    private string _newServerAddress = string.Empty;
+    private string _newWifiPassword = string.Empty;
+    private string _newWifiSsid = string.Empty;
+    private string _newModuleName = string.Empty;
+    private int _newCommunicationInterval = 5;
+
+    InputType _passwordInput = InputType.Password;
+    bool _isShow;
+
+    private bool _hasError = false;
 
     protected override async Task OnInitializedAsync()
     {
+        _serverAddress = _navigationManager.BaseUri
+            .Replace("https://", string.Empty)
+            .Replace("http://", string.Empty);
+
+        _newServerAddress = _serverAddress;
         _notifyService.ModulesDbChangedEvent += OnModulesChanged;
         _module = await _moduleService.GetAsyncIncludeAll(ModuleId);
+        if (_module != null)
+        {
+            _newModuleName = _module.Name;
+            _newCommunicationInterval = _module.CommInterval;
+            _newWifiSsid = _module.WifiSsid ?? string.Empty;
+            _newWifiPassword = _module.WifiPassword ?? string.Empty;
+        }
     }
 
     private async void OnModulesChanged()
     {
+        _module?.Actions.Clear();
         _module = await _moduleService.GetAsyncIncludeAll(ModuleId);
         await InvokeAsync(StateHasChanged);
     }
@@ -180,15 +233,66 @@ else
 
     private async Task SaveModule()
     {
-        if (_module is not null)
+        if (_module == null){
+            return;
+        }
+        if (_newModuleName != _module.Name)
         {
-            var saveAction = _module.Actions.FirstOrDefault(x => x.Key == "SetModuleName") ?? new();
-            saveAction.Key = "SetModuleName";
-            saveAction.Value = _module.Name;
-            saveAction.ModuleId = _module.Id;
-            saveAction.BackgroundServiceId = null;
-            _module.Actions.Add(saveAction);
-            await _moduleService.UpdateAsync(_module);
+            await _actionService.AddOrReplaceAsync("SetModuleName", _newModuleName, ModuleId, null);
+            _module.Name = _newModuleName;
+        }
+        if (_newCommunicationInterval != _module.CommInterval)
+        {
+            await _actionService.AddOrReplaceAsync("SetCommInterval", _newCommunicationInterval, ModuleId, null);
+            _module.CommInterval = _newCommunicationInterval;
+        }
+        if (_newServerAddress != _serverAddress)
+        {
+            await _actionService.AddOrReplaceAsync("SetServerAddress", _newServerAddress, ModuleId, null);
+        }
+        if (_newWifiSsid != _module.WifiSsid)
+        {
+            await _actionService.AddOrReplaceAsync("SetWifiSsid", _newWifiSsid, ModuleId, null);
+            _module.WifiSsid = _newWifiSsid;
+        }
+        if (_newWifiPassword != _module.WifiPassword)
+        {
+            await _actionService.AddOrReplaceAsync("SetWifiPassword", _newWifiPassword, ModuleId, null);
+            _module.WifiPassword = _newWifiPassword;
+        }
+        _module.Actions = [];
+        await _moduleService.UpdateAsync(_module);
+    }
+
+    private async Task DeleteModule()
+    {
+        if (_module != null)
+        {
+            try
+            {
+                await _moduleService.DeleteAsync(_module);
+                _navigationManager.NavigateTo("/modules");
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+    }   
+
+    void PasswordButtonCLick()
+    {
+        @if (_isShow)
+        {
+            _isShow = false;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInput = InputType.Password;
+        }
+        else
+        {
+            _isShow = true;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInput = InputType.Text;
         }
     }
 

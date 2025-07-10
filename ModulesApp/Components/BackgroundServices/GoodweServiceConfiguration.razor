@@ -4,11 +4,11 @@
 
 <MudStack Spacing="4">
     <MudTextField Mask="@_ipv4Mask" Label="IPv4 Address" HelperText="@_ipv4Mask.Mask"
-                  @bind-Value="Ip" Variant="@Variant.Text" OnBlur="ValidateIp"  
+                  @bind-Value="Ip" Variant="@Variant.Text" OnBlur="ValidateIp" Style="max-width:400px"  
                   Error="@HasError" ErrorText="Invalid IPv4 address" Clearable />
 
     <MudNumericField Label="Port Number" HelperText="Valid range: 0–65535"
-                  @bind-Value="Port" Variant="@Variant.Text" 
+                     @bind-Value="Port" Variant="@Variant.Text" Style="max-width:400px"
                   Max="65535" Min="0" Clearable  HideSpinButtons/>
 </MudStack>
 

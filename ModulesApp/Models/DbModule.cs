@@ -32,7 +32,10 @@ public class DbModule
     public string? FirmwareVersion { get; set; } = default;
     public int? FlashSize { get; set; } = default;
     public int? FreeHeap { get; set; } = default;
-    public string? WifiCurrent { get; set; } = default;
+
+    public string? WifiSsid { get; set; } = default;
+    public string? WifiPassword { get; set; } = default;
+    public int CommInterval { get; set; } = 60;
 
     public DateTime? LastResponse { get; set; }
 

@@ -137,7 +137,15 @@ public class GoodweBackgroundService : BackgroundService
         _modbusRtuUdp?.WriteU16Register(47516, 0x173B);
         _modbusRtuUdp?.WriteS16Register(47517, percentPower);
 
-        _modbusRtuUdp?.WriteU16Register(47518, 0xFF7F);
+        if (power == 0)
+        {
+            _modbusRtuUdp?.WriteU16Register(47518, 0x007F);
+        }
+        else
+        {
+            _modbusRtuUdp?.WriteU16Register(47518, 0xFF7F);
+        }
+       
     }
 
     // set interval (interval_number, start_time(hodina+minuta), end_time(...), power(wats), day_of_week)

@@ -1,4 +1,5 @@
-﻿@using ModulesApp.Models
+﻿@using ModulesApp.Components.BackgroundServices
+@using ModulesApp.Models
 @using ModulesApp.Models.BackgroundServices
 @using ModulesApp.Services
 @using ModulesApp.Services.Data
@@ -20,17 +21,39 @@
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" >
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
-            @if (_service is not null)
+            @if (_service != null)
             {
                 <MudText Typo="Typo.h4">@_service.Name</MudText>
             }
         </MudStack>
+        
+        <MudStack Row=true>
+            @if (_service?.Status == BackgroundServiceStatus.Active)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.PauseCircleFilled"
+                               Color="Color.Primary"  Size="Size.Medium"
+                               OnClick="PauseService">
+                </MudIconButton>
+            }
+            else if (_service?.Status == BackgroundServiceStatus.Paused)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.PlayCircleFilled"
+                               Color="Color.Primary" Size="Size.Medium"
+                               OnClick="StartService">
+                </MudIconButton>
+            }
+
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" Size="Size.Medium" OnClick="SaveService"
+                           Disabled="(_hasError || _service?.Status != BackgroundServiceStatus.Paused)" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" Size="Size.Medium" OnClick="DeleteService" />
+        </MudStack>
+
         <MudIconButton Icon="@Icons.Material.Filled.Refresh" Size="Size.Large" OnClick="UpdateData" />
     </MudStack>
 
     <MudDivider Class="mb-2" />
 
-    @if (_service is null)
+    @if (_service == null)
     {
         <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
     }
@@ -39,7 +62,7 @@
         <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
             <MudPaper Class="pa-4" Elevation="0">
 
-                <MudText Typo="Typo.h5">Module detail</MudText>
+                <MudText Typo="Typo.h5">Service detail</MudText>
                 <MudDivider Class="mt-2" />
 
                 <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
@@ -51,16 +74,20 @@
                         <tr>
                             <td>Name</td>
                             <td>
-                                <MudStack Row="true" AlignItems="AlignItems.Baseline">
-                                    <MudTextField @bind-Value="_service.Name" Variant="Variant.Text" Margin="Margin.Dense" 
-                                    Disabled="_service.Status != BackgroundServiceStatus.Paused"/>
-                                    <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="SaveService" />
-                                </MudStack>
+                                <MudTextField @bind-Value="_service.Name" Variant="Variant.Text" Margin="Margin.Dense"
+                                              Disabled="_service.Status != BackgroundServiceStatus.Paused" Style="max-width:400px" />
                             </td>
                         </tr>
                         <tr>
                             <td>Type</td>
                             <td>@_service.Type</td>
+                        </tr>
+                        <tr>
+                            <td>Cron timer</td>
+                            <td>
+                                <MudTextField @bind-Value="_service.CronExpression" Variant="Variant.Text" Margin="Margin.Dense"
+                                              Disabled="_service.Status != BackgroundServiceStatus.Paused" Style="max-width:400px" />
+                            </td>
                         </tr>
                         <tr>
                             <td>Status</td>
@@ -73,6 +100,20 @@
                     </tbody>
                 </MudSimpleTable>
             </MudPaper>
+
+            @if (_service.Type == BackgroundServiceType.Goodwe)
+            {
+                <MudPaper Class="pa-4" Elevation="0">
+                    <GoodweServiceConfiguration Service="_service" HasError=_hasError />
+                </MudPaper>
+            }
+            else if (_service.Type == BackgroundServiceType.Http)
+            {
+                <MudPaper Class="pa-4" Elevation="0">
+                    <HttpServiceConfiguration Service="_service" HasError="_hasError" />
+                </MudPaper>
+            }
+
             <MudPaper Class="pa-4" Elevation="0">
                 <MudText Typo="Typo.h5">Message data</MudText>
                 <MudDivider Class="mt-2" />
@@ -133,6 +174,7 @@
     private DbBackgroundService? _service;
     private double _intervalSeconds;
 
+    public bool _hasError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -160,8 +202,12 @@
         _navigationManager.NavigateTo("/services");
     }
 
-    private string GenerateValueTypeText(object value)
+    private string GenerateValueTypeText(object? value)
     {
+        if(value == null)
+        {
+            return "null";
+        }
         if (value is JsonElement jsonElement)
         {
             return jsonElement.ValueKind.ToString();
@@ -173,7 +219,32 @@
     {
         if (_service is not null)
         {
-            await _backgroundServiceService.UpdateAsync(_service);
+            await _backgroundServiceManager.UpdateServiceAsync(_service);
+        }
+    }
+
+    private async Task StartService()
+    {
+        if (_service != null && _service.Status == BackgroundServiceStatus.Paused)
+        {
+            await _backgroundServiceManager.StartServiceAsync(_service);
+        }
+    }
+
+    private async Task PauseService()
+    {
+        if (_service != null && _service.Status == BackgroundServiceStatus.Active)
+        {
+            await _backgroundServiceManager.StopServiceAsync(_service);
+        }
+    }
+
+    private async Task DeleteService()
+    {
+        if (_service != null)
+        {
+            await _backgroundServiceManager.DeleteServiceAsync(_service);
+            _navigationManager.NavigateTo("/services");
         }
     }
 

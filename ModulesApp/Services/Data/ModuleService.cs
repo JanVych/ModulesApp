@@ -30,11 +30,12 @@ public class ModuleService
         return result;
     }
 
-    public void Add(DbModule module)
+    public DbModule Add(DbModule module)
     {
         using var context = _dbContextFactory.CreateDbContext();
         context.Modules.Add(module);
         SaveChanges(context);
+        return module;
     }
 
     public void Update(DbModule module)
@@ -56,6 +57,13 @@ public class ModuleService
         using var context = _dbContextFactory.CreateDbContext();
         context.Modules.Remove(module);
         SaveChanges(context);
+    }
+
+    public async Task DeleteAsync(DbModule module)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        context.Modules.Remove(module);
+        await SaveChangesAsync(context);
     }
 
     public async Task<List<DbModule>> GetAllAsync()

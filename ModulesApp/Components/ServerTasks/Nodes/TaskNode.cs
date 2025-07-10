@@ -66,6 +66,18 @@ public abstract class TaskNode : NodeModel, IDbNode
         }
     }
 
+    public void RemoveAllOutputPorts()
+    {
+        foreach (var port in Ports.ToList())
+        {
+            if (port is TaskPort taskPort && !taskPort.Input)
+            {
+                taskPort.RemoveAllLinks();
+                RemovePort(port);
+            }
+        }
+    }
+
     public static string GertNodeButtonStyle(NodeType type)
     {
         var style = $"background-color: var({GetNodeColorString(type)});";
