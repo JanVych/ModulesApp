@@ -20,10 +20,12 @@ public abstract class DbTaskNode : IDbNode
     public string StringVal2 { get; set; } = string.Empty;
     public string StringVal3 { get; set; } = string.Empty;
     public double DoubleVal1 { get; set; }
+    public double DoubleVal2 { get; set; } = 0;
     public long LongVal1 { get; set; }
     public long LongVal2 { get; set; }
     public long LongVal3 { get; set; } = 0;
     public bool BoolVal1 { get; set; }
+    public bool BoolVal2 { get; set; } = false;
 
     public double PositionX { get; set; } = 0;
     public double PositionY { get; set; } = 0;
@@ -39,6 +41,9 @@ public abstract class DbTaskNode : IDbNode
     [NotMapped]
     public NodeValue Value { get; set; } = new NodeValue.Waiting();
 
+    [NotMapped]
+    public bool IsProcessed { get; private set; } = false;
+
     public DbTaskNode(TaskNode node)
     {
         Type = node.Type;
@@ -49,10 +54,12 @@ public abstract class DbTaskNode : IDbNode
         StringVal2 = node.StringVal2;
         StringVal3 = node.StringVal3;
         DoubleVal1 = node.DoubleVal1;
+        DoubleVal2 = node.DoubleVal2;
         LongVal1 = node.LongVal1;
         LongVal2 = node.LongVal2;
         LongVal3 = node.LongVal3;
         BoolVal1 = node.BoolVal1;
+        BoolVal2 = node.BoolVal2;
 
         PositionX = node.PositionX;
         PositionY = node.PositionY;
@@ -65,7 +72,16 @@ public abstract class DbTaskNode : IDbNode
     {
         if (Value.Type == NodeValueType.Waiting)
         {
-            Process(context);
+            if (IsProcessed)
+            {
+                Value = new NodeValue.InvalidValue($"Process error: cycle detetcted in node: {Order}");
+            }
+            else
+            {
+                IsProcessed = true;
+                Process(context);
+                IsProcessed = false;
+            }    
         }
         return Value;
     }

@@ -29,10 +29,14 @@ public class TaskPort : PortModel
     public override bool CanAttachTo(ILinkable other)
     {
         if (!base.CanAttachTo(other))
-            return false;
+        {  
+            return false; 
+        }
 
         if (other is not TaskPort otherPort)
+        {
             return false;
+        }
 
         ////not data port, change link style
         //if (!otherPort.DataType)
@@ -46,11 +50,15 @@ public class TaskPort : PortModel
         
         // Input ports can have only one link
         if (otherPort.Input && otherPort.Links.Count != 0)
+        {
             return false;
+        }
         if (Input && Links.Count != 1)
+        {
             return false;
+        }
 
-        // Only link Ins with Outs
+        // Only link ins with outs
         return Input != otherPort.Input;
     }
 

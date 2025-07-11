@@ -111,6 +111,7 @@
                     <NodeAddComplexButton NodeType="NodeType.Condition" OnCLick="AddNode" />
                     <NodeAddComplexButton NodeType="NodeType.ArrayOperation" OnCLick="AddNode" />
                     <NodeAddComplexButton NodeType="NodeType.ArithmeticOperation" OnCLick="AddNode" />
+                    <NodeAddButton NodeType="NodeType.ArithmeticSaturation" OnClick="() => AddNode(NodeType.ArithmeticSaturation)" />
                     <NodeAddComplexButton NodeType="NodeType.ConvertTo" OnCLick="AddNode" />
                     <NodeAddComplexButton NodeType="NodeType.BooleanOperation" OnCLick="AddNode" />
 
@@ -257,6 +258,7 @@
             _currentDiagram.RegisterComponent<DateTimeNode, DateTimeWidget>();
             _currentDiagram.RegisterComponent<FromAnyNode, FromAnyWidget>();
             _currentDiagram.RegisterComponent<BooleanOperationNode, BooleanOperationWidget>();
+            _currentDiagram.RegisterComponent<ArithmeticSaturationNode, ArithmeticSaturationWidget>();
 
             _modules = await _moduleService.GetAllAsync();
             _services = await _backgroundServiceService.GetAllAsync();
@@ -450,6 +452,10 @@
             {
                 _currentDiagram.Nodes.Add(new BooleanOperationNode(_serverContextService, (NodeBooleanOperationType)subType, point) { Order = smallestOrder });
             }
+            else if (type == NodeType.ArithmeticSaturation)
+            {
+                _currentDiagram.Nodes.Add(new ArithmeticSaturationNode(_serverContextService, point) { Order = smallestOrder });
+            }
         }
     }
 
@@ -518,6 +524,10 @@
                 else if (node.Type == NodeType.BooleanOperation)
                 {
                     _currentDiagram.Nodes.Add(new BooleanOperationNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.ArithmeticSaturation)
+                {
+                    _currentDiagram.Nodes.Add(new ArithmeticSaturationNode(_serverContextService, node));
                 }
             }
 

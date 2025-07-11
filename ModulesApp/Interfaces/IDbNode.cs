@@ -13,6 +13,7 @@ public enum NodeType
     DateTime,
     FromAny,
     BooleanOperation,
+    ArithmeticSaturation,
 }
 
 public enum NodeConditionType
@@ -120,6 +121,7 @@ public static class NodeExtensions
             NodeType.DateTime => $"Date{space}Time",
             NodeType.FromAny => $"From{space}Any",
             NodeType.BooleanOperation => "Boolean",
+            NodeType.ArithmeticSaturation => "Saturation",
             _ => type.ToString()
         };
     }
@@ -143,10 +145,12 @@ public interface IDbNode
     public string StringVal2 { get; set; }
     public string StringVal3 { get; set; }
     public double DoubleVal1 { get; set; }
+    public double DoubleVal2 { get; set; }
     public long LongVal1 { get; set; }
     public long LongVal2 { get; set; }
     public long LongVal3 { get; set; }
     public bool BoolVal1 { get; set; }
+    public bool BoolVal2 { get; set; }
 
     public int Order { get; set; }
 

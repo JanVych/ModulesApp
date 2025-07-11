@@ -1,0 +1,42 @@
+﻿@using MudBlazor
+
+<TaskNodeWidget Node="Node"
+                Header="Saturation">
+
+    @if (Node.BoolVal1)
+    {
+        <MudNumericField T="double"
+                         @bind-Value="Node.DoubleVal1"
+                         Label="Ceiling"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense" />
+    }
+    @if (Node.BoolVal2)
+    {
+        <MudNumericField T="double"
+                         @bind-Value="Node.DoubleVal2"
+                         Label="Floor"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense" />
+    }
+    <MudStack Row=true Justify="Justify.SpaceAround">
+        <MudSwitch T="bool"
+                   @bind-Value="Node.BoolVal1"
+                   Size="Size.Small"
+                   Color="Color.Primary">
+            Ceiling
+        </MudSwitch>
+        <MudSwitch T="bool"
+                   @bind-Value="Node.BoolVal2"
+                   Size="Size.Small"
+                   Color="Color.Primary">
+            Floor
+        </MudSwitch>
+    </MudStack>
+
+</TaskNodeWidget>
+
+@code
+{
+    [Parameter] public ArithmeticSaturationNode Node { get; set; } = null!;
+}

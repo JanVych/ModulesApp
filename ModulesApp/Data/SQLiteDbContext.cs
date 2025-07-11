@@ -63,7 +63,8 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
             .HasValue<DbConvertToNode>(NodeType.ConvertTo)
             .HasValue<DbDateTimeNode>(NodeType.DateTime)
             .HasValue<DbFromAnyNode>(NodeType.FromAny)
-            .HasValue<DbBooleanOperationNode>(NodeType.BooleanOperation);
+            .HasValue<DbBooleanOperationNode>(NodeType.BooleanOperation)
+            .HasValue<DbArithmeticSaturationNode>(NodeType.ArithmeticSaturation);
 
         builder.Entity<DbAction>()
             .Property(p => p.Value)

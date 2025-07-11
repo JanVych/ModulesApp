@@ -23,7 +23,9 @@ public abstract class TaskNode : NodeModel, IDbNode
     public string StringVal2 { get; set; } = string.Empty;
     public string StringVal3 { get; set; } = string.Empty;
     public double DoubleVal1 { get; set; }
+    public double DoubleVal2 { get; set; }
     public bool BoolVal1 { get; set; }
+    public bool BoolVal2 { get; set; }
     public long LongVal1 { get; set; }
     public long LongVal2 { get; set; }
     public long LongVal3 { get; set; }
@@ -48,10 +50,12 @@ public abstract class TaskNode : NodeModel, IDbNode
         StringVal2 = dbNode.StringVal2;
         StringVal3 = dbNode.StringVal3;
         DoubleVal1 = dbNode.DoubleVal1;
+        DoubleVal2 = dbNode.DoubleVal2;
         LongVal1 = dbNode.LongVal1;
         LongVal2 = dbNode.LongVal2;
         LongVal3 = dbNode.LongVal3;
         BoolVal1 = dbNode.BoolVal1;
+        BoolVal2 = dbNode.BoolVal2;
     }
 
     public void RemoveAllInputPorts()
@@ -80,12 +84,13 @@ public abstract class TaskNode : NodeModel, IDbNode
 
     public static string GertNodeButtonStyle(NodeType type)
     {
-        var style = $"background-color: var({GetNodeColorString(type)});";
-        if (type is NodeType.FromMessage or NodeType.FromAny or NodeType.Value
-            or NodeType.DateTime or NodeType.DataDisplay or NodeType.SendMessage)
-        {
-            style += " color: var(--mud-palette-surface);";
-        }
+        var style = $"background-color: var({GetNodeColorString(type)}); color: var(--mud-palette-surface);";
+        //if (type is NodeType.FromMessage or NodeType.FromAny or NodeType.Value
+        //    or NodeType.DateTime or NodeType.DataDisplay or NodeType.SendMessage
+        //    or NodeType.ArithmeticSaturation)
+        //{
+        //    style += " color: var(--mud-palette-surface);";
+        //}
         return style;
     }
 
@@ -104,6 +109,7 @@ public abstract class TaskNode : NodeModel, IDbNode
             NodeType.ArithmeticOperation => "--mud-palette-tertiary-darken",
             NodeType.ConvertTo => "--mud-palette-tertiary-darken",
             NodeType.BooleanOperation => "--mud-palette-tertiary-darken",
+            NodeType.ArithmeticSaturation => "--mud-palette-tertiary-darken",
             _ => "--mud-palette-info-darken"
         };
     }
@@ -121,6 +127,7 @@ public abstract class TaskNode : NodeModel, IDbNode
             NodeType.SendMessage => Icons.Material.Filled.Send,
             NodeType.Condition => string.Empty,
             NodeType.ArrayOperation => Icons.Material.Filled.DataArray,
+            NodeType.ArithmeticSaturation => Icons.Material.Filled.VerticalAlignCenter,
             _ => string.Empty
         };
     }
