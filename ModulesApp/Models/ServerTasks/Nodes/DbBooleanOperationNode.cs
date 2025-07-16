@@ -1,5 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
-using ModulesApp.Components.ServerTasks.Ports;
+using ModulesApp.Helpers;
 using ModulesApp.Interfaces;
 using ModulesApp.Services;
 
@@ -12,63 +12,43 @@ public class DbBooleanOperationNode : DbTaskNode
     public DbBooleanOperationNode(TaskNode node) : base(node){}
     public DbBooleanOperationNode(){}
 
-    private NodeValue GetLeftValue(ContextService context)
-    {
-        DbTaskLink? link;
-        if (InputType == NodeInputType.Single)
-        {
-            link = TargetLinks.FirstOrDefault(l => l.TargetInput);
-        }
-        else
-        {
-            link = TargetLinks.FirstOrDefault(l => l.TargetInput && l.TargetPositionAlignment == PortPositionAlignment.Top);
-        }
-        if (link == null)
-        {
-            return new NodeValue.InvalidValue($"node: {Order}, no left input");
-        }
-        return link.GetValue(context);
-    }
-
-    private NodeValue GetRightValue(ContextService context)
-    {
-        if (InputType == NodeInputType.Double)
-        {
-            DbTaskLink? link = TargetLinks.FirstOrDefault(l => l.TargetInput && l.TargetPositionAlignment == PortPositionAlignment.Bottom);
-            if (link == null)
-            {
-                return new NodeValue.InvalidValue($"node: {Order}, no right input");
-            }
-            return link.GetValue(context);
-        }
-        return new NodeValue.NumberValue(DoubleVal1);
-    }
-
     public override void Process(ContextService context)
     {
-        NodeValue leftValue = GetLeftValue(context);
+        NodeValue leftValue = GetInputLeftValue(context);
+        var left = false;
+        var right = false;
 
         if (leftValue.Type == NodeValueType.Invalid)
         {
             Value = leftValue;
             return;
         }
-        var left = NodeValue.GetBooleanValue(leftValue);
+        left = DataConvertor.ToBool(leftValue.GetValue());
 
         if (OperationType == NodeBooleanOperationType.Not)
         {
             Value = new NodeValue.BooleanValue(!left);
         }
 
+        // lazy evaluation
+        else if ((left && OperationType == NodeBooleanOperationType.Or) || (!left && OperationType == NodeBooleanOperationType.Nand))
+        {
+            Value = new NodeValue.BooleanValue(true);
+        }
+        else if((!left && OperationType == NodeBooleanOperationType.And) || (left && OperationType == NodeBooleanOperationType.Nor))
+        {
+            Value = new NodeValue.BooleanValue(false);
+        }
+
         else
         {
-            NodeValue rightValue = GetRightValue(context);
-            if (leftValue.Type == NodeValueType.Invalid)
+            NodeValue rightValue = GetInputValue(context, PortPositionAlignment.Bottom, "right");
+            if (rightValue.Type == NodeValueType.Invalid)
             {
-                Value = leftValue;
+                Value = rightValue;
                 return;
             }
-            var right = NodeValue.GetBooleanValue(rightValue);
+            right = DataConvertor.ToBool(rightValue.GetValue());
             Value = new NodeValue.BooleanValue(ResolveOperation(left, right));
         }
     }

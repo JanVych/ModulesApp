@@ -1,5 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
-using ModulesApp.Components.ServerTasks.Ports;
+using ModulesApp.Helpers;
 using ModulesApp.Interfaces;
 using ModulesApp.Services;
 
@@ -10,53 +10,39 @@ public class DbSendMessageNode : DbTaskNode
     public DbSendMessageNode(TaskNode node) : base(node){}
     public DbSendMessageNode(){}
 
-    private NodeValue GetInputValue(ContextService context)
-    {
-        DbTaskLink? link;
-        if (InputType == NodeInputType.Single)
-        {
-            link = TargetLinks.FirstOrDefault(l => l.TargetInput);
-        }
-        else
-        {
-            link = TargetLinks.FirstOrDefault(l => l.TargetInput && l.TargetPositionAlignment == PortPositionAlignment.Bottom);
-        }
-        if (link == null)
-        {
-            return new NodeValue.InvalidValue($"node: {Order}, no data input");
-        }
-        return link.GetValue(context);
-    }
-
-    private NodeValue GetInputTriggerValue(ContextService context)
-    {
-        return TargetLinks?.FirstOrDefault(l => l.TargetInput && l.TargetPositionAlignment == PortPositionAlignment.Top)
-            ?.GetValue(context) ?? 
-            new NodeValue.InvalidValue($"node: {Order}, no trigger input");
-    }
-
     public override void Process(ContextService context)
     {
-        Value = GetInputValue(context);
-        if (Value.Type == NodeValueType.Invalid)
+        if(string.IsNullOrEmpty(StringVal1))
         {
+            Value = new NodeValue.InvalidValue($"In node: {Order}, key cant be empty!");
             return;
         }
 
-        if(InputType == NodeInputType.Double)
+        if (InputType == NodeInputType.Double)
         {
-            var triggerValue = GetInputTriggerValue(context);
-            if (triggerValue.Type == NodeValueType.Invalid)
+            var triggerInputValue = GetInputValue(context, PortPositionAlignment.Top, "trigger");
+            if (triggerInputValue.Type == NodeValueType.Invalid)
             {
-                Value = triggerValue;
+                Value = triggerInputValue;
                 return;
             }
-            var result = NodeValue.GetBooleanValue(triggerValue);
-            if (!result)
+
+            var trigger = DataConvertor.ToBool(triggerInputValue.GetValue());
+            if (!trigger)
             {
-                Value = new NodeValue.InvalidValue($"node: {Order}, trigger input was false");
+                Value = new NodeValue.InvalidValue($"In node: {Order}, trigger input was false");
                 return;
             }
+            Value = GetInputValue(context, PortPositionAlignment.Bottom, "data");
+        }
+        else
+        {
+            Value = GetInputValue(context, PortPositionAlignment.Center, "data");
+        }
+
+        if (Value.Type == NodeValueType.Invalid)
+        {
+            return;
         }
 
         if (LongVal2 == (long)TargetType.Module)
@@ -73,7 +59,7 @@ public class DbSendMessageNode : DbTaskNode
         }
         else
         {
-            Value = new NodeValue.InvalidValue($"Invalid type: {(TargetType)LongVal2}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"In node: {Order}, invalid type: {(TargetType)LongVal2}!");
         }
     }
 }

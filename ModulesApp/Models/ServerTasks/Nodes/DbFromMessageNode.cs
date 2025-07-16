@@ -14,7 +14,7 @@ public class DbFromMessageNode : DbTaskNode
         JsonElement? value;
         if (Task == null)
         {
-            Value = new NodeValue.InvalidValue($"Source not found, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"In node: {Order}, source not found!");
             return;
         }
 
@@ -32,19 +32,19 @@ public class DbFromMessageNode : DbTaskNode
         }
         else
         {
-            Value = new NodeValue.InvalidValue($"Invalid source type: {Task.TriggerSourceType}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"In node: {Order}, invalid source type: {Task.TriggerSourceType}!");
             return;
         }
 
         if (value is not JsonElement jValue)
         {
-            Value = new NodeValue.InvalidValue($"No such key:{StringVal1} in message, from {Task.TriggerSourceType}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"In node: {Order}, no such key:{StringVal1} in {Task.TriggerSourceType}!");
             return;
         }
 
         if (!NodeValue.IsValidType(jValue, (NodeValueType)LongVal1))
         {
-            Value = new NodeValue.InvalidValue($"Value is not {(NodeValueType)LongVal1}, but: {jValue.ValueKind}, from {Task.TriggerSourceType}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"In node: {Order}, value is not {(NodeValueType)LongVal1}, but: {jValue.ValueKind}!");
             return;
         }
         Value = NodeValue.CreateFromJsonElement(jValue, this);

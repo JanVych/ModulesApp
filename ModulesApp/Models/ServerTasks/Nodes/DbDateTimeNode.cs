@@ -27,7 +27,7 @@ public class DbDateTimeNode : DbTaskNode
             NodeDateTimeOutputType.Second => new NodeValue.NumberValue(dateTime.Second),
             NodeDateTimeOutputType.DayOfWeek => new NodeValue.NumberValue((double)dateTime.DayOfWeek),
             NodeDateTimeOutputType.DayOfYear => new NodeValue.NumberValue(dateTime.DayOfYear),
-            _ => new NodeValue.InvalidValue($"Not supported type: {outputType}, node: {Order}")
+            _ => new NodeValue.InvalidValue($"In node: {Order}, not supported type: {outputType}!")
         };
     }
 }

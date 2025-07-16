@@ -13,44 +13,42 @@ public class DbArrayOperationNode : DbTaskNode
 
     public override void Process(ContextService context)
     {
-        Value = TargetLinks.FirstOrDefault(l => l.TargetInput)?.GetValue(context) 
-            ?? new NodeValue.InvalidValue($"node: {Order}, no input");
-        if (Value.Type == NodeValueType.Invalid)
+        var value = GetInputValue(context, PortPositionAlignment.Center);
+
+        if (value.Type == NodeValueType.Invalid)
         {
+            Value = value;
+            return;
+        }
+        if (value is not NodeValue.ArrayValue aValue)
+        {
+            Value = new NodeValue.InvalidValue($"In node: {Order}, type error, input is not an array!");
             return;
         }
 
-        if (Value is NodeValue.ArrayValue array)
+        List<NodeValue> arrayCLone = aValue.GetValueClone();
+        if (OperationType == NodeArrayOperationType.ArrayRemoveAt)
         {
-            List<NodeValue> arrayCLone = array.GetValueClone();
-
-            if (OperationType == NodeArrayOperationType.ArrayRemoveAt)
+            if (LongVal1 < 0 || LongVal1 > aValue.Value.Count - 1)
             {
-                if (LongVal1 < 0 && LongVal1 > array.Value.Count - 1)
-                {
-                    Value = new NodeValue.InvalidValue($"node: {Order}, index out of range, index:{LongVal1}");
-                }
-                else
-                {
-                    arrayCLone.RemoveAt((int)LongVal1);
-                   Value = new NodeValue.ArrayValue(arrayCLone);
-                }
+                Value = new NodeValue.InvalidValue($"In node: {Order}, index out of range, index:{LongVal1} !");
             }
-            else if (OperationType == NodeArrayOperationType.ArraySlice)
+            else
             {
-                if (LongVal1 < 0 || LongVal2 < 0 || LongVal1 > array.Value.Count - 1 || LongVal2 > array.Value.Count - 1 || LongVal1 > LongVal2)
-                {
-                    Value = new NodeValue.InvalidValue($"node: {Order}, index out of range, index1:{LongVal1}, index2:{LongVal2}");
-                }
-                else
-                {
-                    Value = new NodeValue.ArrayValue(arrayCLone.GetRange((int)LongVal1, (int)(LongVal2 - LongVal1 + 1)));
-                }
+                arrayCLone.RemoveAt((int)LongVal1);
+                Value = new NodeValue.ArrayValue(arrayCLone);
             }
         }
-        else
+        else if (OperationType == NodeArrayOperationType.ArraySlice)
         {
-            Value = new NodeValue.InvalidValue($"node: {Order}, value is not array, type: {Value.Type}");
+            if (LongVal1 < 0 || LongVal2 < 0 || LongVal1 > aValue.Value.Count - 1 || LongVal2 > aValue.Value.Count - 1 || LongVal1 > LongVal2)
+            {
+                Value = new NodeValue.InvalidValue($"In node: {Order}, index out of range, index1:{LongVal1}, index2:{LongVal2} !");
+            }
+            else
+            {
+                Value = new NodeValue.ArrayValue(arrayCLone.GetRange((int)LongVal1, (int)(LongVal2 - LongVal1 + 1)));
+            }
         }
     }
 }

@@ -65,21 +65,21 @@ public class GoodweBackgroundService : BackgroundService
                     SetBatteryDischarge((short)value);
                 }
             }
-            MessageData["PV1 Power"] = GetPV1Power();
-            MessageData["Grid Power"] = GetGridPower();
-            MessageData["Backup Power"] = GetBackupPower();
-            MessageData["Load Power"] = GetLoadPower();
-            MessageData["Battery Power"] = GetBatteryPower();
-            MessageData["Inverter Temperature"] = GetInverterTemperature();
-            MessageData["Battery Temperature"] = GetBatteryTemperature();
-            MessageData["Battery SOC"] = GetBatterySOC();
+            MessageData["PV total Power [W]"] = GetPvTotalPower();
+            MessageData["Grid Power [W]"] = GetGridPower();
+            MessageData["Backup Power [W]"] = GetBackupPower();
+            MessageData["Load Power [W]"] = GetLoadPower();
+            MessageData["Battery Power [W]"] = GetBatteryPower();
+            MessageData["Inverter Temperature [℃]"] = GetInverterTemperature();
+            MessageData["Battery Temperature [℃]"] = GetBatteryTemperature();
+            MessageData["Battery SOC [%]"] = GetBatterySOC();
             MessageData["Battery Status"] = GetBatteryStatus()?.ToString() ?? "Unknown";
 
         }
         _modbusRtuUdp.Close();
     }
 
-    public uint? GetPV1Power() => _modbusRtuUdp?.ReadU32Register(35105);
+    public uint? GetPvTotalPower() => _modbusRtuUdp?.ReadU32Register(35301);
 
     /// <summary>
     ///  Get Grid Power in wats

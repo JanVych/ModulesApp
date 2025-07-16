@@ -11,19 +11,9 @@ public class DbArithmeticSaturationNode : DbTaskNode
     public DbArithmeticSaturationNode(TaskNode node) : base(node){}
     public DbArithmeticSaturationNode(){}
 
-    private NodeValue GetInputValue(ContextService context)
-    {
-        DbTaskLink? link = TargetLinks.FirstOrDefault();
-        if (link == null)
-        {
-            return new NodeValue.InvalidValue($"node: {Order}, no input");
-        }
-        return link.GetValue(context);
-    }
-
     public override void Process(ContextService context)
     {
-        NodeValue value = GetInputValue(context);
+        NodeValue value = GetInputValue(context, PortPositionAlignment.Center);
         double? number = null;
 
         if (value.Type == NodeValueType.Invalid)
@@ -34,7 +24,7 @@ public class DbArithmeticSaturationNode : DbTaskNode
 
         if(value is not NodeValue.NumberValue nValue)
         {
-            Value = new NodeValue.InvalidValue($"node: {Order}, type error, input is not a number");
+            Value = new NodeValue.InvalidValue($"In node: {Order}, type error, input is not a number!");
             return;
         }
 

@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Interfaces;
-using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Services;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModulesApp.Models.ServerTasks;
 
@@ -74,7 +74,7 @@ public abstract class DbTaskNode : IDbNode
         {
             if (IsProcessed)
             {
-                Value = new NodeValue.InvalidValue($"Process error: cycle detetcted in node: {Order}");
+                Value = new NodeValue.InvalidValue($"In node {Order}, process error: cycle detetcted!");
             }
             else
             {
@@ -89,5 +89,27 @@ public abstract class DbTaskNode : IDbNode
     public virtual void Process(ContextService context)
     {
         throw new NotImplementedException();
+    }
+
+    public NodeValue GetInputValue(ContextService context, PortPositionAlignment position, string portName = "")
+    {
+        DbTaskLink? link = TargetLinks.FirstOrDefault(l => l.TargetPositionAlignment == position);
+        if (link == null)
+        {
+            return new NodeValue.InvalidValue($"In node: {Order}, no {portName} input value!");
+        }
+        return link.GetValue(context);
+    }
+
+    public NodeValue GetInputLeftValue(ContextService context)
+    {
+        if (InputType == NodeInputType.Double)
+        {
+            return GetInputValue(context, PortPositionAlignment.Top, "left");
+        }
+        else
+        {
+            return GetInputValue(context, PortPositionAlignment.Center, "left");
+        }
     }
 }

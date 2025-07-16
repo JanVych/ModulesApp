@@ -66,6 +66,13 @@ public enum NodeBooleanOperationType
     Xnor,
 }
 
+public enum PortPositionAlignment
+{
+    Top,
+    Center,
+    Bottom,
+}
+
 public static class NodeExtensions
 {
     public static string ToShortString(this NodeConditionType type)

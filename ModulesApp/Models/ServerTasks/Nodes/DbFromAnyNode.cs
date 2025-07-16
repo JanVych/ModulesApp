@@ -27,19 +27,19 @@ public class DbFromAnyNode : DbTaskNode
         }
         else
         {
-            Value = new NodeValue.InvalidValue($"Invalid source type: {targetType}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"In node: {Order}, invalid source type: {targetType}!");
             return;
         }
 
         if (value is not JsonElement jValue)
         {
-            Value = new NodeValue.InvalidValue($"No such key:{StringVal1} in message, from {targetType}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"In node {Order}, no such key:{StringVal1} in {targetType}!");
             return;
         }
 
         if (!NodeValue.IsValidType(jValue, (NodeValueType)LongVal3))
         {
-            Value = new NodeValue.InvalidValue($"Value is not {(NodeValueType)LongVal3}, from module: {Task.ModuleId}, in node: {Order}");
+            Value = new NodeValue.InvalidValue($"In node: {Order}, value is not {(NodeValueType)LongVal3}, but {jValue.ValueKind}!");
             return;
         }
         Value = NodeValue.CreateFromJsonElement((JsonElement)value, this);

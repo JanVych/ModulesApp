@@ -127,16 +127,4 @@ public abstract class NodeValue
             _ => false
         };
     }
-
-    public static bool GetBooleanValue(NodeValue value)
-    {
-        return value.Type switch
-        {
-            NodeValueType.Boolean => ((BooleanValue)value).Value,
-            NodeValueType.String => bool.TryParse(((StringValue)value).Value, out var result) && result,
-            NodeValueType.Number => ((NumberValue)value).Value != 0,
-            NodeValueType.Array => ((ArrayValue)value).Value.Count > 0,
-            _ => false
-        };
-    }
 }

@@ -94,6 +94,10 @@ public class DataConvertor
 
     public static bool ToBool(object? value)
     {
+        if (value is bool boolValue)
+        {
+            return boolValue;
+        }
         if (value is JsonElement json)
         {
             if(json.ValueKind == JsonValueKind.True)

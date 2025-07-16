@@ -1,5 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
-using ModulesApp.Components.ServerTasks.Ports;
+using ModulesApp.Helpers;
 using ModulesApp.Interfaces;
 using ModulesApp.Services;
 
@@ -10,54 +10,33 @@ public class DbDataDisplayNode : DbTaskNode
     public DbDataDisplayNode(TaskNode node) : base(node){}
     public DbDataDisplayNode(){}
 
-    private NodeValue GetInputValue(ContextService context)
+    public override void Process(ContextService context)
     {
-        DbTaskLink? link;
-        if (InputType == NodeInputType.Single)
+        if (InputType == NodeInputType.Double)
         {
-            link = TargetLinks.FirstOrDefault();
+            var triggerInputValue = GetInputValue(context, PortPositionAlignment.Top, "trigger");
+            if (triggerInputValue.Type == NodeValueType.Invalid)
+            {
+                Value = triggerInputValue;
+                return;
+            }
+
+            var trigger = DataConvertor.ToBool(triggerInputValue.GetValue());
+            if (!trigger)
+            {
+                Value = new NodeValue.InvalidValue($"In node: {Order}, trigger input was false");
+                return;
+            }
+            Value = GetInputValue(context, PortPositionAlignment.Bottom, "data");
         }
         else
         {
-            link = TargetLinks.FirstOrDefault(l => l.TargetPositionAlignment == PortPositionAlignment.Bottom);
-        }
-        if (link == null)
-        {
-            return new NodeValue.InvalidValue($"node: {Order}, no data input");
-        }
-        return link.GetValue(context);
-    }
-
-    private NodeValue GetInputTriggerValue(ContextService context)
-    {
-        return TargetLinks?.FirstOrDefault(l => l.TargetPositionAlignment == PortPositionAlignment.Top)
-            ?.GetValue(context) ??
-            new NodeValue.InvalidValue($"node: {Order}, no trigger input");
-    }
-
-    public override void Process(ContextService context)
-    {
-        Value = GetInputValue(context);
-        if (Value.Type == NodeValueType.Invalid)
-        {
-            return;
+            Value = GetInputValue(context, PortPositionAlignment.Center, "data");
         }
 
-        if (InputType == NodeInputType.Double)
+        if (Value.Type != NodeValueType.Invalid)
         {
-            var triggerValue = GetInputTriggerValue(context);
-            if (triggerValue.Type == NodeValueType.Invalid)
-            {
-                Value = triggerValue;
-                return;
-            }
-            var result = NodeValue.GetBooleanValue(triggerValue);
-            if (!result)
-            {
-                Value = new NodeValue.InvalidValue($"node: {Order}, trigger input was false");
-                return;
-            }
+            context.SendToDashboardEntity(LongVal1, "Value", Value.GetValue());
         }
-        context.SendToDashboardEntity(LongVal1, "Value", Value.GetValue());
     }
 }

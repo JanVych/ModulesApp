@@ -25,7 +25,7 @@ public class DbValueNode : DbTaskNode
         }
         else
         {
-            Value = new NodeValue.InvalidValue($"Invalid value type: {type}, node: {Order}");
+            Value = new NodeValue.InvalidValue($"In Node: invalid value type: {type}");
         }
     }
 }

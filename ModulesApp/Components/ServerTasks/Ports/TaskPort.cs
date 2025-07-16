@@ -1,16 +1,10 @@
 ﻿using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
+using ModulesApp.Interfaces;
 using ModulesApp.Models.ServerTasks;
 
 namespace ModulesApp.Components.ServerTasks.Ports;
-
-public enum PortPositionAlignment
-{
-    Top,
-    Center,
-    Bottom,
-}
 
 public class TaskPort : PortModel
 {
