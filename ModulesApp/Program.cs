@@ -36,7 +36,11 @@ public class Program
             provider.GetRequiredService<IDbContextFactory<SQLiteDbContext>>().CreateDbContext());
 
         // quartz, background services
-        builder.Services.AddQuartz();
+        builder.Services.AddQuartz(q =>
+        {
+            q.Properties["quartz.jobStore.misfireThreshold"] = "1000";
+            //q.Properties["quartz.threadPool.threadCount"] = "5";
+        });
         builder.Services.AddQuartzHostedService(options =>
         {
             options.WaitForJobsToComplete = true;

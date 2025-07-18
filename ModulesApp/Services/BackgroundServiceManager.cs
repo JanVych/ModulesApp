@@ -49,7 +49,7 @@ public class BackgroundServiceManager
         var neWtrigger = TriggerBuilder.Create()
             .WithIdentity(service.Id.ToString())
             .ForJob(newJob)
-            .WithCronSchedule(service.CronExpression)
+            .WithCronSchedule(service.CronExpression, x => x.WithMisfireHandlingInstructionDoNothing())
             .Build();
 
         await scheduler.ScheduleJob(newJob, neWtrigger);
@@ -86,7 +86,9 @@ public class BackgroundServiceManager
         var scheduler = await _schedulerFactory.GetScheduler();
         if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
         {
-            await scheduler.PauseJob(new JobKey(service.Id.ToString(), "DefaultGroup"));
+            var key = new JobKey(service.Id.ToString(), "DefaultGroup");
+            await scheduler.Interrupt(key);
+            await scheduler.PauseJob(key);
         }
         service.Status = BackgroundServiceStatus.Paused;
         await _backgroundService.UpdateAsync(service);
@@ -97,7 +99,9 @@ public class BackgroundServiceManager
         var scheduler = await _schedulerFactory.GetScheduler();
         if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
         {
-            await scheduler.DeleteJob(new JobKey(service.Id.ToString(), "DefaultGroup"));
+            var key = new JobKey(service.Id.ToString(), "DefaultGroup");
+            await scheduler.Interrupt(key);
+            await scheduler.DeleteJob(key);
         }
         await _backgroundService.DeleteAsync(service);
     }
@@ -107,12 +111,11 @@ public class BackgroundServiceManager
         var scheduler = await _schedulerFactory.GetScheduler();
         if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
         {
-            await scheduler.DeleteJob(new JobKey(service.Id.ToString(), "DefaultGroup"));
+            var key = new JobKey(service.Id.ToString(), "DefaultGroup");
+            await scheduler.Interrupt(key);
+            await scheduler.DeleteJob(key);
         }
+        service.Status = BackgroundServiceStatus.Paused;
         await _backgroundService.UpdateAsync(service);
-        if (service.Status == BackgroundServiceStatus.Active)
-        {
-            await ScheduleJobAsync(service, scheduler);
-        }
     }
 }

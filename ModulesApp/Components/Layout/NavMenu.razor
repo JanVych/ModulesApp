@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 
-<MudNavMenu>
+<MudNavMenu Style="display: flex; flex-flow: column; height: inherit;">
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
@@ -8,6 +8,15 @@
             <MudNavLink Href="services" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DesignServices">Services</MudNavLink>
             <MudNavLink Href="tasks" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Task">Tasks</MudNavLink>
             <MudNavLink Href="programs" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Code">Programs</MudNavLink>
+            <MudSpacer />
+            @* <form action="Account/Logout" method="post">
+                <AntiforgeryToken />
+                <input type="hidden" name="ReturnUrl" value="" />
+                <button type="submit" class="mud-nav-link mud-ripple">
+                    <MudIcon Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" Class="mr-3"></MudIcon> Logout
+                </button>
+            </form>
+            <MudNavLink Href="settings" Class="mb-6" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink> *@
         </Authorized>
         <NotAuthorized>
             @* <MudNavLink Href="account/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login">Login</MudNavLink> *@

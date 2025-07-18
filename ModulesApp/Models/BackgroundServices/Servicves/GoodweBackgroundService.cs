@@ -1,6 +1,7 @@
 ﻿using ModulesApp.Helpers;
 using ModulesApp.Services;
 using Quartz;
+using System.Xml.Linq;
 
 namespace ModulesApp.Models.BackgroundServices.Servicves;
 
@@ -36,6 +37,7 @@ public class GoodweBackgroundService : BackgroundService
 
     public override async Task ExecuteAsync(IJobExecutionContext context)
     {
+        Console.WriteLine($"Goodwe, time: {DateTime.Now}");
         if (!ConfigurationData.ContainsKey("Port") || !ConfigurationData.ContainsKey("Ip"))
         {
             throw new ArgumentException("Configuration data must contain 'Port' and 'Ip'");

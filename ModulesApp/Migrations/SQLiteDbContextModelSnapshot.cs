@@ -699,6 +699,15 @@ namespace ModulesApp.Migrations
                     b.HasDiscriminator().HasValue(6);
                 });
 
+            modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbArithmeticSaturationNode", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");
+
+                    b.ToTable("TaskNode");
+
+                    b.HasDiscriminator().HasValue(11);
+                });
+
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbArrayOperationNode", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.ServerTasks.DbTaskNode");

@@ -19,12 +19,14 @@ public abstract class BackgroundService: IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
+        DbBackgroundService? service = null;
+        try
         {
             if (_context != null)
             {
                 _ = long.TryParse(context.JobDetail.Key.Name, out long id);
 
-                var service = await _context._backgroundServiceService.GetAndDeleteActionsAsync(id) 
+                service = await _context._backgroundServiceService.GetAndDeleteActionsAsync(id)
                     ?? throw new ArgumentNullException(id.ToString(), "Background service not found.");
 
                 Actions = service.Actions;
@@ -36,6 +38,18 @@ public abstract class BackgroundService: IJob
                 await _context.ExecuteServerTasksAsync(service);
             }
         }
+        catch (Exception ex)
+        {
+            if(service != null)
+            {
+                Console.WriteLine($"Error from background service name: {service?.Name}, id: {service?.Id}, type: {service?.Type}. {ex.Message}");
+            }
+            else
+            {
+                Console.WriteLine($"Error from background service: {ex.Message}");
+            }
+        }
+
     }
 
     public abstract Task ExecuteAsync(IJobExecutionContext context);

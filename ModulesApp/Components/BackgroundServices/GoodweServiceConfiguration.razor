@@ -5,11 +5,11 @@
 <MudStack Spacing="4">
     <MudTextField Mask="@_ipv4Mask" Label="IPv4 Address" HelperText="@_ipv4Mask.Mask"
                   @bind-Value="Ip" Variant="@Variant.Text" OnBlur="ValidateIp" Style="max-width:400px"  
-                  Error="@HasError" ErrorText="Invalid IPv4 address" Clearable />
+                  Error="@HasError" ErrorText="Invalid IPv4 address" Clearable Disabled=IsDiabled/>
 
     <MudNumericField Label="Port Number" HelperText="Valid range: 0–65535"
                      @bind-Value="Port" Variant="@Variant.Text" Style="max-width:400px"
-                  Max="65535" Min="0" Clearable  HideSpinButtons/>
+                     Max="65535" Min="0" Clearable HideSpinButtons Disabled=IsDiabled />
 </MudStack>
 
 
@@ -25,10 +25,19 @@
     [Parameter, EditorRequired]
     public bool HasError { get; set; }
 
+    [Parameter, EditorRequired]
+    public bool IsDiabled { get; set; }
+
     protected override void OnInitialized()
     {
-        Service.ConfigurationData["Ip"] = "192.168.0.1";
-        Service.ConfigurationData["Port"] = 8899;
+        if (!Service.ConfigurationData.ContainsKey("Ip"))
+        {
+            Service.ConfigurationData["Ip"] = "192.168.0.1";
+        }
+        if (!Service.ConfigurationData.ContainsKey("Port"))
+        {
+            Service.ConfigurationData["Port"] = 8899;
+        }
     }
 
     private string Ip

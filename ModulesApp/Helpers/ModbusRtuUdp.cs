@@ -18,7 +18,7 @@ public class ModbusRtuUdp
     public string ServerIp { get; set; }
 
     public int ResponseHeaderSize { get; set; }
-    public int TimeoutMs { get; set; } = 2000;
+    public int TimeoutMs { get; set; } = 500;
     public int NumberofAttempts { get; set; } = 4;
 
     private UdpClient? _udpClient;
@@ -161,9 +161,9 @@ public class ModbusRtuUdp
                 CheckCrc(bytes);
                 return bytes;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine(i);
+                //Console.WriteLine($"ModbusRtuUdp: {i} | {ex.Message}");
                 if (i == NumberofAttempts)
                 {
                     throw;

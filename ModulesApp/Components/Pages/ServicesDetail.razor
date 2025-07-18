@@ -104,13 +104,13 @@
             @if (_service.Type == BackgroundServiceType.Goodwe)
             {
                 <MudPaper Class="pa-4" Elevation="0">
-                    <GoodweServiceConfiguration Service="_service" HasError=_hasError />
+                    <GoodweServiceConfiguration Service="_service" HasError=_hasError IsDiabled="_service.Status != BackgroundServiceStatus.Paused" />
                 </MudPaper>
             }
             else if (_service.Type == BackgroundServiceType.Http)
             {
                 <MudPaper Class="pa-4" Elevation="0">
-                    <HttpServiceConfiguration Service="_service" HasError="_hasError" />
+                    <HttpServiceConfiguration Service="_service" HasError="_hasError" IsDiabled="_service.Status != BackgroundServiceStatus.Paused" />
                 </MudPaper>
             }
 
@@ -217,7 +217,7 @@
 
     private async Task SaveService()
     {
-        if (_service is not null)
+        if (_service != null)
         {
             await _backgroundServiceManager.UpdateServiceAsync(_service);
         }
