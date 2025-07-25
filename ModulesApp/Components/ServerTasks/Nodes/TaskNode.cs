@@ -110,6 +110,7 @@ public abstract class TaskNode : NodeModel, IDbNode
             NodeType.ConvertTo => "--mud-palette-tertiary-darken",
             NodeType.BooleanOperation => "--mud-palette-tertiary-darken",
             NodeType.ArithmeticSaturation => "--mud-palette-tertiary-darken",
+            NodeType.Branch => "--mud-palette-info-darken",
             _ => "--mud-palette-info-darken"
         };
     }
@@ -128,6 +129,7 @@ public abstract class TaskNode : NodeModel, IDbNode
             NodeType.Condition => string.Empty,
             NodeType.ArrayOperation => Icons.Material.Filled.DataArray,
             NodeType.ArithmeticSaturation => Icons.Material.Filled.VerticalAlignCenter,
+            NodeType.Branch => Icons.Material.Filled.CallSplit,
             _ => string.Empty
         };
     }

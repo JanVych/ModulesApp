@@ -9,12 +9,17 @@ public class ModuleProgramManager
 {
     private readonly IConfiguration _configuration;
     private readonly ModuleProgramService _moduleProgramService;
+    //private IServiceProvider _serviceProvider;
 
     public ModuleProgramManager(IConfiguration configuration, ModuleProgramService moduleProgramService)
     {
         _configuration = configuration;
         _moduleProgramService = moduleProgramService;
     }
+    //public ModuleProgramManager(IServiceProvider services)
+    //{
+
+    //}
 
     public async Task BuildProgramAsync(DbModuleProgram program, DataReceivedEventHandler outputHandler)
     {

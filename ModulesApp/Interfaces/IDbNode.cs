@@ -14,6 +14,7 @@ public enum NodeType
     FromAny,
     BooleanOperation,
     ArithmeticSaturation,
+    Branch,
 }
 
 public enum NodeConditionType

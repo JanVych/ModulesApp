@@ -132,6 +132,7 @@ public class ServerTaskService
                 NodeType.FromAny => new DbFromAnyNode((FromAnyNode)node),
                 NodeType.BooleanOperation => new DbBooleanOperationNode((BooleanOperationNode)node),
                 NodeType.ArithmeticSaturation => new DbArithmeticSaturationNode((ArithmeticSaturationNode)node),
+                NodeType.Branch => new DbBranchNode((BranchNode)node),
                 _ => throw new ArgumentException($"Unsupported node type: {node.Type}")
             });
         }

@@ -109,6 +109,9 @@
                     <NodeAddButton NodeType="NodeType.DateTime" OnClick="() => AddNode(NodeType.DateTime)" />
 
                     <NodeAddComplexButton NodeType="NodeType.Condition" OnCLick="AddNode" />
+
+                    <NodeAddButton NodeType="NodeType.Branch" OnClick="() => AddNode(NodeType.Branch)"/>
+
                     <NodeAddComplexButton NodeType="NodeType.ArrayOperation" OnCLick="AddNode" />
                     <NodeAddComplexButton NodeType="NodeType.ArithmeticOperation" OnCLick="AddNode" />
                     <NodeAddButton NodeType="NodeType.ArithmeticSaturation" OnClick="() => AddNode(NodeType.ArithmeticSaturation)" />
@@ -259,6 +262,7 @@
             _currentDiagram.RegisterComponent<FromAnyNode, FromAnyWidget>();
             _currentDiagram.RegisterComponent<BooleanOperationNode, BooleanOperationWidget>();
             _currentDiagram.RegisterComponent<ArithmeticSaturationNode, ArithmeticSaturationWidget>();
+            _currentDiagram.RegisterComponent<BranchNode, BranchWidget>();
 
             _modules = await _moduleService.GetAllAsync();
             _services = await _backgroundServiceService.GetAllAsync();
@@ -340,6 +344,15 @@
                 _selectedTask.Module = null;
                 _selectedTask.BackgroundServiceId = null;
                 _selectedTask.BackgroundService = null;
+            }
+            else
+            {
+                _selectedTask.ModuleId = null;
+                _selectedTask.Module = null;
+                _selectedTask.BackgroundServiceId = null;
+                _selectedTask.BackgroundService = null;
+                _selectedTask.DashboardEntityId = null;
+                _selectedTask.DashboardEntity = null;
             }
             await _serverTaskService.SaveDiagramAsync(_selectedTask, _currentDiagram);
         }
@@ -456,6 +469,10 @@
             {
                 _currentDiagram.Nodes.Add(new ArithmeticSaturationNode(_serverContextService, point) { Order = smallestOrder });
             }
+            else if (type == NodeType.Branch)
+            {
+                _currentDiagram.Nodes.Add(new BranchNode(_serverContextService, point) { Order = smallestOrder });
+            }
         }
     }
 
@@ -528,6 +545,10 @@
                 else if (node.Type == NodeType.ArithmeticSaturation)
                 {
                     _currentDiagram.Nodes.Add(new ArithmeticSaturationNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.Branch)
+                {
+                    _currentDiagram.Nodes.Add(new BranchNode(_serverContextService, node));
                 }
             }
 

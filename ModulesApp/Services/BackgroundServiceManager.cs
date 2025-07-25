@@ -96,17 +96,18 @@ public class BackgroundServiceManager
 
     public async Task DeleteServiceAsync(DbBackgroundService service)
     {
-        var scheduler = await _schedulerFactory.GetScheduler();
-        if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
-        {
-            var key = new JobKey(service.Id.ToString(), "DefaultGroup");
-            await scheduler.Interrupt(key);
-            await scheduler.DeleteJob(key);
-        }
+        await DeleteServiceFromSchedulerAsync(service);
         await _backgroundService.DeleteAsync(service);
     }
 
     public async Task UpdateServiceAsync(DbBackgroundService service)
+    {
+        await DeleteServiceFromSchedulerAsync(service);
+        service.Status = BackgroundServiceStatus.Paused;
+        await _backgroundService.UpdateAsync(service);
+    }
+
+    private async Task DeleteServiceFromSchedulerAsync(DbBackgroundService service)
     {
         var scheduler = await _schedulerFactory.GetScheduler();
         if (await scheduler.CheckExists(new JobKey(service.Id.ToString(), "DefaultGroup")))
@@ -115,7 +116,5 @@ public class BackgroundServiceManager
             await scheduler.Interrupt(key);
             await scheduler.DeleteJob(key);
         }
-        service.Status = BackgroundServiceStatus.Paused;
-        await _backgroundService.UpdateAsync(service);
     }
 }

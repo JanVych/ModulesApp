@@ -6,19 +6,20 @@
 @using MudBlazor
 
 <div class="node">
+    <MudStack Style="@GetBackgroundStyle()" Row=false AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="1">
+        <MudStack Row=true Spacing="1">
+            @if (!string.IsNullOrEmpty(_iconString))
+            {
+                <MudIcon Icon="@_iconString" Style="color: var(--mud-palette-surface);" />
+            }
+            <div class="node-header">@Header</div>
+        </MudStack>
 
-    <div class="node-header" style="@GetBackgroundStyle()">
-        <MudIcon Icon="@TaskNode.GetNodeIconString(Node.Type)" />
-        <span class="node-header-text">@Header</span>
         @if (Node.ShowIdentifier)
         {
-            <span class="node-header-text">Id: @Node.Order</span>
+            <div class="node-header">Id: @Node.Order</div>
         }
-    </div>
-
-    <div class="node-content">
-        @ChildContent
-    </div>
+    </MudStack>
 
     @foreach (TaskPort port in Node.Ports)
     {
@@ -65,15 +66,16 @@
     [Parameter, EditorRequired]
     public TaskNode Node { get; set; } = null!;
 
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
-
     [Parameter, EditorRequired]
     public string Header { get; set; } = string.Empty;
 
-    public bool _hasContent => ChildContent != null;
+    [Parameter]
+    public int MinHeight { get; set; } = 60;
+
 
     private string _mainColor => TaskNode.GetNodeColorString(Node.Type);
+
+    private string _iconString => TaskNode.GetNodeIconString(Node.Type);
 
     private string GetPortStyle(NodeValueType type)
     {
@@ -87,7 +89,7 @@
         }
     }
 
-    private string GetBackgroundStyle() => $"background-color: var({_mainColor});";
+    private string GetBackgroundStyle() => $"background-color: var({_mainColor}); min-height: {MinHeight}px;";
 
     private string GetPortSymbol(NodeValueType dataPort)
     {

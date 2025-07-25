@@ -245,6 +245,7 @@
             }
             await _JSmodule.InvokeVoidAsync("flashFiles", _binFiles);
             _disableActions = false;
+            InvokeAsync(StateHasChanged);
         }
     }
 
@@ -255,6 +256,7 @@
             _disableActions = true;
             await _JSmodule.InvokeVoidAsync("eraseFlash");
             _disableActions = false;
+            InvokeAsync(StateHasChanged);
         }
     }
 

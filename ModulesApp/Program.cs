@@ -68,8 +68,9 @@ public class Program
         builder.Services.AddScoped<ModuleProgramService>();
 
         builder.Services.AddScoped<ContextService>();
-        
+
         builder.Services.AddScoped<ModuleProgramManager>();
+        //builder.Services.AddScoped<ModuleProgramManager>(s => new ModuleProgramManager(s));
 
         builder.Services.AddScoped<BackgroundServiceManager>();
 

@@ -1,0 +1,10 @@
+﻿@using ModulesApp.Interfaces
+@using MudBlazor
+
+<TaskNodeSmallWidget Node="Node" Header="Branch" MinHeight="90"/>
+
+@code 
+{
+    [Parameter] 
+    public BranchNode Node { get; set; } = null!;
+}
