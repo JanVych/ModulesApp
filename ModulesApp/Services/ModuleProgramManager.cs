@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
-using ModulesApp.Models.ModulesPrograms;
+﻿using ModulesApp.Models.ModulesPrograms;
 using ModulesApp.Services.Data;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace ModulesApp.Services;
 
@@ -20,6 +21,45 @@ public class ModuleProgramManager
     //{
 
     //}
+
+    public async Task RegisterFirmwares()
+    {
+        var path = _configuration["AppSettings:FirmwarePath"];
+        if (string.IsNullOrEmpty(path))
+        {
+            Console.WriteLine("Config: AppSettings:FirmwarePath, does not exist in appsettings.json");
+            return;
+        }
+        var firmwareDirs = Directory.GetDirectories(path);
+        var firmwares = await _moduleProgramService.GetFirmwareListAsync();
+
+        foreach (var f in firmwares)
+        {
+            if (!Path.Exists(f.Path))
+            {
+                await _moduleProgramService.DeleteAsync(f);
+            }
+        }
+
+        foreach ( var f in firmwareDirs )
+        {
+            if (firmwares.Any(x => x.Path == f))
+            {
+                continue;
+            }
+            string json = File.ReadAllText(Path.Combine(f, "settings.json"));
+            var config = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+
+            var newFirmware = new DbModuleFirmware
+            {
+                Name = Path.GetFileName(f),
+                Path = f,
+                Version = config?["Version"] ?? string.Empty, 
+                IdfVersion = config?["IDFVersion"] ?? string.Empty
+            };
+            await _moduleProgramService.AddAsync(newFirmware);
+        }
+    }
 
     public async Task BuildProgramAsync(DbModuleProgram program, DataReceivedEventHandler outputHandler)
     {
@@ -45,7 +85,12 @@ public class ModuleProgramManager
     }
     public void BuildNvsData(DbModuleProgram program, DataReceivedEventHandler? outputHandler)
     {
-        var idfPath = Path.GetFullPath(program.Firmware.IDF.Path);
+        var idfPath = GetIDFPath(program.Firmware);
+        if (string.IsNullOrEmpty(idfPath))
+        {
+            InvokeOutputHandler(outputHandler, "IDF path not found for the specified firmware.");
+            return;
+        }
         var commandPath = Path.Combine(idfPath, "components", "nvs_flash", "nvs_partition_generator", "nvs_partition_gen.py");
         var csvFile = "nvs_data.csv";
         var binFile = "nvs_data.bin";
@@ -55,11 +100,15 @@ public class ModuleProgramManager
         RunEspIdfCommand(program, command, OutputHandler);
     }
 
-    private static void RunEspIdfCommand(DbModuleProgram program, string command, DataReceivedEventHandler? outputHandler)
+    private void RunEspIdfCommand(DbModuleProgram program, string command, DataReceivedEventHandler? outputHandler)
     {
         var programPath = Path.GetFullPath(program.Path);
-        var idfPath = Path.GetFullPath(program.Firmware.IDF.Path);
-
+        var idfPath = GetIDFPath(program.Firmware);
+        if (string.IsNullOrEmpty(idfPath))
+        {
+            InvokeOutputHandler(outputHandler, $"IDF version {program.Firmware.IdfVersion} path not found,");
+            return;
+        }
         if (!Directory.Exists(programPath))
         {
             InvokeOutputHandler(outputHandler, $"Program path does not exist: {programPath}");
@@ -120,7 +169,7 @@ public class ModuleProgramManager
             return null;
         }
         program.FirmwareId = firmware.Id;
-        program = await _moduleProgramService.Add(program);
+        program = await _moduleProgramService.AddAsync(program);
 
         program.Path = Path.Combine(programPath, program.Id.ToString());
         await Task.Run(() => CopyAllFromDirectory(firmware.NormalizedPath, program.Path));
@@ -134,13 +183,13 @@ public class ModuleProgramManager
                 Path = f
             });
         }
-        await _moduleProgramService.Update(program);
+        await _moduleProgramService.UpdateAsync(program);
         return program;
     }
 
     public async Task DeleteProgram(DbModuleProgram program)
     {
-        await _moduleProgramService.Delete(program);
+        await _moduleProgramService.DeleteAsync(program);
         if (Directory.Exists(program.Path))
         {
             Directory.Delete(program.Path, true);
@@ -149,7 +198,7 @@ public class ModuleProgramManager
 
     public async Task SaveProgram(DbModuleProgram program)
     {
-        await _moduleProgramService.Update(program);
+        await _moduleProgramService.UpdateAsync(program);
         if (program.Files != null)
         {
             foreach (var f in program.Files)
@@ -194,6 +243,31 @@ public class ModuleProgramManager
 
         var args = ctor?.Invoke([message]) as DataReceivedEventArgs;
         handler.Invoke(null, args!);
+    }
+
+    private string? GetIDFPath(DbModuleFirmware firmware)
+    {
+        IConfigurationSection? section = null;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            section = _configuration.GetSection("AppSettings:IDFPathsWindows");
+        }
+
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            section = _configuration.GetSection("AppSettings:IDFPathsLinux");
+        }
+        if(section != null)
+        {
+            foreach (var item in section.GetChildren())
+            {
+                if (item["Version"] == firmware.IdfVersion)
+                {
+                    return item["Path"];
+                }
+            }
+        }
+        return null;
     }
 
     private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)

@@ -6,6 +6,7 @@
             Header="Send-Message">
 
     <MudSelect T="long"
+               Modal=false
                ValueChanged="OnTypeChanged"
                Value="@Node.LongVal2"
                Variant="Variant.Outlined"
@@ -19,6 +20,8 @@
     @if (Node.LongVal2 == (long)TargetType.Module && Node.Modules != null)
     {
         <MudSelect T="long"
+                   Modal=false
+                   Style="max-width:180px"
                    @bind-Value="Node.LongVal1"
                    Variant="Variant.Outlined"
                    Label="Module"
@@ -32,6 +35,8 @@
     else if (Node.LongVal2 == (long)TargetType.Service && Node.Services != null)
     {
         <MudSelect T="long"
+                   Modal=false
+                   Style="max-width:180px"
                    @bind-Value="Node.LongVal1"
                    Variant="Variant.Outlined"
                    Label="Service"
@@ -45,6 +50,8 @@
     else if (Node.LongVal2 == (long)TargetType.Dashboard && Node.Entities != null)
     {
         <MudSelect T="long"
+                   Modal=false
+                   Style="max-width:180px"
                    @bind-Value="Node.LongVal1"
                    Variant="Variant.Outlined"
                    Label="Entity"

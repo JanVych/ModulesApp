@@ -27,7 +27,7 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
 
     public DbSet<DbAction> Actions { get; set; }
 
-    public DbSet<DbModuleIDF> IDFs { get; set; }
+    //public DbSet<DbModuleIDF> IDFs { get; set; }
     public DbSet<DbModuleFirmware> Firmwares { get; set; }
     public DbSet<DbModuleProgram> Programs { get; set; }
     public DbSet<DbModuleProgramFile> ProgramsFiles { get; set; }

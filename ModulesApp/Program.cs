@@ -112,10 +112,15 @@ public class Program
             return TypedResults.LocalRedirect($"~/{returnUrl}");
         });
 
+        
         using (var scope = app.Services.CreateScope())
         {
-            var scopedService = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();
-            scopedService.LaunchAsync().GetAwaiter().GetResult();
+            var bacgroundServiceManager = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();
+            var moduleProgramManager = scope.ServiceProvider.GetRequiredService<ModuleProgramManager>();
+            // Launch background services
+            bacgroundServiceManager.LaunchAsync().GetAwaiter().GetResult();
+            // Register firmwares
+            moduleProgramManager.RegisterFirmwares().GetAwaiter().GetResult();
         }
 
         app.Run();

@@ -6,6 +6,7 @@
 <TaskNodeWidget Node="Node"
                 Header="From-Any">
     <MudSelect T="long"
+               Modal=false
                ValueChanged="OnTypeChanged"
                Value="@Node.LongVal2"
                Variant="Variant.Outlined"
@@ -19,7 +20,10 @@
     @if (Node.LongVal2 == (long)TargetType.Module && Node.Modules != null)
     {
         <MudSelect T="long"
-                   @bind-Value="Node.LongVal1"
+                   Modal=false
+                   Style="max-width:180px"
+                   Value="Node.LongVal1"
+                   ValueChanged="OnSourceChanged"
                    Variant="Variant.Outlined"
                    Label="Module"
                    Margin="Margin.Dense">
@@ -32,7 +36,10 @@
     else if (Node.LongVal2 == (long)TargetType.Service && Node.Services != null)
     {
         <MudSelect T="long"
-                   @bind-Value="Node.LongVal1"
+                   Modal=false
+                   Style="max-width:180px"
+                   Value="Node.LongVal1"
+                   ValueChanged="OnSourceChanged"
                    Variant="Variant.Outlined"
                    Label="Service"
                    Margin="Margin.Dense">
@@ -45,7 +52,10 @@
     else if (Node.LongVal2 == (long)TargetType.Dashboard && Node.Entities != null)
     {
         <MudSelect T="long"
-                   @bind-Value="Node.LongVal1"
+                   Modal=false
+                   Style="max-width:180px"
+                   Value="Node.LongVal1"
+                   ValueChanged="OnSourceChanged"
                    Variant="Variant.Outlined"
                    Label="Entity"
                    Margin="Margin.Dense">
@@ -56,8 +66,9 @@
         </MudSelect>
     }
     <MudSelect T="long"
+               Modal=false
                Value="Node.LongVal3"
-               ValueChanged="ChangeType"
+               ValueChanged="ChangeInputType"
                Variant="Variant.Outlined"
                Label="Type"
                Margin="Margin.Dense">
@@ -68,11 +79,27 @@
         <MudSelectItem Value="(long)NodeValueType.Array">@NodeValueType.Array</MudSelectItem>
     </MudSelect>
 
-    <MudTextField T="string"
+    <MudAutocomplete T="string"
+                     @bind-Value="Node.StringVal1"
+                     Label="Key"
+                     Style="max-width:180px"
+                     Variant="Variant.Outlined"
+                     Margin="Margin.Dense"
+                     CoerceText=false
+                     CoerceValue=false
+                     Clearable=true
+                     RelativeWidth="DropdownWidth.Adaptive"
+                     Modal=false
+                     Dense=false
+                     SearchFunc="@Search">
+
+    </MudAutocomplete>
+
+    @* <MudTextField T="string"
                   @bind-Value="Node.StringVal1"
                   Label="Key"
                   Variant="Variant.Outlined"
-                  Margin="Margin.Dense" />
+                  Margin="Margin.Dense" /> *@
 </TaskNodeWidget>
 
 @code
@@ -98,12 +125,29 @@
             Node.LongVal1 = Node.Entities.FirstOrDefault()?.Id ?? 0;
         }
         Node.LongVal2 = type;
+        Node.SetKeys();
     }
 
-    private void ChangeType(long value)
+    private void OnSourceChanged(long value)
+    {
+        Node.LongVal1 = value;
+        Node.SetKeys();
+    }
+
+    private void ChangeInputType(long value)
     {
         Node.LongVal3 = value;
         var port = Node.Ports.FirstOrDefault() as TaskPort;
         port!.DataType = (NodeValueType)value;
+    }
+
+    private async Task<IEnumerable<string>> Search(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Node.Keys ?? [];
+        }
+        
+        return Node.Keys?.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)) ?? [];
     }
 }

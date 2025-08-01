@@ -25,14 +25,6 @@ public class ModuleProgramService
         return await db.Programs
             .Include(p => p.Files)
             .Include(p => p.Firmware)
-            .ThenInclude(f => f.IDF)
-            .ToListAsync();
-    }
-
-    public async Task<List<DbModuleIDF>> GetIDFListAsync()
-    {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
-        return await db.IDFs
             .ToListAsync();
     }
 
@@ -40,11 +32,10 @@ public class ModuleProgramService
     {
         using var db = await _dbContextFactory.CreateDbContextAsync();
         return await db.Firmwares
-            .Include(f => f.IDF)
             .ToListAsync();
     }
 
-    public async Task<DbModuleProgram> Add(DbModuleProgram program)
+    public async Task<DbModuleProgram> AddAsync(DbModuleProgram program)
     {
         using var db = await _dbContextFactory.CreateDbContextAsync();
         db.Programs.Add(program);
@@ -52,17 +43,31 @@ public class ModuleProgramService
         return program;
     }
 
-    public async Task Update(DbModuleProgram program)
+    public async Task UpdateAsync(DbModuleProgram program)
     {
         using var db = await _dbContextFactory.CreateDbContextAsync();
         db.Programs.Update(program);
         await db.SaveChangesAsync();
     }
 
-    public async Task Delete(DbModuleProgram program)
+    public async Task DeleteAsync(DbModuleProgram program)
     {
         using var db = await _dbContextFactory.CreateDbContextAsync();
         db.Programs.Remove(program);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task AddAsync(DbModuleFirmware firmware)
+    {
+        using var db = await _dbContextFactory.CreateDbContextAsync();
+        db.Firmwares.Add(firmware);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(DbModuleFirmware firmware)
+    {
+        using var db = await _dbContextFactory.CreateDbContextAsync();
+        db.Firmwares.Remove(firmware);
         await db.SaveChangesAsync();
     }
 }

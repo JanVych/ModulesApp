@@ -7,7 +7,8 @@
                 Header="From-Message">
 
     <MudSelect T="long"
-        Value="Node.LongVal1"
+               Modal=false
+               Value="Node.LongVal1"
                ValueChanged="ChangeType"
                Variant="Variant.Outlined"
                Label="Type"
@@ -29,7 +30,7 @@
 
 @code
 {
-    [Parameter] 
+    [Parameter]
     public FromMessageNode Node { get; set; } = null!;
 
     private void ChangeType(long value)
