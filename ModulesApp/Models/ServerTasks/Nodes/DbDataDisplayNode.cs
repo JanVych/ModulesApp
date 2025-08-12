@@ -1,6 +1,7 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Helpers;
 using ModulesApp.Interfaces;
+using ModulesApp.Models.Dasboards;
 using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
@@ -36,7 +37,16 @@ public class DbDataDisplayNode : DbTaskNode
 
         if (Value.Type != NodeValueType.Invalid)
         {
-            context.SendToDashboardEntity(LongVal1, "Value", Value.GetValue());
+            var entity = context._dashboardService.GetEntity(LongVal1);
+            string key = entity?.Type switch
+            {
+                DashboardEntityType.KeyValue => "Value",
+                DashboardEntityType.DataList => "Column_2",
+                DashboardEntityType.ValueSetter => "CurrentValue",
+                DashboardEntityType.Switch => "Value",
+                _ => "Value"
+            };
+            context.SendToDashboardEntity(LongVal1, key, Value.GetValue());
         }
     }
 }

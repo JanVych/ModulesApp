@@ -1,19 +1,25 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using ApexCharts
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
 
 @inherits LayoutComponentBase
 
 @inject SignInManager<IdentityUser> _singManager
+@inject IApexChartService _chartService
+@inject IJSRuntime JSRuntime
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-<MudLayout>
+<MudLayout Id="mainLayout" Style="height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch;">
     <MudAppBar Elevation="1" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h6" Class="ml-1">Menu</MudText>
         <MudSpacer />
+
+        <MudIconButton Icon="@(ToggleFullScreenIcon)" Color="MudBlazor.Color.Inherit" OnClick="@ToggleFulscreen" />
+        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="MudBlazor.Color.Inherit" OnClick="@DarkModeToggle"/>
 
         <AuthorizeView>
             <Authorized>
@@ -21,22 +27,20 @@
                     <AntiforgeryToken />
                     <input type="hidden" name="ReturnUrl" value="@_currentUrl" />
                     <button type="submit" class="mud-nav-link mud-ripple">
-                        <MudIcon Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" Class="mr-3"></MudIcon> Logout
+                        <MudIcon Icon="@Icons.Material.Filled.Logout" Color="MudBlazor.Color.Inherit" Class="mr-2"/> Logout
                     </button>
                 </form>
             </Authorized>
             <NotAuthorized>
-                <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Href="account/login" /> Login
+                @* <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Href="account/login" /> Login *@
             </NotAuthorized>
         </AuthorizeView>
-
-        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
 
     </MudAppBar>
 
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h6">My App</MudText>
+            <MudText Typo="Typo.h6">Modulon</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
@@ -54,11 +58,18 @@
     <a class="dismiss">🗙</a>
 </div>
 
+<style>
+    ::backdrop {
+        background-color: transparent;
+    }
+</style>
+
 @code {
     private string? _currentUrl;
     private bool _drawerOpen = false;
     private bool _isDarkMode = true;
     private MudTheme? _theme = null;
+    private bool _isFulscreen = false;
 
     protected override void OnInitialized()
     {
@@ -72,15 +83,33 @@
         };
     }
 
+    private async Task ToggleFulscreen()
+    {
+        if(!_isFulscreen)
+        {
+             await JSRuntime.InvokeVoidAsync("openFullscreen", "mainLayout");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("exitFullscreen");
+        }
+        _isFulscreen = !_isFulscreen;
+    }
 
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
 
-    private void DarkModeToggle()
+    private async Task DarkModeToggle()
     {
         _isDarkMode = !_isDarkMode;
+        
+        var chartsOptions = new ApexChartBaseOptions
+        {
+            Theme = new Theme { Mode = _isDarkMode ? Mode.Dark : Mode.Light, Palette = PaletteType.Palette2 }
+        };
+        await _chartService.SetGlobalOptionsAsync(chartsOptions, true);
     }
 
     private readonly PaletteLight _lightPalette = new()
@@ -124,8 +153,14 @@
 
     public string DarkLightModeButtonIcon => _isDarkMode switch
     {
-        true => Icons.Material.Rounded.AutoMode,
+        true => Icons.Material.Rounded.LightMode,
         false => Icons.Material.Outlined.DarkMode,
+    };
+
+    public string ToggleFullScreenIcon => _isFulscreen switch
+    {
+        true => Icons.Material.Rounded.FullscreenExit,
+        false => Icons.Material.Outlined.Fullscreen,
     };
 }
 

@@ -5,48 +5,46 @@
 
 @if (EditMode)
 {
-    <MudCard Style="width: 300px;">
-        <MudCardHeader>
-            <CardHeaderContent>
-                <MudText Typo="Typo.h6">Id: @Entity.Id</MudText>
-                <MudTextField @bind-Value="@Entity.Name" Label="Name" />
-            </CardHeaderContent>
-            <CardHeaderActions>
-                @if (DeleteButtonClick != null)
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                   Color="Color.Error"
-                                   OnClick="OnDeleteButtonClick" />
-                }
-            </CardHeaderActions>
-        </MudCardHeader>
-        <MudCardContent>
-            <MudStack Row="false">
-                <MudTextField @bind-Value="@Entity.Title" Label="title" />
-                <MudTextField @bind-Value="@Entity.DisplayValue" Label="current" ReadOnly="true" />
-                <MudTextField @bind-Value="@Entity.InputValue" Label="target" ReadOnly="true" />
+    <MudPaper Class="pa-3" Style="width:300px;">
+        <MudStack StretchItems="StretchItems.All" AlignItems="AlignItems.Stretch" Spacing="1">
+            <MudStack Row="true">
+                <MudTextField @bind-Value="@Entity.Name" Label="Id" Required=true />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               OnClick="OnDeleteButtonClick" />
             </MudStack>
-        </MudCardContent>
-    </MudCard>
+
+            <MudDivider />
+            <MudTextField @bind-Value="@Entity.Title" Label="Title" MaxLength="20" />
+            <MudTextField @bind-Value="@Entity.CurrentValue" Label="CurrentValue" Disabled=true />
+            <MudTextField @bind-Value="@Entity.TargetValue" MaxLength="20" Label="TargetValue" Disabled=true />
+
+
+        </MudStack>
+    </MudPaper>
 }
 else
 {
-    <MudCard Style="width: 300px;">
-        <MudCardContent>
-            <MudStack Row="false">
-                @if (!string.IsNullOrEmpty(Entity.Name))
+    <MudPaper Class="pa-3" Style="width:300px; height:208px">
+        <MudStack Justify="Justify.Center" StretchItems="StretchItems.None" AlignItems="AlignItems.Stretch"
+                  Class="overflow-hidden" Style="width:100%; height:100%" Spacing="2">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                @* @if (!string.IsNullOrEmpty(Entity.Icon))
                 {
-                    <MudText Typo="Typo.h4">@Entity?.Name</MudText>
-                }
-                <MudText Typo="Typo.h6">@Entity.Title</MudText>
-                <MudTextField @bind-Value="@Entity.DisplayValue" Label="current" ReadOnly="true"/>
-                <MudTextField @bind-Value="@Entity.InputValue" Label="target" />
+                    <MudIcon Icon="@Entity.Icon" Color="Color.Primary" Size="Size.Medium" />
+                } *@
+                <MudText Typo="Typo.h5" Color="Color.Primary">@Entity.Title</MudText>
             </MudStack>
-        </MudCardContent>
-        <MudButton Color="Color.Primary" OnClick="SaveChanges" Disabled="_saveDisabled">
-            Save
-        </MudButton>
-    </MudCard>
+
+            <MudTextField @bind-Value="@Entity.CurrentValue" Label="Current" ReadOnly="true"/>
+            <MudTextField @bind-Value="@Entity.TargetValue" MaxLength="20" Label="Target"/>
+
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveChanges" Disabled="_saveDisabled">
+                Save
+            </MudButton>
+
+        </MudStack>
+    </MudPaper>
 }
 
 @code
@@ -71,7 +69,7 @@ else
     {
         _saveDisabled = true;
         await ServerContextService.DashboardEntityUserTriggerAsync(Entity);
-        await Task.Delay(1000);
+        await Task.Delay(500);
         _saveDisabled = false;
     }
 }

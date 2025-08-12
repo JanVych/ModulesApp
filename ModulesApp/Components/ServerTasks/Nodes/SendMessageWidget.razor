@@ -31,6 +31,11 @@
                 <MudSelectItem Value="@m.Id">@m.Name</MudSelectItem>
             }
         </MudSelect>
+        <MudTextField T="string"
+                  @bind-Value="Node.StringVal1"
+                  Label="Key"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense" />
     }
     else if (Node.LongVal2 == (long)TargetType.Service && Node.Services != null)
     {
@@ -46,28 +51,46 @@
                 <MudSelectItem Value="@u.Id">@u.Name</MudSelectItem>
             }
         </MudSelect>
+        <MudTextField T="string"
+                  @bind-Value="Node.StringVal1"
+                  Label="Key"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense" />
     }
     else if (Node.LongVal2 == (long)TargetType.Dashboard && Node.Entities != null)
     {
         <MudSelect T="long"
                    Modal=false
                    Style="max-width:180px"
-                   @bind-Value="Node.LongVal1"
+                   Value="Node.LongVal1"
+                   ValueChanged="OnSourceChanged"
                    Variant="Variant.Outlined"
                    Label="Entity"
                    Margin="Margin.Dense">
             @foreach (var e in Node.Entities)
             {
-                <MudSelectItem Value="@e.Id">@e.Name | @e.Id</MudSelectItem>
+                <MudSelectItem Value="@e.Id">@e.Name</MudSelectItem>
             }
         </MudSelect>
-    }
+        <MudAutocomplete T="string"
+                         @bind-Text="Node.StringVal1"
+                         @bind-Value="Node.StringVal1"
+                         Label="Key"
+                         Style="max-width:180px"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense"
+                         CoerceText=false
+                         CoerceValue=false
+                         Clearable=true
+                         OnClearButtonClick="ClearButtonClick"
+                         RelativeWidth="DropdownWidth.Adaptive"
+                         Modal=false
+                         Dense=false
+                         SearchFunc="@Search"
+                         AutoFocus="false">
 
-    <MudTextField T="string"
-                  @bind-Value="Node.StringVal1"
-                  Label="Key"
-                  Variant="Variant.Outlined"
-                  Margin="Margin.Dense" />
+        </MudAutocomplete>
+    }
     <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="ToBool(Node.InputType)">
         @Node.InputType input
     </MudSwitch>
@@ -97,6 +120,13 @@
             Node.LongVal1 = Node.Entities.FirstOrDefault()?.Id ?? 0;
         }
         Node.LongVal2 = type;
+        Node.SetKeys();
+    }
+
+    private void OnSourceChanged(long value)
+    {
+        Node.LongVal1 = value;
+        Node.SetKeys();
     }
 
     private void SwitchInputType(bool inputType)
@@ -112,4 +142,20 @@
     }
 
     private bool ToBool(NodeInputType type) => type == NodeInputType.Double;
+
+    private async Task<IEnumerable<string>> Search(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Node.Keys ?? [];
+        }
+        await Task.Delay(1, token);
+        return Node.Keys?.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)) ?? [];
+    }
+
+    private void ClearButtonClick()
+    {
+        Node.StringVal1 = string.Empty;
+    }
+
 }

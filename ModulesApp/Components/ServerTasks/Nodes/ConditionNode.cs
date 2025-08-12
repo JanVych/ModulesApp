@@ -15,7 +15,6 @@ public class ConditionNode : TaskNode
         Type = NodeType.Condition;
         SubType = (int)condition;
         AddPorts(NodeInputType.Single);
-
     }
 
     public ConditionNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)

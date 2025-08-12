@@ -30,7 +30,7 @@ public class ModuleProgramManager
             Console.WriteLine("Config: AppSettings:FirmwarePath, does not exist in appsettings.json");
             return;
         }
-        var firmwareDirs = Directory.GetDirectories(path);
+        var firmwareDirs = Directory.GetDirectories(NormalizePath(path));
         var firmwares = await _moduleProgramService.GetFirmwareListAsync();
 
         foreach (var f in firmwares)
@@ -171,6 +171,7 @@ public class ModuleProgramManager
         program.FirmwareId = firmware.Id;
         program = await _moduleProgramService.AddAsync(program);
 
+        programPath = NormalizePath(programPath);
         program.Path = Path.Combine(programPath, program.Id.ToString());
         await Task.Run(() => CopyAllFromDirectory(firmware.NormalizedPath, program.Path));
 
@@ -248,15 +249,7 @@ public class ModuleProgramManager
     private string? GetIDFPath(DbModuleFirmware firmware)
     {
         IConfigurationSection? section = null;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            section = _configuration.GetSection("AppSettings:IDFPathsWindows");
-        }
-
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            section = _configuration.GetSection("AppSettings:IDFPathsLinux");
-        }
+        section = _configuration.GetSection("AppSettings:IDFPaths");
         if(section != null)
         {
             foreach (var item in section.GetChildren())
@@ -276,5 +269,9 @@ public class ModuleProgramManager
         {
             Console.WriteLine(outLine.Data);
         }
+    }
+    static string NormalizePath(string connectionString)
+    {
+        return connectionString.Replace("\\", Path.DirectorySeparatorChar.ToString());
     }
 }

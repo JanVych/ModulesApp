@@ -1,5 +1,4 @@
 ﻿using ModulesApp.Helpers;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModulesApp.Models.Dasboards.Entities;
 
@@ -11,18 +10,29 @@ public class DbDataListEntity : DbDashboardEntity
         public string? Column2 { get; set; } = string.Empty;
     }
 
-    [NotMapped]
     public List<TableItem> TableData = [];
+    public string Title = string.Empty;
+    public string Column2Suffix = string.Empty;
 
-    public override void UpdateFromData(Dictionary<string, object?> data)
+    public override void UpdateState(string key, object? value, bool toDatabse)
     {
-        foreach(var (key, value) in data)
+        Data[key] = value;
+        LoadState();
+    }
+
+    public override void LoadState()
+    {
+        if (Data.TryGetValue("Title", out var ti))
         {
-            Data[key] = value;
+            Title = DataConvertor.ToString(ti);
         }
-        if (Data.TryGetValue("Column1", out var titles))
+        if (Data.TryGetValue("Column_2_Suffix", out var suffix))
         {
-            Data.TryGetValue("Value", out var values);
+            Column2Suffix = DataConvertor.ToString(suffix);
+        }
+        if (Data.TryGetValue("Column_1", out var titles))
+        {
+            Data.TryGetValue("Column_2", out var values);
             var titlesList = DataConvertor.ToList<string>(titles);
             var valuesList = DataConvertor.ToList<string>(values);
 
@@ -36,9 +46,11 @@ public class DbDataListEntity : DbDashboardEntity
         }
     }
 
-    public override void SaveData()
+    public override void SaveToData()
     {
-        Data["Column1"] = TableData.Select(i => i.Column1).ToList();
-        Data["Value"] = TableData.Select(i => i.Column2).ToList();
+        Data["Column_1"] = TableData.Select(i => i.Column1).ToList();
+        Data["Column_2"] = TableData.Select(i => i.Column2).ToList();
+        Data["Title"] = Title;
+        Data["Column_2_Suffix"] = Column2Suffix;
     }
 }

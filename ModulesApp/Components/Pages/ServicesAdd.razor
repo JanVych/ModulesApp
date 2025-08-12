@@ -99,20 +99,24 @@
             @if (_service.Type == BackgroundServiceType.Goodwe)
             {
                 <MudPaper Class="pa-4" Elevation="0">
-                    <GoodweServiceConfiguration Service="_service" HasError=_hasError />
+                    <GoodweServiceConfiguration Service="_service" HasError=_hasError IsDiabled=false/>
                 </MudPaper>
             }
             else if (_service.Type == BackgroundServiceType.Http)
             {
                 <MudPaper Class="pa-4" Elevation="0">
-                    <HttpServiceConfiguration Service="_service" HasError="_hasError" />
+                    <HttpServiceConfiguration Service="_service" HasError="_hasError" IsDiabled=false />
                 </MudPaper>
             }
 
             <MudPaper Class="pa-4" Elevation="0">
-                <MudText Typo="Typo.body1">
-                    @_service.Description
-                </MudText>
+                @foreach (var line in DbBackgroundService.GetDescription(_service.Type).Split('\n'))
+                {
+                    <MudText Typo="Typo.body1">
+                        @line
+                    </MudText>
+                }
+                
             </MudPaper>
         </MudStack>
     }

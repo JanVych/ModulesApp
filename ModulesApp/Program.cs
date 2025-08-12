@@ -1,15 +1,15 @@
+using ApexCharts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ModulesApp.Components;
+using ModulesApp.Components.Pages;
 using ModulesApp.Data;
-using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Services;
 using ModulesApp.Services.Data;
 using MudBlazor.Services;
 using Quartz;
 using System.Security.Claims;
-using static Quartz.Logging.OperationName;
 
 
 namespace ModulesApp;
@@ -52,8 +52,8 @@ public class Program
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
         {
             options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireLowercase = false;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireLowercase = true;
             options.Password.RequireDigit = false;
             options.Password.RequiredLength = 8;
             options.SignIn.RequireConfirmedAccount = false;
@@ -76,6 +76,15 @@ public class Program
 
         //builder.Services.AddSingleton<BackgroundServiceManager>();
         builder.Services.AddSingleton<NotifyService>();
+
+        // ApexCharts
+        builder.Services.AddApexCharts(e =>
+        {
+            e.GlobalOptions = new ApexChartBaseOptions
+            {
+                Theme = new Theme { Mode = Mode.Dark, Palette = PaletteType.Palette2}
+            };
+        });
 
         var app = builder.Build();
 

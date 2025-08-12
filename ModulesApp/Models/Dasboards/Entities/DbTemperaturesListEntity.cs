@@ -18,7 +18,7 @@ namespace ModulesApp.Models.Dasboards.Entities
         [NotMapped]
         public List<string?> Headers = [string.Empty, string.Empty, string.Empty];
 
-        public override void SaveData()
+        public override void SaveToData()
         {
             Data["Column1"] = TableData.Select(i => i.Name).ToList();
             Data["Value"] = TableData.Select(i => i.CurrentTemp).ToList();
@@ -27,12 +27,8 @@ namespace ModulesApp.Models.Dasboards.Entities
             Data["Headers"] = Headers;
         }
 
-        public override void UpdateFromData(Dictionary<string, object?> data)
+        public override void LoadState()
         {
-            foreach (var (key, value) in data)
-            {
-                Data[key] = value;
-            }
             if(Data.TryGetValue("Headers", out var headersObject))
             {
                 var headers = DataConvertor.ToList<string>(headersObject);

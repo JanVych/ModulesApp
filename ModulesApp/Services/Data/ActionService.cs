@@ -13,17 +13,25 @@ public class ActionService
         _dbContextFactory = dbContextFactory;
     }
 
-    public void Add(DbAction moduleAction)
+    public void AddOrReplace(string key, object? value, long? moduleId, long? backgroundServiceId)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        context.Actions.Add(moduleAction);
+        var existingActions = context.Actions.Where(x => x.Key == key && x.ModuleId == moduleId && x.BackgroundServiceId == backgroundServiceId);
+        context.Actions.RemoveRange(existingActions);
+        var newAction = new DbAction
+        {
+            Key = key,
+            Value = value,
+            ModuleId = moduleId,
+            BackgroundServiceId = backgroundServiceId
+        };
+        context.Actions.Add(newAction);
         context.SaveChanges();
     }
 
     public async Task AddOrReplaceAsync(string key, object? value, long? moduleId, long? backgroundServiceId)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
-
         await context.Actions
             .Where(x => x.Key == key && x.ModuleId == moduleId && x.BackgroundServiceId == backgroundServiceId)
             .ExecuteDeleteAsync();

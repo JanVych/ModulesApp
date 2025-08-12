@@ -7,22 +7,20 @@
         Dashboard
     </TitleContent>
     <DialogContent>
-        <div class="pa-1">
-            <MudStack AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.h5">New Dashboard</MudText>
+        <MudStack AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h5">New Dashboard</MudText>
 
-                <MudTextField @bind-Value="Dashboard.Name" Label="Name" Required="true" Style="min-width: 200px" />
+            <MudTextField @bind-Value="Dashboard.Name" Label="Name" Required="true" Style="min-width: 200px" />
 
-                <MudSelect T="string" @bind-value="Dashboard.IconString" Label="Type" Style="min-width: 200px">
-                    @foreach (string icon in _stringIconList)
-                    {
-                        <MudSelectItem Value="icon">
-                            <MudIcon Icon="@icon" Size="Size.Medium" />
-                        </MudSelectItem>
-                    }
-                </MudSelect>
-            </MudStack>
-        </div>
+            <MudSelect T="string" @bind-value="Dashboard.IconString" Label="Type" Style="min-width: 200px">
+                @foreach (string icon in _stringIconList)
+                {
+                    <MudSelectItem Value="icon">
+                        <MudIcon Icon="@icon" Size="Size.Medium" />
+                    </MudSelectItem>
+                }
+            </MudSelect>
+        </MudStack>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -39,6 +37,7 @@
 
     private List<string> _stringIconList =
     [
+        string.Empty,
         Icons.Material.Filled.Pageview,
         Icons.Material.Filled.Label,
         Icons.Material.Filled.ExposureZero,
@@ -47,6 +46,20 @@
         Icons.Material.Filled.DashboardCustomize,
         Icons.Material.Filled.AddChart,
         Icons.Material.Filled.Chair,
+        Icons.Material.Filled.Thermostat,
+        Icons.Material.Filled.DeviceThermostat,
+        Icons.Material.Filled.EnergySavingsLeaf,
+        Icons.Material.Filled.WaterDrop,
+        Icons.Material.Filled.ElectricBolt,
+        Icons.Material.Filled.SolarPower,
+        Icons.Material.Filled.BatteryChargingFull,
+        Icons.Material.Filled.Leaderboard,
+        Icons.Material.Filled.LocalDrink,
+        Icons.Material.Filled.PriceChange,
+        Icons.Material.Filled.WbSunny,
+        Icons.Material.Filled.HeatPump,
+        Icons.Material.Filled.Fireplace,
+        Icons.Material.Filled.Coronavirus,
     ];
 
     private void Submit() => MudDialog.Close(DialogResult.Ok(Dashboard));

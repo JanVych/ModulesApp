@@ -1,13 +1,27 @@
-﻿namespace ModulesApp.Models.Dasboards.Entities;
+﻿using ModulesApp.Helpers;
+
+namespace ModulesApp.Models.Dasboards.Entities;
 
 public class DbButtonEntity : DbDashboardEntity
 {
-    public override void UpdateFromData(Dictionary<string, object?> data)
+    public string Title = string.Empty;
+
+    public override void UpdateState(string key, object? value, bool toDatabse)
     {
-        Data = data;
+        Data[key] = value;
+        LoadState();
     }
 
-    public override void SaveData()
+    public override void LoadState()
     {
+        if (Data.TryGetValue("Title", out var t))
+        {
+            Title = DataConvertor.ToString(t);
+        }
+    }
+
+    public override void SaveToData()
+    {
+        Data["Title"] = Title;
     }
 }

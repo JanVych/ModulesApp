@@ -146,7 +146,7 @@
                     </MudSelect>
                 </div>
 
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SetOtaUpdate">
+                <MudButton Variant="Variant.Filled" Disabled="_disableOta" Color="Color.Primary" OnClick="SetOtaUpdate">
                     Send OTA Update
                 </MudButton>
 
@@ -197,6 +197,7 @@
     private MudTabs? _tabs;
     private int _activePanelIndex = 0;
     private StandaloneCodeEditor? _editor;
+    private bool _disableOta = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -345,11 +346,14 @@
         }
     }
 
-    private void SetOtaUpdate()
+    private async Task SetOtaUpdate()
     {
         if (_selectedProgram != null && _selectedModule != null)
         {
+            _disableOta = true;
             _serverContextService.SendToModule(_selectedModule.Id, "PerformOTA", _selectedProgram.Name);
+            await Task.Delay(500);
+            _disableOta = false;
         }
     }
 }

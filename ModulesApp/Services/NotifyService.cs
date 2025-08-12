@@ -1,11 +1,9 @@
-﻿using ModulesApp.Models.Dasboards;
-
-namespace ModulesApp.Services;
+﻿namespace ModulesApp.Services;
 
 public class NotifyService
 {
     public event Action? BackgroundServiceChangedEvent;
-    public event Action<DbDashboardEntity>? DashboardEntityDataEvent;
+    public event Action<(long EntityId, string Key, object? Value)>? DashboardEntityDataEvent;
     public event Action? ModulesDbChangedEvent;
 
     public void NotifyBackgroundServiceChanged()
@@ -13,9 +11,9 @@ public class NotifyService
         BackgroundServiceChangedEvent?.Invoke();
     }
 
-    public void NotifyDashboardEntityDataChanged(DbDashboardEntity entity)
+    public void NotifyDashboardEntityDataChanged(long entityId , string key, object? value)
     {
-        DashboardEntityDataEvent?.Invoke(entity);
+        DashboardEntityDataEvent?.Invoke((entityId, key, value));
     }
 
     public void NotifyModulesChanged()

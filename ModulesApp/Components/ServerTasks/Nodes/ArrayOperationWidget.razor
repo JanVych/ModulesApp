@@ -1,6 +1,7 @@
 ﻿@using Blazor.Diagrams.Components.Renderers;
 @using Blazor.Diagrams.Core.Models
 @using ModulesApp.Interfaces
+@using ModulesApp.Models.ServerTasks
 @using MudBlazor
 
 <TaskNodeWidget Node="Node"
@@ -19,21 +20,44 @@
                          Variant="Variant.Outlined"
                          Margin="Margin.Dense"
                          Immediate="true"
-                         Label="Last index" />
-    }
-    else if (Node.OperationType == NodeArrayOperationType.ArrayRemoveAt)
-    {
-        <MudNumericField T="long"
-                         @bind-Value="Node.LongVal1"
-                         Variant="Variant.Outlined"
-                         Margin="Margin.Dense"
-                         Immediate="true"
-                         Label="Index" />
+        Label="Last index" />
     }
 
+    else if (Node.OperationType == NodeArrayOperationType.ArrayRemoveAt)
+    {
+        if (Node.InputType == NodeInputType.Single)
+        {
+            <MudNumericField T="long"
+                             @bind-Value="Node.LongVal1"
+                             Variant="Variant.Outlined"
+                             Margin="Margin.Dense"
+                             Immediate="true"
+                             Label="Index" />
+        }
+        <MudSwitch T="bool"
+                   ValueChanged="SwitchInputType"
+                   Size="Size.Small"
+                   Color="Color.Primary"
+            Value="ToBool(Node.InputType)">
+            @Node.InputType input
+        </MudSwitch>
+    }
 </TaskNodeWidget>
 
 @code
 {
     [Parameter] public ArrayOperationNode Node { get; set; } = null!;
+
+    private void SwitchInputType(bool inputType)
+    {
+        if (inputType)
+        {
+            Node.AddInputPorts(NodeInputType.Double);
+        }
+        else
+        {
+            Node.AddInputPorts(NodeInputType.Single);
+        }
+    }
+    private bool ToBool(NodeInputType type) => type == NodeInputType.Double;
 }

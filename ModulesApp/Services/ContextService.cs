@@ -9,7 +9,7 @@ namespace ModulesApp.Services;
 public class ContextService
 {
     private readonly ModuleService _modulesService;
-    private readonly DashboardService _dashboardService;
+    public readonly DashboardService _dashboardService;
     private readonly ActionService _moduleActionService;
     public readonly BackgroundServiceService _backgroundServiceService;
     private readonly ServerTaskService _serverTaskService;
@@ -38,6 +38,7 @@ public class ContextService
     {
         return _backgroundServiceService.GetAll();
     }
+
 
     public async Task<List<DbBackgroundService>> GetAllBackgroundServicesAsync()
     {
@@ -101,13 +102,8 @@ public class ContextService
     {
         if (_modulesService.Exist(moduleId))
         {
-            var action = new DbAction
-            {
-                ModuleId = moduleId,
-                Key = key,
-                Value = value
-            };
-            _moduleActionService.Add(action);
+            _moduleActionService.AddOrReplace(key, value, moduleId, null);
+            //_moduleActionService.Add(action);
         }
     }
 
@@ -115,15 +111,11 @@ public class ContextService
     {
         if (_backgroundServiceService.Exist(serviceId))
         {
-            var action = new DbAction
-            {
-                BackgroundServiceId = serviceId,
-                Key = key,
-                Value = value
-            };
-            _moduleActionService.Add(action);
+            _moduleActionService.AddOrReplace(key, value, null, serviceId);
+            //_moduleActionService.Add(action);
         }
     }
+
 
     public void SendToDashboardEntity(long entityId, string key, object? value)
     {

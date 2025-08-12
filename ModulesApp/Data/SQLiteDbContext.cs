@@ -8,6 +8,7 @@ using ModulesApp.Models.Dasboards.Entities;
 using ModulesApp.Models.ModulesPrograms;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
+using System.Reflection.Emit;
 using System.Text.Json;
 
 namespace ModulesApp.Data;
@@ -38,6 +39,36 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
         {
             PropertyNameCaseInsensitive = true,
         };
+
+        builder.Entity<DbTask>()
+            .HasOne(t => t.Module)
+            .WithMany(m => m.ServerTasks)
+            .HasForeignKey(t => t.ModuleId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<DbTask>()
+            .HasOne(t => t.BackgroundService)
+            .WithMany(m => m.ServerTasks)
+            .HasForeignKey(t => t.BackgroundServiceId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<DbTask>()
+            .HasOne(t => t.DashboardEntity)
+            .WithMany(m => m.ServerTasks)
+            .HasForeignKey(t => t.DashboardEntityId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<DbAction>()
+            .HasOne(a => a.Module)
+            .WithMany(m => m.Actions)
+            .HasForeignKey(a => a.ModuleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<DbAction>()
+            .HasOne(a => a.BackgroundService)
+            .WithMany(b => b.Actions)
+            .HasForeignKey(a => a.BackgroundServiceId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<DbTaskLink>()
             .HasOne(link => link.Source)
@@ -100,13 +131,15 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
 
         builder.Entity<DbDashboardEntity>()
             .HasDiscriminator<DashboardEntityType>(nameof(DbDashboardEntity.Type))
-            .HasValue<DbBasicCardEntity>(DashboardEntityType.BasicCard)
             .HasValue<DbDataListEntity>(DashboardEntityType.DataList)
             .HasValue<DbSwitchEntity>(DashboardEntityType.Switch)
             .HasValue<DbTemperaturesListEntity>(DashboardEntityType.TemperatureList)
             .HasValue<DbButtonEntity>(DashboardEntityType.Button)
-            .HasValue<DbValueSetterEntity>(DashboardEntityType.ValueSetter);
+            .HasValue<DbValueSetterEntity>(DashboardEntityType.ValueSetter)
+            .HasValue<DbLineChartEntity>(DashboardEntityType.LineChart)
+            .HasValue<DbKeyValueEntity>(DashboardEntityType.KeyValue)
+            .HasValue<DbFrameEntity>(DashboardEntityType.Frame);
 
         base.OnModelCreating(builder);
-    }  
+    }
 }

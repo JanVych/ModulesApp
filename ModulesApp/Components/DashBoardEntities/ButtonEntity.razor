@@ -5,27 +5,29 @@
 
 @if (EditMode)
 {
-    <MudPaper Class="pa-4" Style="width: 200px;">
-        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="pa-2" Style="width: 150px;">
-                <MudTextField @bind-Value="@Entity.Name" Variant="Variant.Outlined" Margin="Margin.Dense" />
-            </MudButton>
-            @if (DeleteButtonClick != null)
-            {
+    <MudPaper Class="pa-3" Style="width:300px;">
+        <MudStack StretchItems="StretchItems.All" AlignItems="AlignItems.Stretch" Spacing="1">
+            <MudStack Row="true">
+                <MudTextField @bind-Value="@Entity.Name" Label="Id" Required=true />
                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                Color="Color.Error"
                                OnClick="OnDeleteButtonClick" />
-            }
+            </MudStack>
+            <MudDivider />
+
+            <MudTextField @bind-Value="@Entity.Title" MaxLength="20" Label="Title" />
+
         </MudStack>
     </MudPaper>
 }
 else
 {
-    <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="pa-2" Style="width: 150px;"
+    <MudButton Variant="Variant.Filled" Style="width: 150px; height: 100px;" Color="Color.Primary"
                Disabled="_disabled" OnClick="OnButtonClick">
-        <MudText Typo="Typo.h6">@Entity.Name</MudText>
+        <MudText Typo="Typo.h6">@Entity.Title</MudText>
     </MudButton>
 }
+
 
 @code
 {
@@ -35,11 +37,10 @@ else
     public bool EditMode { get; set; } = false;
     [Parameter]
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
-
-    private bool _disabled = false;
-
     [Parameter]
     public ContextService? ServerContextService { get; set; }
+
+    private bool _disabled = false;
 
     private void OnDeleteButtonClick()
     {
@@ -52,7 +53,7 @@ else
         {
             _disabled = true;
             await ServerContextService.DashboardEntityUserTriggerAsync(Entity);
-            await Task.Delay(1000);
+            await Task.Delay(500);
             _disabled = false;
         }
     }

@@ -1,32 +1,33 @@
 ﻿using ModulesApp.Helpers;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ModulesApp.Models.Dasboards.Entities;
 
 public class DbSwitchEntity : DbDashboardEntity
 {
-    private bool _value = false;
-    [NotMapped]
-    public bool Value
+    public bool Value = false;
+    public string Title = string.Empty;
+
+    public override void UpdateState(string key, object? value, bool toDatabse)
     {
-        get => _value;
-        set
-        {
-            _value = value;
-            Data["Value"] = value;
-        }
+        Data[key] = value;
+        LoadState();
     }
 
-    public override void UpdateFromData(Dictionary<string, object?> data)
+    public override void LoadState()
     {
-        Data = data;
         if( Data.TryGetValue("Value", out var v))
         {
-            _value = DataConvertor.ToBool(v);
+            Value = DataConvertor.ToBool(v);
+        }
+        if (Data.TryGetValue("Title", out var t))
+        {
+            Title = DataConvertor.ToString(t);
         }
     }
 
-    public override void SaveData()
+    public override void SaveToData()
     {
+        Data["Value"] = Value;
+        Data["Title"] = Title;
     }
 }

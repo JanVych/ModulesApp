@@ -3,6 +3,7 @@ using ModulesApp.Models;
 using ModulesApp.Services;
 using ModulesApp.Services.Data;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ModulesApp.Controllers;
 
@@ -84,6 +85,7 @@ public class ModulesController : ControllerBase
 
         //get and delete all related actions
         var moduleActions = await _modulActionsService.GetListAndDeleteAsync(module);
+
         string response = string.Empty;
         if (moduleActions.Count != 0)
         {

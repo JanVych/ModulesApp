@@ -14,6 +14,8 @@ public class SendMessageNode : TaskNode
     public List<DbModule>? Modules { get; set; }
     public List<DbDashboardEntity>? Entities { get; set; }
     public List<DbBackgroundService>? Services { get; set; }
+    public List<string>? Keys { get; set; }
+
     public SendMessageNode(ContextService context, Point? position = null) : base(context, position)
     {
         Type = NodeType.SendMessage;
@@ -21,7 +23,7 @@ public class SendMessageNode : TaskNode
         Modules = context.GetAllModules();
         LongVal1 = Modules.FirstOrDefault()?.Id ?? 0;
         LongVal2 = (long)TargetType.Module;
-
+        SetKeys();
         AddPorts(NodeInputType.Single);
     }
     public SendMessageNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
@@ -39,6 +41,7 @@ public class SendMessageNode : TaskNode
         {
             Entities = context.GetAllDashBoardEntities();
         }
+        SetKeys();
         AddPorts(InputType);
     }
 
@@ -57,6 +60,24 @@ public class SendMessageNode : TaskNode
             AddPort(new TaskPort(this, true, PortPositionAlignment.Top, dataType: NodeValueType.NoData));
             //Data port
             AddPort(new TaskPort(this, true, PortPositionAlignment.Bottom, dataType: NodeValueType.Any));
+        }
+    }
+    public void SetKeys()
+    {
+        Keys = null;
+
+
+        if ((TargetType)LongVal2 == TargetType.Module)
+        {
+            Keys = Modules?.FirstOrDefault(x => x.Id == (int)LongVal1)?.Data.Select(v => v.Key).ToList();
+        }
+        else if ((TargetType)LongVal2 == TargetType.Dashboard)
+        {
+            Keys = Entities?.FirstOrDefault(x => x.Id == (int)LongVal1)?.Data.Select(v => v.Key).ToList();
+        }
+        else if ((TargetType)LongVal2 == TargetType.Service)
+        {
+            Keys = Services?.FirstOrDefault(x => x.Id == (int)LongVal1)?.MessageData.Select(v => v.Key).ToList();
         }
     }
 }

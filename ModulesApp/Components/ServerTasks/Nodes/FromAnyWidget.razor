@@ -61,7 +61,7 @@
                    Margin="Margin.Dense">
             @foreach (var e in Node.Entities)
             {
-                <MudSelectItem Value="@e.Id">@e.Name | @e.Id</MudSelectItem>
+                <MudSelectItem Value="@e.Id">@e.Name</MudSelectItem>
             }
         </MudSelect>
     }
@@ -80,6 +80,7 @@
     </MudSelect>
 
     <MudAutocomplete T="string"
+                     @bind-Text="Node.StringVal1"
                      @bind-Value="Node.StringVal1"
                      Label="Key"
                      Style="max-width:180px"
@@ -89,9 +90,11 @@
                      CoerceValue=false
                      Clearable=true
                      RelativeWidth="DropdownWidth.Adaptive"
+                     OnClearButtonClick="ClearButtonClick"
                      Modal=false
                      Dense=false
-                     SearchFunc="@Search">
+                     SearchFunc="@Search"
+                     AutoFocus="false">
 
     </MudAutocomplete>
 
@@ -147,7 +150,11 @@
         {
             return Node.Keys ?? [];
         }
-        
         return Node.Keys?.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)) ?? [];
+    }
+
+    private void ClearButtonClick()
+    {
+        Node.StringVal1 = string.Empty;
     }
 }

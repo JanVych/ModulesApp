@@ -22,7 +22,6 @@ public class FirmwareController : ControllerBase
 
         foreach (var p in programs)
         {
-            Console.WriteLine(p.Name);
             if (p.Name == program)
             {
                 var path = p.GetProgramBinPath();

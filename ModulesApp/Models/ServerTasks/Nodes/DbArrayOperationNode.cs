@@ -13,14 +13,38 @@ public class DbArrayOperationNode : DbTaskNode
 
     public override void Process(ContextService context)
     {
-        var value = GetInputValue(context, PortPositionAlignment.Center);
+        NodeValue? arrayValue = null;
+        NodeValue? secondInput = null;
 
-        if (value.Type == NodeValueType.Invalid)
+        if (SubType == (int)NodeArrayOperationType.ArrayCreate)
         {
-            Value = value;
+            Value = new NodeValue.ArrayValue([]);
             return;
         }
-        if (value is not NodeValue.ArrayValue aValue)
+
+        if (InputType == NodeInputType.Double)
+        {
+            arrayValue = GetInputValue(context, PortPositionAlignment.Top);
+            secondInput = GetInputValue(context, PortPositionAlignment.Bottom);
+        }
+        else if(InputType == NodeInputType.Single)
+        {
+            arrayValue = GetInputValue(context, PortPositionAlignment.Center);
+        }
+        
+
+        if ( arrayValue!= null && arrayValue.Type == NodeValueType.Invalid)
+        {
+            Value = arrayValue;
+            return;
+        }
+        if (secondInput != null && secondInput.Type == NodeValueType.Invalid)
+        {
+            Value = secondInput;
+            return;
+        }
+
+        if (arrayValue is not NodeValue.ArrayValue aValue)
         {
             Value = new NodeValue.InvalidValue($"In node: {Order}, type error, input is not an array!");
             return;
@@ -29,6 +53,15 @@ public class DbArrayOperationNode : DbTaskNode
         List<NodeValue> arrayCLone = aValue.GetValueClone();
         if (OperationType == NodeArrayOperationType.ArrayRemoveAt)
         {
+            if(InputType == NodeInputType.Double)
+            {
+                if (secondInput is not NodeValue.NumberValue numberValue)
+                {
+                    Value = new NodeValue.InvalidValue($"In node: {Order}, type error, second input is not a number!");
+                    return;
+                }
+                LongVal1 = (long)numberValue.Value;
+            }
             if (LongVal1 < 0 || LongVal1 > aValue.Value.Count - 1)
             {
                 Value = new NodeValue.InvalidValue($"In node: {Order}, index out of range, index:{LongVal1} !");
@@ -49,6 +82,16 @@ public class DbArrayOperationNode : DbTaskNode
             {
                 Value = new NodeValue.ArrayValue(arrayCLone.GetRange((int)LongVal1, (int)(LongVal2 - LongVal1 + 1)));
             }
+        }
+        else if (OperationType == NodeArrayOperationType.ArrayAppend && secondInput != null)
+        {
+            arrayCLone.Add(secondInput);
+            Value = new NodeValue.ArrayValue(arrayCLone);
+        }
+
+        else
+        {
+            Value = new NodeValue.InvalidValue($"In node: {Order}, operation type error, type:{OperationType} !");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿@inject SignInManager<IdentityUser> _signInManager
+@inject IConfiguration _configuration
 @inject NavigationManager _navigationManager
 @inject UserManager<IdentityUser> _userManager
 @inject IUserStore<IdentityUser> _userStore
@@ -7,39 +8,30 @@
 
 <PageTitle>Register</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Register</MudText>
 
-<MudGrid>
-    <MudItem md="6">
-        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-            <DataAnnotationsValidator />
+<MudStack AlignItems="AlignItems.Center" Class="pt-4">
+    <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+        <DataAnnotationsValidator />
+        <MudStack AlignItems="AlignItems.Stretch" Spacing="4" Style="min-width:350px">
+            <MudText Typo="Typo.h4" GutterBottom="true">Create a new account.</MudText>
 
-            <MudText Typo="Typo.body1" GutterBottom="true">Create a new account.</MudText>
+            <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
+                                Label="Email" Placeholder="name@example.com"
+                                UserAttributes="@(new() { { "autocomplete", "username" }, { "aria-required", "true" } })" />
+            <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
+                                Label="Password" InputType="InputType.Password" Placeholder="password"
+                                UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } })" />
+            <MudStaticTextField For="@(() => Input.ConfirmPassword)" @bind-Value="Input.ConfirmPassword"
+                                Label="Confirm Password" InputType="InputType.Password" Placeholder="confirm password"
+                                UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } })" />
+            <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Register</MudStaticButton>
+            <MudText Color="Color.Error" Typo="Typo.body2">
+                @Message
+            </MudText>
+        </MudStack>
+    </EditForm>
+</MudStack>
 
-            <MudGrid>
-                <MudItem md="12">
-                    <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
-                    Label="Email" Placeholder="name@example.com"
-                    UserAttributes="@(new() { { "autocomplete", "username" }, { "aria-required", "true" } } )" />
-                </MudItem>
-                <MudItem md="12">
-                    <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
-                    Label="Password" InputType="InputType.Password" Placeholder="password"
-                    UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } } )" />
-                </MudItem>
-                <MudItem md="12">
-                    <MudStaticTextField For="@(() => Input.ConfirmPassword)" @bind-Value="Input.ConfirmPassword"
-                    Label="Confirm Password" InputType="InputType.Password" Placeholder="confirm password"
-                    UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } } )" />
-                </MudItem>
-                <MudItem md="12">
-                    <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Register</MudStaticButton>
-                </MudItem>
-            </MudGrid>
-        </EditForm>
-    </MudItem>
-
-</MudGrid>
 
 @code {
     private IEnumerable<IdentityError>? identityErrors;
@@ -51,6 +43,25 @@
     private string? ReturnUrl { get; set; }
 
     private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(_navigationManager.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        if (query.TryGetValue("key", out var key))
+        {
+            var rkey = _configuration["AppSettings:RegisterKey"];
+            if (string.IsNullOrEmpty(rkey))
+            {
+                _navigationManager.NavigateTo("/");     
+            }
+            if(key == rkey)
+            {
+                return;
+            }
+        }
+        _navigationManager.NavigateTo("/");
+    }
 
     public async Task RegisterUser(EditContext editContext)
     {
@@ -103,7 +114,7 @@
         public string Email { get; set; } = "";
 
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 8)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; } = "";

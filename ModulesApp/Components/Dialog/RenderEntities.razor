@@ -1,0 +1,63 @@
+﻿@* @using ModulesApp.Components.DashBoardEntities
+@using ModulesApp.Models.Dasboards
+@using ModulesApp.Models.Dasboards.Entities
+
+@foreach (var e in _selectedDashboard.Entities)
+{
+    if (e.ParentEntityId == null)
+    {
+        if (e is DbBasicCardEntity bce)
+        {
+            <BasicCardEntity EditMode="@EditMode" Entity="@bce"
+                             DeleteButtonClick="DeleteDashBoardEntity" />
+        }
+        else if (e is DbDataListEntity dle)
+        {
+            <DataListEntity EditMode="@EditMode" Entity="@dle"
+                            DeleteButtonClick="DeleteDashBoardEntity" />
+        }
+        else if (e is DbSwitchEntity se)
+        {
+            <SwitchEntity EditMode="@EditMode" Entity="@se"
+                          DeleteButtonClick="DeleteDashBoardEntity"
+                          ServerContextService="_serverContextService" />
+        }
+        else if (e is DbTemperaturesListEntity tle)
+        {
+            <TemperaturesListEntity EditMode="@EditMode" Entity="@tle"
+                                    DeleteButtonClick="DeleteDashBoardEntity"
+                                    ServerContextService="_serverContextService" />
+        }
+        else if (e is DbButtonEntity be)
+        {
+            <ButtonEntity EditMode="@EditMode" Entity="@be"
+                          DeleteButtonClick="DeleteDashBoardEntity"
+                          ServerContextService="_serverContextService" />
+        }
+        else if (e is DbValueSetterEntity vse)
+        {
+            <ValueSetterEntity EditMode="@EditMode" Entity="@vse"
+                               DeleteButtonClick="DeleteDashBoardEntity"
+                               ServerContextService="_serverContextService" />
+        }
+        else if (e is DbLineChartEntity lce)
+        {
+            <LineChartEntity EditMode="@EditMode" Entity="@lce"
+                             DeleteButtonClick="DeleteDashBoardEntity" />
+        }
+        else if (e is DbKeyValueEntity kve)
+        {
+            <KeyValueEntity EditMode="@EditMode" Entity="@kve"
+                            DeleteButtonClick="DeleteDashBoardEntity" />
+        }
+        else if (e is DbFrameEntity fe)
+        {
+            <FrameEntity EditMode="@EditMode" Entity="@fe"
+                         DeleteButtonClick="DeleteDashBoardEntity" />
+        }
+    }
+}
+@code {
+    private DbDashboard? _selectedDashboard;
+    private bool EditMode { get; set; } = false;
+} *@

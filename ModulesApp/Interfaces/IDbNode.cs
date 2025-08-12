@@ -30,7 +30,9 @@ public enum NodeConditionType
 public enum NodeArrayOperationType
 {
     ArraySlice,
-    ArrayRemoveAt
+    ArrayRemoveAt,
+    ArrayAppend,
+    ArrayCreate,
 }
 
 public enum NodeArithmeticOperationType
@@ -110,6 +112,8 @@ public static class NodeExtensions
         {
             NodeArrayOperationType.ArraySlice => "Slice",
             NodeArrayOperationType.ArrayRemoveAt => $"Remove{space}At",
+            NodeArrayOperationType.ArrayAppend => "Append",
+            NodeArrayOperationType.ArrayCreate => "Create",
             _ => type.ToString()
         };
     }

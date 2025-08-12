@@ -29,102 +29,110 @@
     else
     {
         <MudItem xs="12" Class="mb-2">
-            <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Baseline" StretchItems="StretchItems.Middle">
-                <div class="d-flex align-start justify-center mud-width-full">
-                    <MudChipSet T="DbDashboard"
-                                @bind-SelectedValue="_selectedDashboard"
-                                Variant="Variant.Text"
-                                SelectionMode="SelectionMode.SingleSelection"
-                                Size="Size.Large"
-                                AllClosable="@EditMode"
-                                OnClose="DeleteDashBoard"
-                                Color="Color.Primary">
-                        @foreach (var d in _dashboards)
-                        {
-                            <MudChip Value="@d" Style="height: 55px" Icon="@d.IconString">
-                                <MudText>@d.Name</MudText>
-                            </MudChip>
-                        }
-                        @if (EditMode)
-                        {
-                            <MudChip Value="@("Add")"
-                                     Style="height: 55px"
-                                     Color="Color.Primary"
-                                     Variant="Variant.Text"
-                                     Size="Size.Large"
-                                     Icon="@Icons.Material.Filled.Add"
-                                     OnClick="OpenDashboardDialog" />
-                        }
-                    </MudChipSet>
-                </div>
-                <MudSwitch @bind-Value="@EditMode" Color="Color.Primary">Edit</MudSwitch>
-            </MudStack>
+            <div class="d-flex align-start justify-center mud-width-full">
+                <MudChipSet T="DbDashboard"
+                            @bind-SelectedValue="_selectedDashboard"
+                            Variant="Variant.Text"
+                            SelectionMode="SelectionMode.SingleSelection"
+                            Size="Size.Large"
+                            AllClosable="@EditMode"
+                            OnClose="DeleteDashBoard"
+                            Color="Color.Primary">
+                    @foreach (var d in _dashboards)
+                    {
+                        <MudChip Value="@d" Style="height: 50px" Icon="@d.IconString">
+                            <MudText>@d.Name</MudText>
+                        </MudChip>
+                    }
+                    @if (EditMode)
+                    {
+                        <MudChip Value="@("Add")"
+                                 Style="height: 50px"
+                                 Color="Color.Primary"
+                                 Variant="Variant.Text"
+                                 Size="Size.Large"
+                                 Icon="@Icons.Material.Filled.Add"
+                                 OnClick="OpenDashboardDialog" />
+                    }
+                </MudChipSet>
+            </div>
+            
         </MudItem>
 
         <MudItem xs="12">
             <div class="d-flex align-start justify-center flex-wrap gap-4">
                 @foreach (var e in _selectedDashboard.Entities)
                 {
-                    if (e is DbBasicCardEntity bce)
+                    if(e.ParentEntityId == null)
                     {
-                        <BasicCardEntity EditMode="@EditMode" Entity="@bce"
-                                         DeleteButtonClick="DeleteDashBoardEntity" />
+                        @if (e is DbDataListEntity dle)
+                        {
+                            <DataListEntity EditMode="@EditMode" Entity="@dle"
+                                            DeleteButtonClick="DeleteDashBoardEntity" />
+                        }
+                        else if (e is DbSwitchEntity se)
+                        {
+                            <SwitchEntity EditMode="@EditMode" Entity="@se"
+                                          DeleteButtonClick="DeleteDashBoardEntity"
+                                          ServerContextService="_serverContextService" />
+                        }
+                        else if (e is DbTemperaturesListEntity tle)
+                        {
+                            <TemperaturesListEntity EditMode="@EditMode" Entity="@tle"
+                                                    DeleteButtonClick="DeleteDashBoardEntity"
+                                                    ServerContextService="_serverContextService" />
+                        }
+                        else if (e is DbButtonEntity be)
+                        {
+                            <ButtonEntity EditMode="@EditMode" Entity="@be"
+                                          DeleteButtonClick="DeleteDashBoardEntity"
+                                          ServerContextService="_serverContextService" />
+                        }
+                        else if (e is DbValueSetterEntity vse)
+                        {
+                            <ValueSetterEntity EditMode="@EditMode" Entity="@vse"
+                                               DeleteButtonClick="DeleteDashBoardEntity"
+                                               ServerContextService="_serverContextService" />
+                        }
+                        else if (e is DbLineChartEntity lce)
+                        {
+                            <LineChartEntity EditMode="@EditMode" Entity="@lce"
+                                             DeleteButtonClick="DeleteDashBoardEntity" />
+                        }
+                        else if (e is DbKeyValueEntity kve)
+                        {
+                            <KeyValueEntity EditMode="@EditMode" Entity="@kve"
+                                            DeleteButtonClick="DeleteDashBoardEntity" />
+                        }
+                        else if (e is DbFrameEntity fe)
+                        {
+                            <FrameEntity EditMode="@EditMode" Entity="@fe"
+                                         ServerContextService="_serverContextService"
+                                         DeleteButtonClick="DeleteDashBoardEntity"
+                                         AddButtonClick="AddDashBoardEntity"/>
+                        }
                     }
-                    else if (e is DbDataListEntity dle)
-                    {
-                        <DataListEntity EditMode="@EditMode" Entity="@dle"
-                                        DeleteButtonClick="DeleteDashBoardEntity" />
-                    }
-                    else if (e is DbSwitchEntity se)
-                    {
-                        <SwitchEntity EditMode="@EditMode" Entity="@se"
-                                      DeleteButtonClick="DeleteDashBoardEntity"
-                                      ServerContextService="_serverContextService" />
-                    }
-                    else if (e is DbTemperaturesListEntity tle)
-                    {
-                        <TemperaturesListEntity EditMode="@EditMode" Entity="@tle"
-                                                DeleteButtonClick="DeleteDashBoardEntity"
-                                                ServerContextService="_serverContextService" />
-                    }
-                    else if (e is DbButtonEntity be)
-                    {
-                        <ButtonEntity EditMode="@EditMode" Entity="@be"
-                                      DeleteButtonClick="DeleteDashBoardEntity"
-                                      ServerContextService="_serverContextService" />
-                    }
-                    else if (e is DbValueSetterEntity vse)
-                    {
-                        <ValueSetterEntity EditMode="@EditMode" Entity="@vse"
-                                           DeleteButtonClick="DeleteDashBoardEntity"
-                                           ServerContextService="_serverContextService" />
-                    }
-                }
-
-                @if (EditMode)
-                {
-                    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddEntityDialog" />
                 }
             </div>
         </MudItem>
     }
 </MudGrid>
 
+@if(EditMode)
+{
+    <MudFab StartIcon="@Icons.Material.Filled.ArrowBack" Color="Color.Secondary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() =>ChangeEditMode(false)"/>
+    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Style="position: fixed; bottom: 16px; right: 88px;" OnClick="OpenAddEntityDialog" />
+}
+else
+{
+    <MudFab StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(true)" />
+}
+
+
 @code
 {
     private bool _editMode = false;
-    private bool EditMode
-    {
-        get => _editMode;
-        set
-        {
-            if (!value)
-            {
-                UpdateDashboard();
-            }
-            _editMode = value;
-        }
-    }
+    private bool EditMode { get; set; } = false;
     private List<DbDashboard>? _dashboards;
 
     private DbDashboard? _selectedDashboard;
@@ -174,27 +182,32 @@
         }
     }
 
-    private void OnDashBoardEntityDataChanged(DbDashboardEntity entity)
+    private void OnDashBoardEntityDataChanged((long EntityId, string Key, object? Value) message)
     {
         if (_selectedDashboard != null && !_editMode)
         {
-            var index = _selectedDashboard.Entities.FindIndex(e => e.Id == entity.Id);
-            if (index >= 0)
+            // var entity = _selectedDashboard.Entities.FirstOrDefault(e => e.Id == message.EntityId);
+            var entity = _dashboards?.SelectMany(d => d.Entities).FirstOrDefault(e => e.Id == message.EntityId);
+            if(entity != null)
             {
-                _selectedDashboard.Entities[index] = entity;
-                InvokeAsync(StateHasChanged);
+                entity.UpdateState(message.Key, message.Value);
             }
+
+            // if(entity.ParentEntityId != null)
+            // {
+            //     var parent = _selectedDashboard.Entities.FirstOrDefault(e => e.Id == entity.ParentEntityId);
+            //     parent?.ReplaceChildren(entity);
+            // }
+            // _selectedDashboard.ReplaceEntity(entity);
+            InvokeAsync(StateHasChanged);
         }
     }
 
-    private void UpdateDashboard()
+    private async Task UpdateDashboard()
     {
         if (_selectedDashboard != null)
         {
-            foreach (var e in _selectedDashboard.Entities)
-            {
-                _dashBoardService.UpdateEntity(e);
-            }
+            await _dashBoardService.UpdateEntitiesAsync(_selectedDashboard.Entities);
         }
     }
 
@@ -207,7 +220,6 @@
             _selectedDashboard.Entities.Add(entity);
         }
     }
-
 
     private async Task OpenAddEntityDialog()
     {
@@ -226,10 +238,10 @@
 
     private async Task OpenDashboardDialog() =>
         await OpenDashboardDialog(new DbDashboard
-            {
-                Name = "New Dashboard",
-                IconString = Icons.Material.Filled.Home
-            });
+        {
+            Name = "New Dashboard",
+            IconString = Icons.Material.Filled.Home
+        });
 
     private async Task OpenDashboardDialog(DbDashboard dashboard)
     {
@@ -252,6 +264,15 @@
                 _selectedDashboard = entity;
             }
         }
+    }
+
+    private async Task ChangeEditMode(bool value)
+    {
+        if (!value && _selectedDashboard != null)
+        {
+            await UpdateDashboard();
+        }
+        EditMode = value;
     }
 
     public void Dispose()

@@ -25,6 +25,22 @@ public class DataConvertor
                 {
                     result.Add((T)(object)ToBool(element));
                 }
+                else if(targetType == typeof(int))
+                {
+                    result.Add((T)(object)ToInt32(element));
+                }
+                else if (targetType == typeof(long))
+                {
+                    result.Add((T)(object)ToInt64(element));
+                }
+                else if (targetType == typeof(decimal))
+                {
+                    result.Add((T)(object)ToDecimal(element));
+                }
+                else if (targetType == typeof(DateTime))
+                {
+                    result.Add((T)(object)ToDateTime(element));
+                }
                 else
                 {
                     result.Add(default);
@@ -92,6 +108,86 @@ public class DataConvertor
         return default;
     }
 
+    public static decimal ToDecimal(object? value)
+    {
+        if (value is decimal decimalValue)
+        {
+            return decimalValue;
+        }
+        if (value is int intValue)
+        {
+            return (decimal)intValue;
+        }
+        if (value is double doubleValue)
+        {
+            return (decimal)doubleValue;
+        }
+        if (value is JsonElement json)
+        {
+            if (json.ValueKind == JsonValueKind.Number)
+            {
+                return json.GetDecimal();
+            }
+            else if (json.ValueKind == JsonValueKind.String && decimal.TryParse(json.GetString(), out var parsed))
+            {
+                return parsed;
+            }
+        }
+        if (value is string str && decimal.TryParse(str, out var parsedValue))
+        {
+            return parsedValue;
+        }
+        return default;
+    }
+
+    public static long ToInt64(object? value)
+    {
+        if (value is long longValue)
+        {
+            return longValue;
+        }
+        if (value is JsonElement json)
+        {
+            if (json.ValueKind == JsonValueKind.Number)
+            {
+                return json.GetInt64();
+            }
+            else if (json.ValueKind == JsonValueKind.String && long.TryParse(json.GetString(), out var parsed))
+            {
+                return parsed;
+            }
+        }
+        if (value is string str && long.TryParse(str, out var parsedValue))
+        {
+            return parsedValue;
+        }
+        return default;
+    }
+
+    public static DateTime ToDateTime(object? value)
+    {
+        if (value is DateTime dateTimeValue)
+        {
+            return dateTimeValue;
+        }
+        if (value is JsonElement json)
+        {
+            if (json.ValueKind == JsonValueKind.String && DateTime.TryParse(json.GetString(), out var parsed))
+            {
+                return parsed;
+            }
+            else if (json.ValueKind == JsonValueKind.Number && DateTime.TryParse(json.GetDouble().ToString(), out parsed))
+            {
+                return parsed;
+            }
+        }
+        if (value is string str && DateTime.TryParse(str, out var parsedValue))
+        {
+            return parsedValue;
+        }
+        return default;
+    }
+
     public static bool ToBool(object? value)
     {
         if (value is bool boolValue)
@@ -134,6 +230,39 @@ public class DataConvertor
         }
         return false;
     }
+
+    public static double[] ToDoubleArray(object? value)
+    {
+        if (value is JsonElement json && json.ValueKind == JsonValueKind.Array)
+        {
+            try
+            {
+                return json.EnumerateArray().Select(e => e.GetDouble()).ToArray();
+            }
+            catch
+            {
+                return [];
+            }
+        }
+
+        if (value is double[] array)
+        {
+            return array;
+        }
+
+        if (value is List<double> list)
+        {
+            return list.ToArray();
+        }
+
+        if (value is IEnumerable<double> enumerable)
+        {
+            return enumerable.ToArray();
+        }
+
+        return [];
+    }
+
 
     //public static JsonElement ToJsonArray(object? value)
     //{

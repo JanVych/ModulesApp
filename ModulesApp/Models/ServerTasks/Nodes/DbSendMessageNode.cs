@@ -45,6 +45,12 @@ public class DbSendMessageNode : DbTaskNode
             return;
         }
 
+        if(string.IsNullOrEmpty(StringVal1))
+        {
+            Value = new NodeValue.InvalidValue($"In node: {Order}, key cant be empty!");
+            return;
+        }
+
         if (LongVal2 == (long)TargetType.Module)
         {
             context.SendToModule(LongVal1, StringVal1, Value.GetValue());

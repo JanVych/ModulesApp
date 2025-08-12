@@ -1,0 +1,242 @@
+﻿@using ModulesApp.Models.Dasboards
+@using ModulesApp.Models.Dasboards.Entities
+@using ApexCharts
+
+@implements IDisposable
+
+@if (EditMode)
+{
+    <MudPaper Class="pa-3" Style="width:600px;">
+        <MudStack StretchItems="StretchItems.All" AlignItems="AlignItems.Stretch" Spacing="1">
+            <MudStack Row="true">
+                <MudTextField @bind-Value="@Entity.Name" Label="Id" Required=true />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="MudBlazor.Color.Error"
+                               OnClick="OnDeleteButtonClick" />
+            </MudStack>
+            <MudDivider />
+            <MudSelect @bind-Value="@Entity.ChartType" Label="Type">
+                @foreach (EntityChartType type in Enum.GetValues(typeof(EntityChartType)))
+                {
+                    <MudSelectItem Value="@type"/>
+                }
+            </MudSelect>
+           
+            <MudTextField @bind-Value="@Entity.Title" MaxLength="20" Label="Title" />
+            <MudNumericField @bind-Value="Entity.MovingAverageWindowSize" MaxLength="20" Label="Moving average window size" />
+            <MudNumericField @bind-Value="Entity.RoundValueTo" MaxLength="20" Label="Round values to" />
+            @foreach (var serie in Entity.SeriesList)
+            {
+                <MudStack Row=true>
+                    <MudTextField @bind-Value="serie.Name" Label="@GetSeriesName(serie)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="MudBlazor.Color.Error"
+                                   OnClick="@(() => DeleteSeries(serie))" />
+                </MudStack>
+                <MudText Typo="Typo.body2">Add point message key: @GetSeriesValueMessage(serie)</MudText>
+               
+                <MudDivider Class="pt-2"/>
+            }
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="AddSeries">
+                Add Series
+            </MudButton>
+            
+
+        </MudStack>
+    </MudPaper>
+}
+else
+{
+    <MudPaper Width="400px" Height="316px" Class="pa-3">
+        <ApexChart @ref="_chart"
+            TItem="DbLineChartEntity.SeriesData"
+                   Width="376"
+                   Height="292"
+                   Title="@Entity.Title"
+                   Options="_chartOptions">
+            @foreach (var serie in Entity.SeriesList)
+            {
+                <ApexPointSeries TItem="DbLineChartEntity.SeriesData"
+                                 Items="@serie.Data"
+                                 Name="@serie.Name"
+                                 SeriesType="SeriesType.Line"
+                                 XValue="e => e.ValueX"
+                                 YValue="e=> e.ValueY" />
+            }
+        </ApexChart>
+    </MudPaper>
+}
+
+@code
+{
+    [Parameter, EditorRequired]
+    public DbLineChartEntity Entity { get; set; } = default!;
+    [Parameter]
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+
+    private ApexChart<DbLineChartEntity.SeriesData>? _chart;
+    private ApexChartOptions<DbLineChartEntity.SeriesData> _chartOptions;
+
+    protected override void OnInitialized()
+    {
+        _chartOptions = new ApexChartOptions<DbLineChartEntity.SeriesData>
+        {
+            Chart = new Chart
+            {
+                Background = "transparent",
+                ForeColor = "var(--mud-palette-text-primary)",
+                FontFamily = "Roboto, Helvetica, Arial, sans-serif",
+                Animations = new Animations
+                {
+                    Enabled = false
+                },
+                Toolbar = new Toolbar
+                {
+                    Show = true,
+                    Tools = new Tools
+                    {
+                        Zoom = true,
+                        Zoomin = true,
+                        Zoomout = true,
+                        Pan = false,
+                        Reset = true,
+                        Download = false
+                    }
+                }
+                
+            },
+            Title = new Title
+            {
+                Align = ApexCharts.Align.Center,
+                Margin = 20,
+                OffsetY = -10,
+                Floating = true,
+                Style = new TitleStyle
+                {
+                    FontSize = "24px",
+                    FontWeight = "400",
+
+                }
+            },
+            Tooltip = new Tooltip
+            {
+                X = new TooltipX
+                {
+                    Format = "HH:mm" 
+                },
+            },
+
+            Stroke = new Stroke
+            {
+                Width = 2,
+                Curve = Curve.Smooth
+            },
+            Markers = new Markers
+            {
+                Size = 0
+            },
+
+            Legend = new Legend
+            {
+                Show = true,
+                Position = LegendPosition.Bottom,
+                HorizontalAlign = ApexCharts.Align.Center,
+                Markers = new LegendMarkers
+                {
+                    StrokeWidth = 0,
+                }
+
+            },
+            Xaxis = new XAxis
+            {
+                Tooltip = new XAxisTooltip
+                {
+                    Enabled = false,
+                },
+                Type = XAxisType.Datetime,
+                Labels = new XAxisLabels
+                {
+                    Formatter = "function(value) { return new Date(value).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); }",
+                    
+                }
+
+            },
+            Yaxis = new List<YAxis>
+            {
+                new YAxis
+                {
+                    Labels = new YAxisLabels
+                    {
+                        Formatter = $"function (val) {{ return val.toFixed({Entity.RoundValueTo}); }}"
+                    }
+                }
+            },
+        };
+
+        Entity.UpdateAsync += UpdateSeries;
+    }
+
+    private void AddSeries()
+    {
+        // var rnd = new Random();
+        // var testData = new List<DbLineChartEntity.SeriesData>();
+
+        // for (int i = 0; i < 10000; i++)
+        // {
+        //     testData.Add(new DbLineChartEntity.SeriesData
+        //     {
+        //         ValueY = i * 2 % 4000,
+        //         ValueX = DateTime.Now.AddHours(i)
+        //     });
+        // }
+
+        var set = new HashSet<int>(Entity.SeriesList.Select(x => x.Id));
+        int smallest = 1;
+        while (set.Contains(smallest))
+        {
+            smallest++;
+        }
+        var series= new DbLineChartEntity.Series
+        {
+            Name = $"Series {smallest}",
+            Data = [],
+            Id = smallest
+        };
+        Entity.SeriesList.Add(series);
+        StateHasChanged();
+    }
+
+    private void DeleteSeries(DbLineChartEntity.Series serie)
+    {
+        Entity.SeriesList.Remove(serie);
+        StateHasChanged();
+
+    }
+
+    private async Task UpdateSeries()
+    {
+        if(_chart != null)
+        {
+            await _chart.UpdateSeriesAsync();
+            await InvokeAsync(StateHasChanged);            
+        }
+    }
+
+    private void OnDeleteButtonClick()
+    {
+        DeleteButtonClick?.Invoke(Entity);
+    }
+
+    private string GetSeriesName(DbLineChartEntity.Series serie) => $"SeriesName{serie.Id}";
+    private string GetSeriesValueMessage(DbLineChartEntity.Series serie) => $"Value{serie.Id}";
+    // private string GetSeriesDataXName(DbLineChartEntity.Series serie) => $"SeriesDataX{serie.Data.Count}";
+    // private string GetSeriesDataYName(DbLineChartEntity.Series serie) => $"SeriesDataY{serie.Data.Count}";
+
+    public void Dispose()
+    {
+        Entity.UpdateAsync -= UpdateSeries;
+        _chart?.Dispose();
+    }
+}

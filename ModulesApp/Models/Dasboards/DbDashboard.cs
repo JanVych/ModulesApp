@@ -13,4 +13,13 @@ public class DbDashboard
     public List<DbDashboardEntity> Entities { get; set; } = [];
 
     public override string ToString() => Name;
+
+    public void ReplaceEntity(DbDashboardEntity entity)
+    {
+        var index = Entities.FindIndex(e => e.Id == entity.Id);
+        if (index >= 0)
+        {
+            Entities[index] = entity;
+        }
+    }
 }

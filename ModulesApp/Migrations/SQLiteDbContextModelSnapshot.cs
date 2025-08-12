@@ -15,7 +15,7 @@ namespace ModulesApp.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -223,10 +223,6 @@ namespace ModulesApp.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("MessageData")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -281,12 +277,17 @@ namespace ModulesApp.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<long?>("ParentEntityId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DashboardId");
+
+                    b.HasIndex("ParentEntityId");
 
                     b.ToTable("DashBoardEntity");
 
@@ -612,34 +613,7 @@ namespace ModulesApp.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbBasicCardEntity", b =>
-                {
-                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
-
-                    b.ToTable("DashBoardEntity");
-
-                    b.HasDiscriminator().HasValue(0);
-                });
-
             modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbButtonEntity", b =>
-                {
-                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
-
-                    b.ToTable("DashBoardEntity");
-
-                    b.HasDiscriminator().HasValue(4);
-                });
-
-            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbDataListEntity", b =>
-                {
-                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
-
-                    b.ToTable("DashBoardEntity");
-
-                    b.HasDiscriminator().HasValue(1);
-                });
-
-            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbSwitchEntity", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
 
@@ -648,7 +622,16 @@ namespace ModulesApp.Migrations
                     b.HasDiscriminator().HasValue(2);
                 });
 
-            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbTemperaturesListEntity", b =>
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbDataListEntity", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
+
+                    b.ToTable("DashBoardEntity");
+
+                    b.HasDiscriminator().HasValue(5);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbFrameEntity", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
 
@@ -657,13 +640,49 @@ namespace ModulesApp.Migrations
                     b.HasDiscriminator().HasValue(3);
                 });
 
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbKeyValueEntity", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
+
+                    b.ToTable("DashBoardEntity");
+
+                    b.HasDiscriminator().HasValue(0);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbLineChartEntity", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
+
+                    b.ToTable("DashBoardEntity");
+
+                    b.HasDiscriminator().HasValue(6);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbSwitchEntity", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
+
+                    b.ToTable("DashBoardEntity");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbTemperaturesListEntity", b =>
+                {
+                    b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
+
+                    b.ToTable("DashBoardEntity");
+
+                    b.HasDiscriminator().HasValue(7);
+                });
+
             modelBuilder.Entity("ModulesApp.Models.Dasboards.Entities.DbValueSetterEntity", b =>
                 {
                     b.HasBaseType("ModulesApp.Models.Dasboards.DbDashboardEntity");
 
                     b.ToTable("DashBoardEntity");
 
-                    b.HasDiscriminator().HasValue(5);
+                    b.HasDiscriminator().HasValue(4);
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ServerTasks.Nodes.DbArithmeticOperationNode", b =>
@@ -842,6 +861,10 @@ namespace ModulesApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ModulesApp.Models.Dasboards.DbDashboardEntity", null)
+                        .WithMany("ChildEntities")
+                        .HasForeignKey("ParentEntityId");
+
                     b.Navigation("Dashboard");
                 });
 
@@ -849,11 +872,13 @@ namespace ModulesApp.Migrations
                 {
                     b.HasOne("ModulesApp.Models.BackgroundServices.DbBackgroundService", "BackgroundService")
                         .WithMany("Actions")
-                        .HasForeignKey("BackgroundServiceId");
+                        .HasForeignKey("BackgroundServiceId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ModulesApp.Models.DbModule", "Module")
                         .WithMany("Actions")
-                        .HasForeignKey("ModuleId");
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("BackgroundService");
 
@@ -886,15 +911,18 @@ namespace ModulesApp.Migrations
                 {
                     b.HasOne("ModulesApp.Models.BackgroundServices.DbBackgroundService", "BackgroundService")
                         .WithMany("ServerTasks")
-                        .HasForeignKey("BackgroundServiceId");
+                        .HasForeignKey("BackgroundServiceId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ModulesApp.Models.Dasboards.DbDashboardEntity", "DashboardEntity")
                         .WithMany("ServerTasks")
-                        .HasForeignKey("DashboardEntityId");
+                        .HasForeignKey("DashboardEntityId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ModulesApp.Models.DbModule", "Module")
                         .WithMany("ServerTasks")
-                        .HasForeignKey("ModuleId");
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("BackgroundService");
 
@@ -947,6 +975,8 @@ namespace ModulesApp.Migrations
 
             modelBuilder.Entity("ModulesApp.Models.Dasboards.DbDashboardEntity", b =>
                 {
+                    b.Navigation("ChildEntities");
+
                     b.Navigation("ServerTasks");
                 });
 

@@ -105,6 +105,7 @@
 
                             <MudNumericField Label="Communication interval" @bind-Value="_communicationInterval" Class="flex-grow-0" Variant="Variant.Text"
                                              Style="max-width:300px;" Min="5" Max="86400" />
+                                             <MudSwitch @bind-Value="_isHttpEnabled" Color="Color.Primary" Label="Use http connection"/>
                         </div>
                     }
 
@@ -184,6 +185,8 @@
     private string _wifiSsid = "someSsid";
     private string _wifiPassword = "somePassword";
     private int _communicationInterval = 60;
+    private bool _isHttpEnabled = false;
+    private byte _isHttpEnabledByte => _isHttpEnabled? (byte)1 : (byte)0;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -192,7 +195,8 @@
         {
             _serverAddress = _navigationManager.BaseUri
                 .Replace("https://", string.Empty)
-                .Replace("http://", string.Empty);
+                .Replace("http://", string.Empty)
+                .TrimEnd('/');
 
             await JS.InvokeAsync<IJSObjectReference>("import", "./js/esptool_bundle.js");
             _JSmodule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/esptool_connection.js");
@@ -245,7 +249,7 @@
             }
             await _JSmodule.InvokeVoidAsync("flashFiles", _binFiles);
             _disableActions = false;
-            InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -256,7 +260,7 @@
             _disableActions = true;
             await _JSmodule.InvokeVoidAsync("eraseFlash");
             _disableActions = false;
-            InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -349,6 +353,7 @@
             $"ModuleId,data,i64,{module.Id}",
             $"ProgramName,data,string,\"{program.Name}\"",
             $"CommInterval,data,i32,{_communicationInterval}",
+            $"EnableHttp,data,i8,{_isHttpEnabledByte}"
         };
         try
         {

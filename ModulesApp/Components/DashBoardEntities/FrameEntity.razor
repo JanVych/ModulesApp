@@ -1,0 +1,119 @@
+﻿@using ModulesApp.Components.Dialog
+@using ModulesApp.Models.Dasboards
+@using ModulesApp.Models.Dasboards.Entities
+@using ModulesApp.Services
+
+@inject IDialogService DialogService
+
+<MudStack Spacing="2" Style="@GetFrameStyle()" AlignItems="AlignItems.Center">
+    @foreach (var e in Entity.ChildEntities)
+    {
+
+        if (e is DbDataListEntity dle)
+        {
+            <DataListEntity EditMode="@EditMode" Entity="@dle"
+                            DeleteButtonClick="(e) => OnDeleteButtonClick(e)" />
+        }
+        else if (e is DbSwitchEntity se)
+        {
+            <SwitchEntity EditMode="@EditMode" Entity="@se"
+                          DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
+                          ServerContextService="ServerContextService" />
+        }
+        else if (e is DbTemperaturesListEntity tle)
+        {
+            <TemperaturesListEntity EditMode="@EditMode" Entity="@tle"
+                                    DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
+                                    ServerContextService="ServerContextService" />
+        }
+        else if (e is DbButtonEntity be)
+        {
+            <ButtonEntity EditMode="@EditMode" Entity="@be"
+                          DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
+                          ServerContextService="ServerContextService" />
+        }
+        else if (e is DbValueSetterEntity vse)
+        {
+            <ValueSetterEntity EditMode="@EditMode" Entity="@vse"
+                               DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
+                               ServerContextService="ServerContextService" />
+        }
+        else if (e is DbLineChartEntity lce)
+        {
+            <LineChartEntity EditMode="@EditMode" Entity="@lce"
+                             DeleteButtonClick="(e) => OnDeleteButtonClick(e)" />
+        }
+        else if (e is DbKeyValueEntity kve)
+        {
+            <KeyValueEntity EditMode="@EditMode" Entity="@kve"
+                            DeleteButtonClick="(e) => OnDeleteButtonClick(e)" />
+        }
+    }
+    @if (EditMode)
+    {
+        <MudPaper style="min-width:300px;">
+            <MudTextField @bind-Value="@Entity.Name" Label="Id" Required=true />
+            @if (!DisableActions)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               OnClick="() => OnDeleteButtonClick(Entity)" />
+
+                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                               Color="Color.Primary"
+                               OnClick="OnAddButtonClick" />
+            }
+        </MudPaper>
+        
+    }
+    
+</MudStack>
+
+
+@code
+{
+    [Parameter, EditorRequired]
+    public DbFrameEntity Entity { get; set; } = default!;
+    [Parameter, EditorRequired]
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public ContextService? ServerContextService { get; set; }
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+
+    [Parameter]
+    public Action<DbDashboardEntity?>? AddButtonClick { get; set; }
+
+    [Parameter]
+    public bool DisableActions { get; set; } = false;
+
+    private string GetFrameStyle() => EditMode ? "border: 2px solid var(--mud-palette-primary); padding: 10px;" : string.Empty;
+
+
+    private void OnDeleteButtonClick(DbDashboardEntity entity)
+    {
+        DeleteButtonClick?.Invoke(entity);
+    }
+
+    private async Task OnAddButtonClick()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var dRef = await DialogService.ShowAsync<DashboardAddEntityDialog>("Simple Dialog", options);
+        var result = await dRef.Result;
+        if (result is not null && !result.Canceled)
+        {
+            if(result.Data is DbFrameEntity)
+            {
+                return;
+            }
+            if (result.Data is DbDashboardEntity entity)
+            {
+                entity.ParentEntityId = Entity.Id;
+                Entity.ChildEntities.Add(entity);
+                AddButtonClick?.Invoke(entity);
+                StateHasChanged();
+            }
+        }
+    }
+}

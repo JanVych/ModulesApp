@@ -7,21 +7,16 @@
         Dialog Title
     </TitleContent>
     <DialogContent>
-        <div class="pa-4">
+        <div class="pa-2">
             <MudStack AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h5">New Entity</MudText>
                 <MudSelect T="DashboardEntityType" Value="EntityType" Label="Type" ValueChanged="ChangeNewEntityType">
-                    @foreach (DashboardEntityType type in Enum.GetValues(typeof(DashboardEntityType)))
+                    @foreach (DashboardEntityType type in _aviableTypes)
                     {
                         <MudSelectItem Value="type" />
                     }
                 </MudSelect>
-
-                @if (Entity is DbBasicCardEntity bce)
-                {
-                    <BasicCardEntity EditMode="true" Entity="@bce" />
-                }
-                else if (Entity is DbDataListEntity dle)
+                @if (Entity is DbDataListEntity dle)
                 {
                     <DataListEntity EditMode="true" Entity="@dle" />
                 }
@@ -29,10 +24,10 @@
                 {
                     <SwitchEntity EditMode="true" Entity="@se" />
                 }
-                else if(Entity is DbTemperaturesListEntity tle)
+                @* else if(Entity is DbTemperaturesListEntity tle)
                 {
                     <TemperaturesListEntity EditMode="true" Entity="@tle" />
-                }
+                } *@
                 else if(Entity is DbButtonEntity be)
                 {
                     <ButtonEntity EditMode="true" Entity="@be" />
@@ -40,6 +35,18 @@
                 else if (Entity is DbValueSetterEntity vse)
                 {
                     <ValueSetterEntity EditMode="true" Entity="@vse" />
+                }
+                else if (Entity is DbLineChartEntity lce)
+                {
+                    <LineChartEntity EditMode="true" Entity="@lce" />
+                }
+                else if (Entity is DbKeyValueEntity kve)
+                {
+                    <KeyValueEntity EditMode="true" Entity="@kve" />
+                }
+                else if (Entity is DbFrameEntity fe)
+                {
+                    <FrameEntity EditMode="true" Entity="@fe" DisableActions="true"/>
                 }
                 else
                 {
@@ -58,8 +65,20 @@
     [CascadingParameter, EditorRequired]
     private IMudDialogInstance MudDialog { get; set; } = default!;
 
-    public DbDashboardEntity Entity { get; set; } = new DbBasicCardEntity();
-    public DashboardEntityType EntityType { get; set; } = DashboardEntityType.BasicCard;
+    public DbDashboardEntity Entity { get; set; } = new DbKeyValueEntity();
+    public DashboardEntityType EntityType { get; set; } = DashboardEntityType.KeyValue;
+
+    private List<DashboardEntityType> _aviableTypes = new()
+    {
+        DashboardEntityType.KeyValue,
+        
+        DashboardEntityType.Switch,
+        DashboardEntityType.Button,
+        DashboardEntityType.ValueSetter,
+        DashboardEntityType.Frame,
+        DashboardEntityType.DataList,
+        DashboardEntityType.LineChart,
+    };
 
     private void Submit() => MudDialog.Close(DialogResult.Ok(Entity));
 
@@ -75,7 +94,10 @@
             DashboardEntityType.TemperatureList => new DbTemperaturesListEntity(),
             DashboardEntityType.Button => new DbButtonEntity(),
             DashboardEntityType.ValueSetter => new DbValueSetterEntity(),
-            _ => new DbBasicCardEntity()
+            DashboardEntityType.LineChart => new DbLineChartEntity(),
+            DashboardEntityType.KeyValue => new DbKeyValueEntity(),
+            DashboardEntityType.Frame => new DbFrameEntity(),
+            _ => new DbKeyValueEntity()
         };
     }
 }
