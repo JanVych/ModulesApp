@@ -7,49 +7,80 @@ public class DataConvertor
     public static List<T?> ToList<T>(object? value)
     {
         var targetType = typeof(T);
+
         if (value is JsonElement json && json.ValueKind == JsonValueKind.Array)
         {
             var result = new List<T?>(json.GetArrayLength());
-            
+
             foreach (var element in json.EnumerateArray())
             {
-                if (targetType == typeof(string))
+                result.Add(ConvertElement<T>(element, targetType));
+            }
+            return result;
+        }
+
+        if (value is System.Collections.IEnumerable enumerable && value is not string)
+        {
+            var result = new List<T?>();
+                
+            foreach (var element in enumerable)
+            {
+                if (element is JsonElement jsonElem)
                 {
-                    result.Add((T)(object)ToString(element));
-                }
-                else if (targetType == typeof(double))
-                {
-                    result.Add((T)(object)ToDouble(element));
-                }
-                else if (targetType == typeof(bool))
-                {
-                    result.Add((T)(object)ToBool(element));
-                }
-                else if(targetType == typeof(int))
-                {
-                    result.Add((T)(object)ToInt32(element));
-                }
-                else if (targetType == typeof(long))
-                {
-                    result.Add((T)(object)ToInt64(element));
-                }
-                else if (targetType == typeof(decimal))
-                {
-                    result.Add((T)(object)ToDecimal(element));
-                }
-                else if (targetType == typeof(DateTime))
-                {
-                    result.Add((T)(object)ToDateTime(element));
+                    result.Add(ConvertElement<T>(jsonElem, targetType));
                 }
                 else
                 {
-                    result.Add(default);
+                    result.Add(ConvertPlain<T>(element, targetType));
                 }
             }
             return result;
         }
+
         return [];
     }
+
+    private static T? ConvertElement<T>(JsonElement element, Type targetType)
+    {
+        if (element.ValueKind == JsonValueKind.Null)
+            return default;
+        var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+        object? converted = underlyingType switch
+        {
+            var t when t == typeof(string) => ToString(element),
+            var t when t == typeof(double) => ToDouble(element),
+            var t when t == typeof(bool) => ToBool(element),
+            var t when t == typeof(int) => ToInt32(element),
+            var t when t == typeof(long) => ToInt64(element),
+            var t when t == typeof(decimal) => ToDecimal(element),
+            var t when t == typeof(DateTime) => ToDateTime(element),
+            _ => null
+        };
+
+        return (T?)converted;
+    }
+
+    private static T? ConvertPlain<T>(object? element, Type targetType)
+    {
+        if (element == null)
+        {
+            return default;
+        }
+        try
+        {
+            if (targetType.IsAssignableFrom(element.GetType()))
+            {
+                return (T)element;
+            }
+            var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+            return (T)Convert.ChangeType(element, underlyingType);
+        }
+        catch
+        {
+            return default;
+        }
+    }
+
 
     public static string ToString(object? value)
     {

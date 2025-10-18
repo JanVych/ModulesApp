@@ -103,7 +103,6 @@ public class ContextService
         if (_modulesService.Exist(moduleId))
         {
             _moduleActionService.AddOrReplace(key, value, moduleId, null);
-            //_moduleActionService.Add(action);
         }
     }
 
@@ -112,14 +111,13 @@ public class ContextService
         if (_backgroundServiceService.Exist(serviceId))
         {
             _moduleActionService.AddOrReplace(key, value, null, serviceId);
-            //_moduleActionService.Add(action);
         }
     }
 
 
     public void SendToDashboardEntity(long entityId, string key, object? value)
     {
-        _dashboardService.UpdateEntity(entityId, key, value);
+        _dashboardService.UpdateEntityAndNotify(entityId, key, value);
     }
 
     public async Task DashboardEntityUserTriggerAsync(DbDashboardEntity entity)

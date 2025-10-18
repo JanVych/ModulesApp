@@ -20,12 +20,6 @@
                           DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
                           ServerContextService="ServerContextService" />
         }
-        else if (e is DbTemperaturesListEntity tle)
-        {
-            <TemperaturesListEntity EditMode="@EditMode" Entity="@tle"
-                                    DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
-                                    ServerContextService="ServerContextService" />
-        }
         else if (e is DbButtonEntity be)
         {
             <ButtonEntity EditMode="@EditMode" Entity="@be"
@@ -38,15 +32,21 @@
                                DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
                                ServerContextService="ServerContextService" />
         }
-        else if (e is DbLineChartEntity lce)
-        {
-            <LineChartEntity EditMode="@EditMode" Entity="@lce"
-                             DeleteButtonClick="(e) => OnDeleteButtonClick(e)" />
-        }
         else if (e is DbKeyValueEntity kve)
         {
             <KeyValueEntity EditMode="@EditMode" Entity="@kve"
                             DeleteButtonClick="(e) => OnDeleteButtonClick(e)" />
+        }
+        else if (e is DbRoomsTempEntity rte)
+        {
+            <RoomsTempEntity EditMode="@EditMode" Entity="@rte"
+                             DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
+                             ServerContextService="ServerContextService" />
+        }
+        else if (e is DbLineChart24hEntity lc24)
+        {
+            <LineChart24hEntity EditMode="@EditMode" Entity="@lc24"
+                               DeleteButtonClick="(e) => OnDeleteButtonClick(e)"/>
         }
     }
     @if (EditMode)

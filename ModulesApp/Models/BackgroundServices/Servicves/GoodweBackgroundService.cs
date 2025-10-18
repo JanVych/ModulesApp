@@ -89,7 +89,7 @@ public class GoodweBackgroundService : BackgroundService
     /// <returns>negative value = consuming, positive value = suplying</returns>
     public int? GetGridPower() => (int?)_modbusRtuUdp?.ReadU32Register(35139);
     public uint? GetBackupPower() => _modbusRtuUdp?.ReadU32Register(35169);
-    public uint? GetLoadPower() => _modbusRtuUdp?.ReadU32Register(35171);
+    public int? GetLoadPower() => (int?)_modbusRtuUdp?.ReadU32Register(35171);
     public uint? GetBatteryPower() => _modbusRtuUdp?.ReadU32Register(35182);
     public float? GetInverterTemperature() => _modbusRtuUdp?.ReadFLoatFromS16Register(35174) / 10;
     public float? GetBatteryTemperature() => _modbusRtuUdp?.ReadFLoatFromS16Register(37003) / 10;

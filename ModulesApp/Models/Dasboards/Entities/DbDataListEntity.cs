@@ -17,7 +17,21 @@ public class DbDataListEntity : DbDashboardEntity
     public override void UpdateState(string key, object? value, bool toDatabse)
     {
         Data[key] = value;
-        LoadState();
+        if(!toDatabse)
+        {
+            if (key == "Title")
+            {
+                Title = DataConvertor.ToString(value);
+            }
+            else if (key == "Column_2_Suffix")
+            {
+                Column2Suffix = DataConvertor.ToString(value);
+            }
+            else if (key == "Column_1" || key == "Column_2")
+            {
+                LoadColumns();
+            }
+        }
     }
 
     public override void LoadState()
@@ -30,6 +44,11 @@ public class DbDataListEntity : DbDashboardEntity
         {
             Column2Suffix = DataConvertor.ToString(suffix);
         }
+        LoadColumns();
+    }
+
+    public void LoadColumns()
+    {
         if (Data.TryGetValue("Column_1", out var titles))
         {
             Data.TryGetValue("Column_2", out var values);

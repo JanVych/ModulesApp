@@ -14,7 +14,9 @@ public enum DashboardEntityType
     ValueSetter,
     DataList,
     LineChart,
-    TemperatureList,
+    RoomsTemp,
+    LineChart24h,
+    AccumulationTank,
 }
 
 public enum EntityChartType

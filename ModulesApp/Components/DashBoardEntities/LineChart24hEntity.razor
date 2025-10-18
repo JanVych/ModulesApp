@@ -15,16 +15,15 @@
                                OnClick="OnDeleteButtonClick" />
             </MudStack>
             <MudDivider />
-            <MudSelect @bind-Value="@Entity.ChartType" Label="Type">
-                @foreach (EntityChartType type in Enum.GetValues(typeof(EntityChartType)))
+            <MudSelect @bind-Value="@Entity.SampleFrequency" Label="Sample Frequency">
+                @foreach (DbLineChart24hEntity.DataFrequencyType type in Enum.GetValues(typeof(DbLineChart24hEntity.DataFrequencyType)))
                 {
                     <MudSelectItem Value="@type"/>
                 }
             </MudSelect>
            
             <MudTextField @bind-Value="@Entity.Title" MaxLength="20" Label="Title" />
-            <MudNumericField @bind-Value="Entity.MovingAverageWindowSize" MaxLength="20" Label="Moving average window size" />
-            <MudNumericField @bind-Value="Entity.RoundValueTo" MaxLength="20" Label="Round values to" />
+            <MudNumericField @bind-Value="Entity.RoundValuesTo" MaxLength="20" Label="Round values to" />
             @foreach (var serie in Entity.SeriesList)
             {
                 <MudStack Row=true>
@@ -49,18 +48,18 @@ else
 {
     <MudPaper Class="pa-3 chart-container">
         <ApexChart @ref="_chart"
-                   TItem="DbLineChartEntity.SeriesData"
+                   TItem="DbLineChart24hEntity.SeriesData"
                    Height="292"
                    Title="@Entity.Title"
                    Options="_chartOptions">
             @foreach (var serie in Entity.SeriesList)
             {
-                <ApexPointSeries TItem="DbLineChartEntity.SeriesData"
-                                 Items="@serie.Data"
+                <ApexPointSeries TItem="DbLineChart24hEntity.SeriesData"
+                                 Items="@serie.ReducedData"
                                  Name="@serie.Name"
                                  SeriesType="SeriesType.Line"
-                                 XValue="e => e.ValueX"
-                                 YValue="e => e.ValueY" />
+                                 XValue="e => e.Time"
+                                 YValue="e => e.Value" />
             }
         </ApexChart>
     </MudPaper>
@@ -83,18 +82,18 @@ else
 @code
 {
     [Parameter, EditorRequired]
-    public DbLineChartEntity Entity { get; set; } = default!;
+    public DbLineChart24hEntity Entity { get; set; } = default!;
     [Parameter]
     public bool EditMode { get; set; } = false;
     [Parameter]
     public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
 
-    private ApexChart<DbLineChartEntity.SeriesData>? _chart;
-    private ApexChartOptions<DbLineChartEntity.SeriesData> _chartOptions;
+    private ApexChart<DbLineChart24hEntity.SeriesData>? _chart;
+    private ApexChartOptions<DbLineChart24hEntity.SeriesData> _chartOptions;
 
     protected override void OnInitialized()
     {
-        _chartOptions = new ApexChartOptions<DbLineChartEntity.SeriesData>
+        _chartOptions = new ApexChartOptions<DbLineChart24hEntity.SeriesData>
         {
             Chart = new Chart
             {
@@ -184,7 +183,7 @@ else
                 {
                     Labels = new YAxisLabels
                     {
-                        Formatter = $"function (val) {{ return val.toFixed({Entity.RoundValueTo}); }}"
+                        Formatter = $"function (val) {{ return val.toFixed({Entity.RoundValuesTo}); }}"
                     }
                 }
             },
@@ -195,35 +194,23 @@ else
 
     private void AddSeries()
     {
-        // var rnd = new Random();
-        // var testData = new List<DbLineChartEntity.SeriesData>();
-
-        // for (int i = 0; i < 10000; i++)
-        // {
-        //     testData.Add(new DbLineChartEntity.SeriesData
-        //     {
-        //         ValueY = i * 2 % 4000,
-        //         ValueX = DateTime.Now.AddHours(i)
-        //     });
-        // }
-
-        var set = new HashSet<int>(Entity.SeriesList.Select(x => x.Id));
+        var set = new HashSet<long>(Entity.SeriesList.Select(x => x.Id));
         int smallest = 1;
         while (set.Contains(smallest))
         {
             smallest++;
         }
-        var series= new DbLineChartEntity.Series
+        var series = new DbLineChart24hEntity.Series
         {
             Name = $"Series {smallest}",
             Data = [],
-            Id = smallest
+            Id = smallest,
         };
         Entity.SeriesList.Add(series);
         StateHasChanged();
     }
 
-    private void DeleteSeries(DbLineChartEntity.Series serie)
+    private void DeleteSeries(DbLineChart24hEntity.Series serie)
     {
         Entity.SeriesList.Remove(serie);
         StateHasChanged();
@@ -235,6 +222,7 @@ else
         if(_chart != null)
         {
             await _chart.UpdateSeriesAsync();
+            // await _chart.UpdateOptionsAsync(false, false, false);
             await InvokeAsync(StateHasChanged);            
         }
     }
@@ -244,8 +232,8 @@ else
         DeleteButtonClick?.Invoke(Entity);
     }
 
-    private string GetSeriesName(DbLineChartEntity.Series serie) => $"SeriesName{serie.Id}";
-    private string GetSeriesValueMessage(DbLineChartEntity.Series serie) => $"Value{serie.Id}";
+    private string GetSeriesName(DbLineChart24hEntity.Series serie) => $"SeriesName{serie.Id}";
+    private string GetSeriesValueMessage(DbLineChart24hEntity.Series serie) => $"Value{serie.Id}";
     // private string GetSeriesDataXName(DbLineChartEntity.Series serie) => $"SeriesDataX{serie.Data.Count}";
     // private string GetSeriesDataYName(DbLineChartEntity.Series serie) => $"SeriesDataY{serie.Data.Count}";
 

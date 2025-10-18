@@ -133,12 +133,14 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
             .HasDiscriminator<DashboardEntityType>(nameof(DbDashboardEntity.Type))
             .HasValue<DbDataListEntity>(DashboardEntityType.DataList)
             .HasValue<DbSwitchEntity>(DashboardEntityType.Switch)
-            .HasValue<DbTemperaturesListEntity>(DashboardEntityType.TemperatureList)
+            .HasValue<DbRoomsTempEntity>(DashboardEntityType.RoomsTemp)
             .HasValue<DbButtonEntity>(DashboardEntityType.Button)
             .HasValue<DbValueSetterEntity>(DashboardEntityType.ValueSetter)
             .HasValue<DbLineChartEntity>(DashboardEntityType.LineChart)
             .HasValue<DbKeyValueEntity>(DashboardEntityType.KeyValue)
-            .HasValue<DbFrameEntity>(DashboardEntityType.Frame);
+            .HasValue<DbFrameEntity>(DashboardEntityType.Frame)
+            .HasValue<DbLineChart24hEntity>(DashboardEntityType.LineChart24h)
+            .HasValue<DbAccumulationTankEntity>(DashboardEntityType.AccumulationTank);
 
         base.OnModelCreating(builder);
     }

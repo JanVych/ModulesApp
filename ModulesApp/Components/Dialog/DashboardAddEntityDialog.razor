@@ -24,10 +24,10 @@
                 {
                     <SwitchEntity EditMode="true" Entity="@se" />
                 }
-                @* else if(Entity is DbTemperaturesListEntity tle)
+                else if(Entity is DbRoomsTempEntity tle)
                 {
-                    <TemperaturesListEntity EditMode="true" Entity="@tle" />
-                } *@
+                    <RoomsTempEntity EditMode="true" Entity="@tle" />
+                }
                 else if(Entity is DbButtonEntity be)
                 {
                     <ButtonEntity EditMode="true" Entity="@be" />
@@ -36,10 +36,10 @@
                 {
                     <ValueSetterEntity EditMode="true" Entity="@vse" />
                 }
-                else if (Entity is DbLineChartEntity lce)
+                @* else if (Entity is DbLineChartEntity lce)
                 {
                     <LineChartEntity EditMode="true" Entity="@lce" />
-                }
+                } *@
                 else if (Entity is DbKeyValueEntity kve)
                 {
                     <KeyValueEntity EditMode="true" Entity="@kve" />
@@ -47,6 +47,14 @@
                 else if (Entity is DbFrameEntity fe)
                 {
                     <FrameEntity EditMode="true" Entity="@fe" DisableActions="true"/>
+                }
+                else if (Entity is DbLineChart24hEntity lc24e)
+                {
+                    <LineChart24hEntity EditMode="true" Entity="@lc24e" />
+                }
+                else if (Entity is DbAccumulationTankEntity ate)
+                {
+                    <AccumulationTankEntity EditMode="true" Entity="@ate" />
                 }
                 else
                 {
@@ -71,13 +79,15 @@
     private List<DashboardEntityType> _aviableTypes = new()
     {
         DashboardEntityType.KeyValue,
-        
         DashboardEntityType.Switch,
         DashboardEntityType.Button,
         DashboardEntityType.ValueSetter,
+        DashboardEntityType.RoomsTemp,
         DashboardEntityType.Frame,
         DashboardEntityType.DataList,
         DashboardEntityType.LineChart,
+        DashboardEntityType.LineChart24h,
+        DashboardEntityType.AccumulationTank
     };
 
     private void Submit() => MudDialog.Close(DialogResult.Ok(Entity));
@@ -91,12 +101,14 @@
         {
             DashboardEntityType.DataList => new DbDataListEntity(),
             DashboardEntityType.Switch => new DbSwitchEntity(),
-            DashboardEntityType.TemperatureList => new DbTemperaturesListEntity(),
+            DashboardEntityType.RoomsTemp => new DbRoomsTempEntity(),
             DashboardEntityType.Button => new DbButtonEntity(),
             DashboardEntityType.ValueSetter => new DbValueSetterEntity(),
             DashboardEntityType.LineChart => new DbLineChartEntity(),
             DashboardEntityType.KeyValue => new DbKeyValueEntity(),
             DashboardEntityType.Frame => new DbFrameEntity(),
+            DashboardEntityType.LineChart24h => new DbLineChart24hEntity(),
+            DashboardEntityType.AccumulationTank => new DbAccumulationTankEntity(),
             _ => new DbKeyValueEntity()
         };
     }

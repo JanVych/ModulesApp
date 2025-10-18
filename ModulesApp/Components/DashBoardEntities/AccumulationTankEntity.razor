@@ -1,0 +1,81 @@
+﻿@using ModulesApp.Models.Dasboards
+@using System.Text.Json
+@using ModulesApp.Models.Dasboards.Entities
+
+@if (EditMode)
+{
+    <MudPaper Class="pa-3" Style="width:300px;">
+        <MudStack StretchItems="StretchItems.All" AlignItems="AlignItems.Stretch" Spacing="1">
+            <MudStack Row="true">
+                <MudTextField @bind-Value="@Entity.Name" Label="Id" Required=true />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               OnClick="OnDeleteButtonClick" />
+            </MudStack>
+
+            <MudDivider />
+            <MudTextField @bind-Value="@Entity.Title" Label="Title" MaxLength="20" />
+            <MudTextField @bind-Value="@Entity.Value" Label="Value" Disabled=true />
+            <MudTextField @bind-Value="@Entity.Suffix" Label="Suffix" MaxLength="10" />
+
+        </MudStack>
+    </MudPaper>
+}
+else
+{
+    <MudPaper Class="pa-2" Style="width:200px; height:208px">
+        @* <MudText Typo="Typo.h5">
+            Accumulator Tank
+        </MudText> *@
+        <MudStack Row=true Spacing="0">
+            <svg viewBox="0 0 264.01 509.85"
+                 style="width:@_widthSvg; height:@_heightSvg;">
+                <defs>
+                    <linearGradient id="@_gradientIdSvg" x1="132.01" y1="508.85" x2="132.01" y2="1" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="@_startColorSvg" />
+                        <stop offset="@_midpointSvg" stop-color="@_startColorSvg" />
+                        <stop offset="@_midpoint2Svg" stop-color="@_endColorSvg" />
+                        <stop offset="1" stop-color="@_endColorSvg" />
+                    </linearGradient>
+                </defs>
+
+                <path class="c"
+                      d="M263.01,51.91v406.01c0,28.12-58.65,50.92-131.01,50.92S1,486.05,1,457.92V51.91C1,23.8,59.65,1,132.01,1s131.01,22.8,131.01,50.91Z"
+                      fill="url(#@_gradientIdSvg)"
+                      stroke="@_strokeColorSvg"
+                      stroke-width="2" />
+            </svg>
+            <MudStack Class="my-5" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6" Color="Color.Error" Align="Align.Center">56 °C</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowDownward" Color="Color.Info"/>
+                <MudText Typo="Typo.h6" Color="Color.Info" Align="Align.Center">38 °C</MudText>
+            </MudStack>
+        </MudStack>
+        
+    </MudPaper>
+}
+@code
+{
+    [Parameter, EditorRequired]
+    public DbAccumulationTankEntity Entity { get; set; } = default!;
+    [Parameter]
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+
+    private string _widthSvg = "120px";
+    private string _heightSvg = "192px";
+
+    private string _startColorSvg = "#3299ff";
+    private string _endColorSvg = "#f64e62";
+    private string _strokeColorSvg = "#424242";
+    public string _midpointSvg = "0.5";
+    public string _midpoint2Svg = "0.9";
+    private string _gradientIdSvg = $"grad_{Guid.NewGuid().ToString("N")}";
+
+
+    private void OnDeleteButtonClick()
+    {
+        DeleteButtonClick?.Invoke(Entity);
+    }
+}

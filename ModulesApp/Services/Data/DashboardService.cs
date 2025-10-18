@@ -46,7 +46,7 @@ public class DashboardService
 
     /// Entities
 
-    public void UpdateEntity(long entityId, string key, object? value)
+    public void UpdateEntityAndNotify(long entityId, string key, object? value)
     {
         using var context = _dbContextFactory.CreateDbContext();
         var entity = context.DashboardEntities
@@ -75,6 +75,14 @@ public class DashboardService
         entity.SaveToData();
         context.DashboardEntities.Update(entity);
         context.SaveChanges();
+    }
+
+    public async Task UpdateEntityAsync(DbDashboardEntity entity)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync();
+        entity.SaveToData();
+        context.DashboardEntities.Update(entity);
+        await context.SaveChangesAsync();
     }
 
     public async Task UpdateEntitiesAsync(List<DbDashboardEntity> entities)

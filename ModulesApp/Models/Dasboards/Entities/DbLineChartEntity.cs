@@ -1,5 +1,4 @@
 ﻿using ModulesApp.Helpers;
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 
@@ -27,6 +26,7 @@ public partial class DbLineChartEntity :DbDashboardEntity
             });
         }
     }
+
     public class SeriesData
     {
         public decimal ValueY { get; set; } = 0;
@@ -44,7 +44,6 @@ public partial class DbLineChartEntity :DbDashboardEntity
     public List<Series> SeriesList { get; set; } = [];
 
     public event Func<Task>? UpdateAsync;
-
 
     [GeneratedRegex(@"Value(\d+)")]
     private static partial Regex ValueRegex();

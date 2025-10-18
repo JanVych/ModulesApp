@@ -1,0 +1,99 @@
+﻿@using ModulesApp.Models.Dasboards.Entities
+
+<MudPaper Class="pa-3" Height="160px" Width="185px" Elevation="1">
+    @if (Room != null)
+    {
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="1">
+            <MudStack Row=true Justify="Justify.SpaceAround" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Room.Icon" Color="Color.Default" Size="Size.Medium" />
+                <MudText Typo="Typo.h6" Color="Color.Default">
+                    @Room.Name
+                </MudText>
+            </MudStack>
+            
+            <MudText Typo="Typo.h4" Style="@GetColorStyle(Room.CurrentTemp)">
+                @CurrentTempString(Room.CurrentTemp)
+            </MudText>
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="1">
+                <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" Color="Color.Default" Size="Size.Medium" OnClick="OnDecrementClick" />
+                <MudNumericField @bind-Value=Room.TargetTemp Step="1" Min="5" Max="30" HideSpinButtons="true" Style="width:80px;"
+                                 Variant="Variant.Outlined" Margin="Margin.Dense" Typo="Typo.h6"
+                                 Adornment="Adornment.End" AdornmentText="°C" Class="adorned-input thick-border centered-number"/>
+
+                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Color="Color.Default" Size="Size.Medium" OnClick="OnIncrementClick"/>
+            </MudStack>
+        </MudStack>
+    }
+</MudPaper>
+
+<style>
+    .thick-border .mud-input-outlined fieldset {
+        border-width: 2px !important;
+    }
+
+    .adorned-input .mud-input-adornment-text {
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 2rem;
+        letter-spacing: 0.0125em;
+    }
+
+    .centered-number input[type="number"] {
+        text-align: center;
+    }
+</style>
+
+@code 
+{
+    [Parameter, EditorRequired]
+    public DbRoomsTempEntity.Room Room { get; set; }
+    [Parameter]
+    public Func<DbRoomsTempEntity.Room, Task>? TargetTempUpdated { get; set; }
+
+    private string CurrentTempString(decimal? number)
+    {
+        if(number == null)
+        {
+            return "--°C";
+        }
+        return $"{number}°C";
+    }
+
+    private async Task OnIncrementClick()
+    {
+        if (Room.TargetTemp < 30)
+        {
+            Room.TargetTemp++;
+            if (TargetTempUpdated != null)
+            {
+                await TargetTempUpdated(Room);
+            }
+        }
+    }
+
+    private async Task OnDecrementClick()
+    {
+        if (Room.TargetTemp > 5)
+        {
+            Room.TargetTemp--;
+            if (TargetTempUpdated != null)
+            {
+                await TargetTempUpdated(Room);
+            }
+        }
+    }
+
+    private static string GetColorStyle(decimal? currentTemp)
+    {
+        return currentTemp switch
+        {
+            > 23 => "color: #FFA726",
+            > 20 => "color: #FFB74D",
+            > 18 => "color: #FFCC80",
+            > 15 => "color: #FFE0B2",
+            > 12 => "color: #B3E5FC",
+            _ => "color: #81D4FA"
+        };
+    }
+}

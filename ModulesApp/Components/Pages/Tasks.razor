@@ -75,7 +75,7 @@
             </MudTooltip>
         }
 
-        
+
 
     </MudPaper>
 
@@ -99,29 +99,29 @@
             </MudPaper>
         }
 
-        @if (_currentDiagram != null)
-        {
-            <div class="d-flex flex-column flex-grow-1 gap-2">
-                <MudPaper Elevation="1" Class="d-flex flex-wrap gap-2 pa-2 ">
-                    <NodeAddButton NodeType="NodeType.FromMessage" OnClick="() => AddNode(NodeType.FromMessage)" />
-                    <NodeAddButton NodeType="NodeType.FromAny" OnClick="() => AddNode(NodeType.FromAny)" />
-                    <NodeAddButton NodeType="NodeType.Value" OnClick="() => AddNode(NodeType.Value)" />
-                    <NodeAddButton NodeType="NodeType.DateTime" OnClick="() => AddNode(NodeType.DateTime)" />
+        <div class="d-flex flex-column flex-grow-1 gap-1">
+            <MudPaper Elevation="1" Class="d-flex flex-wrap gap-2 pa-2 ">
+                <NodeAddButton NodeType="NodeType.FromMessage" OnClick="() => AddNode(NodeType.FromMessage)" />
+                <NodeAddButton NodeType="NodeType.FromAny" OnClick="() => AddNode(NodeType.FromAny)" />
+                <NodeAddButton NodeType="NodeType.Value" OnClick="() => AddNode(NodeType.Value)" />
+                <NodeAddButton NodeType="NodeType.DateTime" OnClick="() => AddNode(NodeType.DateTime)" />
 
-                    <NodeAddComplexButton NodeType="NodeType.Condition" OnCLick="AddNode" />
+                <NodeAddComplexButton NodeType="NodeType.Condition" OnCLick="AddNode" />
 
-                    <NodeAddButton NodeType="NodeType.Branch" OnClick="() => AddNode(NodeType.Branch)"/>
+                <NodeAddButton NodeType="NodeType.Branch" OnClick="() => AddNode(NodeType.Branch)" />
 
-                    <NodeAddComplexButton NodeType="NodeType.ArrayOperation" OnCLick="AddNode" />
-                    <NodeAddComplexButton NodeType="NodeType.ArithmeticOperation" OnCLick="AddNode" />
-                    <NodeAddButton NodeType="NodeType.ArithmeticSaturation" OnClick="() => AddNode(NodeType.ArithmeticSaturation)" />
-                    <NodeAddComplexButton NodeType="NodeType.ConvertTo" OnCLick="AddNode" />
-                    <NodeAddComplexButton NodeType="NodeType.BooleanOperation" OnCLick="AddNode" />
+                <NodeAddComplexButton NodeType="NodeType.ArrayOperation" OnCLick="AddNode" />
+                <NodeAddComplexButton NodeType="NodeType.ArithmeticOperation" OnCLick="AddNode" />
+                <NodeAddButton NodeType="NodeType.ArithmeticSaturation" OnClick="() => AddNode(NodeType.ArithmeticSaturation)" />
+                <NodeAddComplexButton NodeType="NodeType.ConvertTo" OnCLick="AddNode" />
+                <NodeAddComplexButton NodeType="NodeType.BooleanOperation" OnCLick="AddNode" />
 
-                    <NodeAddButton NodeType="NodeType.DataDisplay" OnClick="() => AddNode(NodeType.DataDisplay)" />
-                    <NodeAddButton NodeType="NodeType.SendMessage" OnClick="() => AddNode(NodeType.SendMessage)" />
-                </MudPaper>
+                <NodeAddButton NodeType="NodeType.DataDisplay" OnClick="() => AddNode(NodeType.DataDisplay)" />
+                <NodeAddButton NodeType="NodeType.SendMessage" OnClick="() => AddNode(NodeType.SendMessage)" />
+            </MudPaper>
 
+            @if (_currentDiagram != null && !_isDiagramLoading)
+            {
                 <MudPaper Elevation="1" Class="flex-grow-1" Style="min-height:200px">
                     <CascadingValue Value="_currentDiagram" IsFixed="true">
                         <DiagramCanvas>
@@ -142,8 +142,13 @@
                         </DiagramCanvas>
                     </CascadingValue>
                 </MudPaper>
-            </div>
-        }
+            }
+            else
+            {
+                <MudSkeleton Animation="Animation.Pulse" SkeletonType="SkeletonType.Rectangle" Class="flex-grow-1" Style="min-height:200px" />
+            }
+
+        </div>
 
         @if (_showTaskSettings && _selectedTask != null)
         {
@@ -215,7 +220,7 @@
     bool _showTasksList = true;
     bool _showTaskSettings = true;
     bool _showNodesId = false;
-    List<(Color,string)> _debugText = [];
+    List<(Color, string)> _debugText = [];
 
     private List<DbTask> _tasks = [];
 
@@ -228,6 +233,7 @@
     private List<DbDashboardEntity> _entities = [];
 
     private bool _runDisabled = false;
+    private bool _isDiagramLoading = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -480,6 +486,8 @@
     {
         if (_currentDiagram != null && _selectedTask != null)
         {
+            _isDiagramLoading = true;
+
             var nodes = new List<DbTaskNode>();
             var links = await _serverTaskService.GetLinksAsync(_selectedTask);
             _selectedTask.Nodes = nodes;
@@ -592,6 +600,7 @@
                     _currentDiagram.Links.Add(linkModel);
                 }
             }
+            _isDiagramLoading = false;
         }
     }
 }

@@ -1,0 +1,107 @@
+﻿@using ModulesApp.Components.DashBoardEntities.Parts
+@using ModulesApp.Models.Dasboards
+@using System.Text.Json
+@using ModulesApp.Models.Dasboards.Entities
+@using ModulesApp.Services
+
+@if (EditMode)
+{
+    <MudCard Class="pa-3" Style="width: 220px;">
+        <MudStack Row="true">
+            <MudTextField @bind-Value="@Entity.Name" Label="Id" Required=true />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           OnClick="OnDeleteButtonClick" />
+        </MudStack>
+        <MudTextField @bind-Value="@Entity.Title" Label="Title" MaxLength="14" />
+        <MudDivider Class="my-4"/>
+        @foreach (var room in Entity.Rooms)
+        {
+            <MudStack Row="true">
+                <MudTextField @bind-Value=room.Name MaxLength="10" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => DeleteRoom(room)" />
+            </MudStack>
+
+            <MudSelect @bind-Value="@room.Icon" Label="Icon" Margin="Margin.Dense">
+                @foreach (var icon in RoomsIcons)
+                {
+                    <MudSelectItem Value="@icon">
+                        <MudIcon Icon="@icon" Size="Size.Medium" />
+                    </MudSelectItem>
+                }
+            </MudSelect>
+            <MudDivider />
+        }
+
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" Variant="Variant.Filled" OnClick="AddRoom">
+            Add Room
+        </MudButton>
+    </MudCard>
+}
+else
+{
+    <MudStack AlignItems="AlignItems.Center" Spacing="2">
+        <MudPaper Class="pa-1 px-4" Elevation="0">
+            <MudText Typo="Typo.h6">@Entity.Title</MudText>
+        </MudPaper>
+        <MudStack Row=true Wrap="Wrap.Wrap" Spacing="2" Justify="Justify.Center">
+            @foreach (var room in Entity.Rooms)
+            {
+                <RoomTempCard Room="room" TargetTempUpdated="OnTempChanged" />
+            }
+        </MudStack>
+    </MudStack>
+}
+@code
+{
+    [Parameter, EditorRequired]
+    public DbRoomsTempEntity Entity { get; set; } = default!;
+    [Parameter]
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    [Parameter]
+    public ContextService ServerContextService { get; set; } = default!;
+
+    private bool _saveDisabled = false;
+
+    private void DeleteRoom(DbRoomsTempEntity.Room room)
+    {
+        Entity.Rooms.Remove(room);
+    }
+
+    private void AddRoom()
+    {
+        Entity.Rooms.Add(new DbRoomsTempEntity.Room()
+        {
+            Name = $"Room_{Entity.Rooms.Count + 1}"
+        });
+    }
+
+    private void OnDeleteButtonClick()
+    {
+        DeleteButtonClick?.Invoke(Entity);
+    }
+
+    private async Task OnTempChanged(DbRoomsTempEntity.Room room)
+    {
+        await ServerContextService._dashboardService.UpdateEntityAsync(Entity);
+    }
+
+    private static List<string> RoomsIcons
+    = new List<string>()
+    {
+        Icons.Material.Filled.SingleBed,
+        Icons.Material.Filled.KingBed,
+        Icons.Material.Filled.BrunchDining,
+        Icons.Material.Filled.Chair,
+        Icons.Material.Filled.CrueltyFree,
+        Icons.Material.Filled.EventSeat,
+        Icons.Material.Filled.Fireplace,
+        Icons.Material.Filled.LocalLaundryService,
+        Icons.Material.Filled.LocalHotel,
+        Icons.Material.Filled.Shower,
+        Icons.Material.Filled.Bathtub,
+        Icons.Material.Filled.LocalFlorist,
+    };
+}

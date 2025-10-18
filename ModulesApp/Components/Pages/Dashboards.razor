@@ -76,9 +76,9 @@
                                           DeleteButtonClick="DeleteDashBoardEntity"
                                           ServerContextService="_serverContextService" />
                         }
-                        else if (e is DbTemperaturesListEntity tle)
+                        else if (e is DbRoomsTempEntity tle)
                         {
-                            <TemperaturesListEntity EditMode="@EditMode" Entity="@tle"
+                            <RoomsTempEntity EditMode="@EditMode" Entity="@tle"
                                                     DeleteButtonClick="DeleteDashBoardEntity"
                                                     ServerContextService="_serverContextService" />
                         }
@@ -110,6 +110,16 @@
                                          ServerContextService="_serverContextService"
                                          DeleteButtonClick="DeleteDashBoardEntity"
                                          AddButtonClick="AddDashBoardEntity"/>
+                        }
+                        else if (e is DbLineChart24hEntity lc24e)
+                        {
+                            <LineChart24hEntity EditMode="@EditMode" Entity="@lc24e"
+                                               DeleteButtonClick="DeleteDashBoardEntity" />
+                        }
+                        else if (e is DbAccumulationTankEntity ate)
+                        {
+                            <AccumulationTankEntity EditMode="@EditMode" Entity="@ate"
+                                                   DeleteButtonClick="DeleteDashBoardEntity" />
                         }
                     }
                 }
