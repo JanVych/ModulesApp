@@ -33,6 +33,7 @@ public enum NodeArrayOperationType
     ArrayRemoveAt,
     ArrayAppend,
     ArrayCreate,
+    ArrayMerge
 }
 
 public enum NodeArithmeticOperationType
@@ -114,6 +115,7 @@ public static class NodeExtensions
             NodeArrayOperationType.ArrayRemoveAt => $"Remove{space}At",
             NodeArrayOperationType.ArrayAppend => "Append",
             NodeArrayOperationType.ArrayCreate => "Create",
+            NodeArrayOperationType.ArrayMerge => "Merge",
             _ => type.ToString()
         };
     }

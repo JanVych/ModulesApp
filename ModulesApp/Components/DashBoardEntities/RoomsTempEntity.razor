@@ -85,7 +85,9 @@ else
 
     private async Task OnTempChanged(DbRoomsTempEntity.Room room)
     {
+        room.Disabled = true;
         await ServerContextService._dashboardService.UpdateEntityAsync(Entity);
+        room.Disabled = false;
     }
 
     private static List<string> RoomsIcons

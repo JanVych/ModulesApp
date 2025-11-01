@@ -42,6 +42,25 @@
             @Node.InputType input
         </MudSwitch>
     }
+
+    else if (Node.OperationType == NodeArrayOperationType.ArrayCreate)
+    {
+        <MudNumericField T="long"
+                         @bind-Value="Node.LongVal1"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense"
+                         Immediate="true"
+        Label="Length" />
+        if(Node.LongVal1 > 0)
+        {
+            <MudNumericField T="double"
+                             @bind-Value="Node.DoubleVal1"
+                             Variant="Variant.Outlined"
+                             Margin="Margin.Dense"
+                             Immediate="true"
+                             Label="Init value" />
+        }
+    }
 </TaskNodeWidget>
 
 @code

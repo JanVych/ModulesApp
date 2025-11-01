@@ -41,7 +41,7 @@
 }
 else
 {
-    <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
+    <MudStack Row="false">
         <MudPaper Class="pa-4" Elevation="0">
             <MudText Typo="Typo.h5">Module detail</MudText>
             <MudDivider Class="mt-2" />
@@ -128,6 +128,7 @@ else
                     {
                         <tr>
                             <td>@item.Key</td>
+                            @* <td style="white-space: normal; word-break: break-word;">@item.Value</td> *@
                             <td>@item.Value</td>
                             <td>@GenerateValueTypeText(item.Value)</td>
                         </tr>
@@ -136,37 +137,40 @@ else
             </MudSimpleTable>
         </MudPaper>
 
-        <MudPaper Class="pa-4" Elevation="0">
-            <MudText Typo="Typo.h5">Server tasks</MudText>
-            <MudDivider Class="mt-2" />
-            <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                <tbody>
-                    @foreach (var item in _module.ServerTasks)
-                    {
-                        <tr>
-                            <td>@item.Name</td>
-                            <td>@item.Type</td>
-                        </tr>
-                    }
-                </tbody>
-            </MudSimpleTable>
-        </MudPaper>
+        <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudText Typo="Typo.h5">Server tasks</MudText>
+                <MudDivider Class="mt-2" />
+                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                    <tbody>
+                        @foreach (var item in _module.ServerTasks)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.Type</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            </MudPaper>
 
-        <MudPaper Class="pa-4" Elevation="0">
-            <MudText Typo="Typo.h5">Pending actions</MudText>
-            <MudDivider Class="mt-2" />
-            <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                <tbody>
-                    @foreach (var item in _module.Actions)
-                    {
-                        <tr>
-                            <td>@item.Key</td>
-                            <td>@item.Value</td>
-                        </tr>
-                    }
-                </tbody>
-            </MudSimpleTable>
-        </MudPaper>
+            <MudPaper Class="pa-4" Elevation="0">
+                <MudText Typo="Typo.h5">Pending actions</MudText>
+                <MudDivider Class="mt-2" />
+                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                    <tbody>
+                        @foreach (var item in _module.Actions)
+                        {
+                            <tr>
+                                <td>@item.Key</td>
+                                <td>@item.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            </MudPaper>
+        </MudStack>
+
     </MudStack>
 }
 

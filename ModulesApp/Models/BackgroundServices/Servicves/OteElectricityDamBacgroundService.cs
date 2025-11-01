@@ -39,7 +39,26 @@ public class OteElectricityDamBacgroundService : BackgroundService
             }
             MessageData["TodayAmmounts"] = ammounts;
             MessageData["TodayPrices"] = prices;
-            MessageData["CurrentPrice"] = prices[DateTime.Now.Hour];
+
+            var index = DateTime.Now.Hour * 4;
+            if(DateTime.Now.Minute > 14 && DateTime.Now.Minute < 30)
+            {
+                index += 1;
+            }
+            else if(DateTime.Now.Minute > 29 && DateTime.Now.Minute < 45)
+            {
+                index += 2;
+            }
+            else if (DateTime.Now.Minute > 44 && DateTime.Now.Minute < 60)
+            {
+                index += 3;
+            }
+
+            if (index > 0 && index < prices.Count)
+            {
+                MessageData["CurrentPrice"] = prices[index];
+            }
+            
         }
         catch (Exception ex)
         {

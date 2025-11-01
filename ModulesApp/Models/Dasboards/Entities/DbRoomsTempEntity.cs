@@ -12,6 +12,7 @@ public class DbRoomsTempEntity : DbDashboardEntity
         public decimal TargetTemp { get; set; } = 20;
         public string Name { get; set; } = string.Empty;
         public string Icon { get; set; } = Icons.Material.Filled.Living;
+        public bool Disabled { get; set; } = false;
     }
 
     [NotMapped]

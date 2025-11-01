@@ -92,6 +92,17 @@ public class DataConvertor
             }
             return json.ToString();
         }
+
+        if (value is System.Collections.IEnumerable enumerable && value is not string)
+        {
+            var items = new List<string>();
+            foreach (var item in enumerable)
+            {
+                items.Add(ToString(item));
+            }
+            return "[" + string.Join(", ", items) + "]";
+        }
+
         return value?.ToString() ?? string.Empty;
     }
 

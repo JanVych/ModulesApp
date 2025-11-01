@@ -18,7 +18,7 @@
 <PageTitle>Service Dteail</PageTitle>
 
 <div>
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" >
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Wrap="Wrap.Wrap" Spacing="0">
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Large" OnClick="GoBack" />
             @if (_service != null)
@@ -59,63 +59,67 @@
     }
     else
     {
-        <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
-            <MudPaper Class="pa-4" Elevation="0">
+        <MudStack Row="false">
 
-                <MudText Typo="Typo.h5">Service detail</MudText>
-                <MudDivider Class="mt-2" />
+            <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
 
-                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                    <tbody>
-                        <tr>
-                            <td>Id</td>
-                            <td>@_service.Id</td>
-                        </tr>
-                        <tr>
-                            <td>Name</td>
-                            <td>
-                                <MudTextField @bind-Value="_service.Name" Variant="Variant.Text" Margin="Margin.Dense"
-                                              Disabled="_service.Status != BackgroundServiceStatus.Paused" Style="max-width:400px" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Type</td>
-                            <td>@_service.Type</td>
-                        </tr>
-                        <tr>
-                            <td>Cron timer</td>
-                            <td>
-                                <MudTextField @bind-Value="_service.CronExpression" Variant="Variant.Text" Margin="Margin.Dense"
-                                              Disabled="_service.Status != BackgroundServiceStatus.Paused" Style="max-width:400px" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Status</td>
-                            <td>
-                                <MudChip T="string" Color="@_service.GetStatusColor()">
-                                    @_service.Status
-                                </MudChip>
-                            </td>
-                        </tr>
-                    </tbody>
-                </MudSimpleTable>
-            </MudPaper>
-
-            @if (_service.Type == BackgroundServiceType.Goodwe)
-            {
                 <MudPaper Class="pa-4" Elevation="0">
-                    <GoodweServiceConfiguration Service="_service" HasError=_hasError IsDiabled="_service.Status != BackgroundServiceStatus.Paused" />
+
+                    <MudText Typo="Typo.h5">Service detail</MudText>
+                    <MudDivider Class="mt-2" />
+
+                    <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                        <tbody>
+                            <tr>
+                                <td>Id</td>
+                                <td>@_service.Id</td>
+                            </tr>
+                            <tr>
+                                <td>Name</td>
+                                <td>
+                                    <MudTextField @bind-Value="_service.Name" Variant="Variant.Text" Margin="Margin.Dense"
+                                                  Disabled="_service.Status != BackgroundServiceStatus.Paused" Style="max-width:400px" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Type</td>
+                                <td>@_service.Type</td>
+                            </tr>
+                            <tr>
+                                <td>Cron timer</td>
+                                <td>
+                                    <MudTextField @bind-Value="_service.CronExpression" Variant="Variant.Text" Margin="Margin.Dense"
+                                                  Disabled="_service.Status != BackgroundServiceStatus.Paused" Style="max-width:400px" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Status</td>
+                                <td>
+                                    <MudChip T="string" Color="@_service.GetStatusColor()">
+                                        @_service.Status
+                                    </MudChip>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
                 </MudPaper>
-            }
-            else if (_service.Type == BackgroundServiceType.Http)
-            {
-                <MudPaper Class="pa-4" Elevation="0">
-                    <HttpServiceConfiguration Service="_service" HasError="_hasError" IsDiabled="_service.Status != BackgroundServiceStatus.Paused" />
-                </MudPaper>
-            }
+
+                @if (_service.Type == BackgroundServiceType.Goodwe)
+                {
+                    <MudPaper Class="pa-4" Elevation="0">
+                        <GoodweServiceConfiguration Service="_service" HasError=_hasError IsDiabled="_service.Status != BackgroundServiceStatus.Paused" />
+                    </MudPaper>
+                }
+                else if (_service.Type == BackgroundServiceType.Http)
+                {
+                    <MudPaper Class="pa-4" Elevation="0">
+                        <HttpServiceConfiguration Service="_service" HasError="_hasError" IsDiabled="_service.Status != BackgroundServiceStatus.Paused" />
+                    </MudPaper>
+                }
+            </MudStack>
 
             <MudPaper Class="pa-4" Elevation="0">
-                <MudText Typo="Typo.h5">Message data</MudText>
+                <MudText Typo="Typo.h5">Service data</MudText>
                 <MudDivider Class="mt-2" />
                 <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
                     <tbody>
@@ -123,6 +127,7 @@
                         {
                             <tr>
                                 <td>@item.Key</td>
+                                @* <td style="white-space: normal; word-break: break-word;">@item.Value</td> *@
                                 <td>@item.Value</td>
                                 <td>@GenerateValueTypeText(item.Value)</td>
                             </tr>
@@ -130,36 +135,40 @@
                     </tbody>
                 </MudSimpleTable>
             </MudPaper>
-            <MudPaper Class="pa-4" Elevation="0">
-                <MudText Typo="Typo.h5">Server tasks</MudText>
-                <MudDivider Class="mt-2" />
-                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                    <tbody>
-                        @foreach (var item in _service.ServerTasks)
-                        {
-                            <tr>
-                                <td>@item.Name</td>
-                                <td>@item.Type</td>
-                            </tr>
-                        }
-                    </tbody>
-                </MudSimpleTable>
-            </MudPaper>
-            <MudPaper Class="pa-4" Elevation="0">
-                <MudText Typo="Typo.h5">Pending actions</MudText>
-                <MudDivider Class="mt-2" />
-                <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
-                    <tbody>
-                        @foreach (var item in _service.Actions)
-                        {
-                            <tr>
-                                <td>@item.Key</td>
-                                <td>@item.Value</td>
-                            </tr>
-                        }
-                    </tbody>
-                </MudSimpleTable>
-            </MudPaper>
+
+            <MudStack Row="true" Wrap="Wrap.Wrap" Justify="Justify.SpaceEvenly" StretchItems="StretchItems.All">
+                <MudPaper Class="pa-4" Elevation="0">
+                    <MudText Typo="Typo.h5">Server tasks</MudText>
+                    <MudDivider Class="mt-2" />
+                    <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                        <tbody>
+                            @foreach (var item in _service.ServerTasks)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Type</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                </MudPaper>
+                <MudPaper Class="pa-4" Elevation="0">
+                    <MudText Typo="Typo.h5">Pending actions</MudText>
+                    <MudDivider Class="mt-2" />
+                    <MudSimpleTable Class="px-4 mb-2" Bordered="false" Elevation="0">
+                        <tbody>
+                            @foreach (var item in _service.Actions)
+                            {
+                                <tr>
+                                    <td>@item.Key</td>
+                                    <td>@item.Value</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                </MudPaper>
+            </MudStack>
+
         </MudStack>
     }
 </div>

@@ -15,7 +15,7 @@ public class ArrayOperationNode :TaskNode
     {
         Type = NodeType.ArrayOperation;
         SubType = (int)operationType;
-        if (operationType == NodeArrayOperationType.ArrayAppend)
+        if (operationType == NodeArrayOperationType.ArrayAppend || operationType == NodeArrayOperationType.ArrayMerge)
         {
             AddPorts(NodeInputType.Double);
         }
@@ -45,13 +45,18 @@ public class ArrayOperationNode :TaskNode
 
     public void AddInputPorts(NodeInputType input)
     {
-        var secondType = SubType == (int)NodeArrayOperationType.ArrayAppend
-            ? NodeValueType.Any
-            : NodeValueType.Number;
         InputType = input;
         RemoveAllInputPorts();
+
         if (input == NodeInputType.Double)
         {
+            var secondType = SubType switch
+            {
+                (int)NodeArrayOperationType.ArrayAppend => NodeValueType.Any,
+                (int)NodeArrayOperationType.ArrayMerge => NodeValueType.Array,
+                _ => NodeValueType.Number
+            };
+
             AddPort(new TaskPort(this, true, PortPositionAlignment.Top, dataType: NodeValueType.Array));
             AddPort(new TaskPort(this, true, PortPositionAlignment.Bottom, dataType: secondType));
         }

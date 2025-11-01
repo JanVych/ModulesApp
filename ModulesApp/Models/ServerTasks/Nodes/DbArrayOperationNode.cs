@@ -18,7 +18,12 @@ public class DbArrayOperationNode : DbTaskNode
 
         if (SubType == (int)NodeArrayOperationType.ArrayCreate)
         {
-            Value = new NodeValue.ArrayValue([]);
+            var newArray = new List<NodeValue>();
+            for (var i = LongVal1; i > 0; i--)
+            {
+                newArray.Add(new NodeValue.NumberValue(DoubleVal1));
+            }
+            Value = new NodeValue.ArrayValue(newArray);
             return;
         }
 
@@ -86,6 +91,17 @@ public class DbArrayOperationNode : DbTaskNode
         else if (OperationType == NodeArrayOperationType.ArrayAppend && secondInput != null)
         {
             arrayCLone.Add(secondInput);
+            Value = new NodeValue.ArrayValue(arrayCLone);
+        }
+
+        else if (OperationType == NodeArrayOperationType.ArrayMerge && secondInput != null)
+        {
+            if (secondInput is not NodeValue.ArrayValue array)
+            {
+                Value = new NodeValue.InvalidValue($"In node: {Order}, type error, second input is not a number!");
+                return;
+            }
+            arrayCLone.AddRange(array.GetValueClone());
             Value = new NodeValue.ArrayValue(arrayCLone);
         }
 
