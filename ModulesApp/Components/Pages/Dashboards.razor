@@ -94,11 +94,6 @@
                                                DeleteButtonClick="DeleteDashBoardEntity"
                                                ServerContextService="_serverContextService" />
                         }
-                        else if (e is DbLineChartEntity lce)
-                        {
-                            <LineChartEntity EditMode="@EditMode" Entity="@lce"
-                                             DeleteButtonClick="DeleteDashBoardEntity" />
-                        }
                         else if (e is DbKeyValueEntity kve)
                         {
                             <KeyValueEntity EditMode="@EditMode" Entity="@kve"

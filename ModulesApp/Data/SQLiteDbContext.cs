@@ -136,7 +136,6 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
             .HasValue<DbRoomsTempEntity>(DashboardEntityType.RoomsTemp)
             .HasValue<DbButtonEntity>(DashboardEntityType.Button)
             .HasValue<DbValueSetterEntity>(DashboardEntityType.ValueSetter)
-            .HasValue<DbLineChartEntity>(DashboardEntityType.LineChart)
             .HasValue<DbKeyValueEntity>(DashboardEntityType.KeyValue)
             .HasValue<DbFrameEntity>(DashboardEntityType.Frame)
             .HasValue<DbLineChart24hEntity>(DashboardEntityType.LineChart24h)

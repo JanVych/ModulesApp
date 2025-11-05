@@ -12,6 +12,7 @@ public partial class DbLineChart24hEntity :DbDashboardEntity
         EveryMinute = 1,
         Every5Minutes = 5,
         Every10Minutes = 10,
+        Evry15Minutes = 15,
         Every30Minutes = 30,
         EveryHour = 60,
     }
@@ -25,34 +26,32 @@ public partial class DbLineChart24hEntity :DbDashboardEntity
     {
         public long Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Color { get; set; } = "#008FFB";
 
         public Queue<SeriesData> Data { get; set; } = new();
         public List<SeriesData> ReducedData { get; set; } = [];
 
         public bool AddDataPoint(decimal value, int sampleFrequencyMinutes)
         {
-            var dateTime = DateTime.Now;
-            Data.Enqueue(new SeriesData { Value = value, Time = dateTime });
-            while (Data.Count > 0 && (dateTime - Data.Peek().Time).TotalHours > 24)
+            var dateTimeNow = DateTime.Now;
+            Data.Enqueue(new SeriesData { Value = value, Time = dateTimeNow });
+            while (Data.Count > 0 && (dateTimeNow - Data.Peek().Time).TotalHours > 24)
             {
                 Data.Dequeue();
             }
-            if (ReducedData.Count != 0)
-            {
-                var x = (dateTime - ReducedData.Last().Time).TotalMinutes;
-            }
-            if (ReducedData.Count == 0 || (dateTime - ReducedData.Last().Time).TotalMinutes >= sampleFrequencyMinutes)
-            {
-                ReducedData.RemoveAll(x => (dateTime - x.Time).TotalHours > 24);
 
-                var cutoff = dateTime.AddMinutes(- sampleFrequencyMinutes);
+            if (ReducedData.Count == 0 || (dateTimeNow - ReducedData.Last().Time).TotalMinutes >= sampleFrequencyMinutes)
+            {
+                ReducedData.RemoveAll(x => (dateTimeNow - x.Time).TotalHours > 24);
+
+                var cutoff = dateTimeNow.AddMinutes(-sampleFrequencyMinutes);
                 var newValue = Data
                     .Where(d => d.Time >= cutoff)
                     .Select(d => d.Value)
                     .DefaultIfEmpty(0M)
                     .Average();
 
-                ReducedData.Add(new SeriesData { Value = newValue, Time = dateTime });
+                ReducedData.Add(new SeriesData { Value = newValue, Time = dateTimeNow });
                 return true;
             }
             return false;

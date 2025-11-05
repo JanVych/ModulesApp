@@ -31,21 +31,19 @@ public class ModbusRtuUdp
         ResponseHeaderSize = responseHeaderSize;
     }
 
-    public float? ReadFLoatFromS16Register(ushort address)
-    {
-        var value =  ReadS16Register(address);
-        return value == null ? null : (float)value;
-    }
-
     public ushort? ReadU16Register(ushort address)
     {
-        var value = ReadS16Registers(address, 1)?.FirstOrDefault();
-        return value == null ? null : (ushort) value;
+        return (ushort?) ReadS16Registers(address, 1)?.FirstOrDefault();
     }
 
     public short? ReadS16Register(ushort address)
     {
         return ReadS16Registers(address, 1)?.FirstOrDefault();
+    }
+
+    public int? ReadS32Register(ushort address)
+    {
+        return (int?) ReadU32Register(address);
     }
 
     public uint? ReadU32Register(ushort address)

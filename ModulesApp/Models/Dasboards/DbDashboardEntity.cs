@@ -13,7 +13,7 @@ public enum DashboardEntityType
     Frame,
     ValueSetter,
     DataList,
-    LineChart,
+    Empty,
     RoomsTemp,
     LineChart24h,
     AccumulationTank,

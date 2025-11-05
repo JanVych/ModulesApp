@@ -72,7 +72,7 @@ public class GoodweBackgroundService : BackgroundService
             MessageData["Backup Power [W]"] = GetBackupPower();
             MessageData["Load Power [W]"] = GetLoadPower();
             MessageData["Battery Power [W]"] = GetBatteryPower();
-            MessageData["Inverter Temperature [℃]"] = GetInverterTemperature();
+            MessageData["Inverter Temperature [℃]"] = GetInverterInternalTemperature();
             MessageData["Battery Temperature [℃]"] = GetBatteryTemperature();
             MessageData["Battery SOC [%]"] = GetBatterySOC();
             MessageData["Battery Status"] = GetBatteryStatus()?.ToString() ?? "Unknown";
@@ -84,15 +84,20 @@ public class GoodweBackgroundService : BackgroundService
     public uint? GetPvTotalPower() => _modbusRtuUdp?.ReadU32Register(35301);
 
     /// <summary>
-    ///  Get Grid Power in wats
+    /// Get Grid Power in wats
     /// </summary>
     /// <returns>negative value = consuming, positive value = suplying</returns>
-    public int? GetGridPower() => (int?)_modbusRtuUdp?.ReadU32Register(35139);
-    public uint? GetBackupPower() => _modbusRtuUdp?.ReadU32Register(35169);
-    public int? GetLoadPower() => (int?)_modbusRtuUdp?.ReadU32Register(35171);
-    public uint? GetBatteryPower() => _modbusRtuUdp?.ReadU32Register(35182);
-    public float? GetInverterTemperature() => _modbusRtuUdp?.ReadFLoatFromS16Register(35174) / 10;
-    public float? GetBatteryTemperature() => _modbusRtuUdp?.ReadFLoatFromS16Register(37003) / 10;
+    public int? GetGridPower() => _modbusRtuUdp?.ReadS32Register(35139);
+    public int? GetBackupPower() => _modbusRtuUdp?.ReadS32Register(35169);
+    public int? GetLoadPower() => _modbusRtuUdp?.ReadS32Register(35171);
+
+    /// <summary>
+    /// Get Battery Power in wats
+    /// </summary>
+    /// <returns>negative value = charging, positive value = discharging </returns>
+    public int? GetBatteryPower() => _modbusRtuUdp?.ReadS32Register(35182);
+    public float? GetInverterInternalTemperature() => _modbusRtuUdp?.ReadS16Register(35174) / 10f;
+    public float? GetBatteryTemperature() => _modbusRtuUdp?.ReadU16Register(37003) / 10f;
     public ushort? GetBatterySOC() => _modbusRtuUdp?.ReadU16Register(37007);
     public BatteryStatus? GetBatteryStatus()
     {

@@ -32,6 +32,17 @@
                                    Color="MudBlazor.Color.Error"
                                    OnClick="@(() => DeleteSeries(serie))" />
                 </MudStack>
+                <MudSelect @bind-Value="@serie.Color" Label="Color">
+                    @foreach (var color in _colors)
+                    {
+                        <MudSelectItem Value="@color">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                <MudText>@color</MudText>
+                                <MudPaper Style="@SelectColorStyle(color)" />
+                            </MudStack>
+                        </MudSelectItem>
+                    }
+                </MudSelect>
                 <MudText Typo="Typo.body2">Add point message key: @GetSeriesValueMessage(serie)</MudText>
                
                 <MudDivider Class="pt-2"/>
@@ -58,6 +69,7 @@ else
                                  Items="@serie.ReducedData"
                                  Name="@serie.Name"
                                  SeriesType="SeriesType.Line"
+                                 Color="@serie.Color"
                                  XValue="e => e.Time"
                                  YValue="e => e.Value" />
             }
@@ -91,6 +103,12 @@ else
     private ApexChart<DbLineChart24hEntity.SeriesData>? _chart;
     private ApexChartOptions<DbLineChart24hEntity.SeriesData> _chartOptions;
 
+    public static string[] _colors = new string[]
+    {
+        "#A300D6", "#F86624", "#F9C80E", "#008FFB", "#00E396", "#FF4560",
+    };
+    string SelectColorStyle(string color) => $"width:100%; height:20px; background-color:{color};";
+
     protected override void OnInitialized()
     {
         _chartOptions = new ApexChartOptions<DbLineChart24hEntity.SeriesData>
@@ -100,13 +118,17 @@ else
                 Background = "transparent",
                 ForeColor = "var(--mud-palette-text-primary)",
                 FontFamily = "Roboto, Helvetica, Arial, sans-serif",
-                Animations = new Animations
+                Zoom = new Zoom
                 {
                     Enabled = false
                 },
+                Animations = new Animations
+                {
+                    Enabled = true
+                },
                 Toolbar = new Toolbar
                 {
-                    Show = true,
+                    Show = false,
                     Tools = new Tools
                     {
                         Zoom = true,
@@ -133,13 +155,6 @@ else
 
                 }
             },
-            Tooltip = new Tooltip
-            {
-                X = new TooltipX
-                {
-                    Format = "HH:mm" 
-                },
-            },
 
             Stroke = new Stroke
             {
@@ -165,18 +180,29 @@ else
             },
             Xaxis = new XAxis
             {
-                Tooltip = new XAxisTooltip
-                {
-                    Enabled = false,
-                },
                 Type = XAxisType.Datetime,
+                Tooltip = new XAxisTooltip { Enabled = false },
                 Labels = new XAxisLabels
                 {
-                    Formatter = "function(value) { return new Date(value).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); }",
-                    
-                }
+                    Formatter = @"
+                    function(value, timestamp, opts) {
+                        if (!value) return '';
 
+                        var d = new Date(value);
+                        if (isNaN(d)) return '';
+
+                        var globals = opts?.w?.globals;
+                        var diff = globals ? globals.maxX - globals.minX : 0;
+
+                        if (diff <= 4 * 60 * 60 * 1000) {
+                            return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                        } else {
+                            return d.getHours().toString().padStart(2, '0') + ':00';
+                        }
+                    }"
+                }
             },
+
             Yaxis = new List<YAxis>
             {
                 new YAxis
@@ -187,6 +213,20 @@ else
                     }
                 }
             },
+
+            Tooltip = new ApexCharts.Tooltip
+            {
+                Enabled = true,
+                X = new TooltipX
+                {
+                    // Format the x-value in the hover box to show exact time
+                    Formatter = @"
+                    function(value) {
+                        var d = new Date(value);
+                        return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    }"
+                }
+            }
         };
 
         Entity.UpdateAsync += UpdateSeries;
