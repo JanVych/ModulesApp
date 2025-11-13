@@ -69,20 +69,17 @@ public class DashboardService
         context.SaveChanges();
     }
 
-    public void UpdateEntity(DbDashboardEntity entity)
-    {
-        using var context = _dbContextFactory.CreateDbContext();
-        entity.SaveToData();
-        context.DashboardEntities.Update(entity);
-        context.SaveChanges();
-    }
-
-    public async Task UpdateEntityAsync(DbDashboardEntity entity)
+    public async Task UpdateEntityAsync(DbDashboardEntity entity, string? key = null, object? value = null)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync();
         entity.SaveToData();
         context.DashboardEntities.Update(entity);
         await context.SaveChangesAsync();
+
+        if(key != null)
+        {
+            _notifyService.NotifyDashboardEntityDataChanged(entity.Id, key, value);
+        }
     }
 
     public async Task UpdateEntitiesAsync(List<DbDashboardEntity> entities)
@@ -97,7 +94,6 @@ public class DashboardService
 
         await context.SaveChangesAsync();
     }
-
 
     public void DeleteEntity(DbDashboardEntity entity)
     {

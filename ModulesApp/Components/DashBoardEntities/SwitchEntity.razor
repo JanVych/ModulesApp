@@ -58,7 +58,7 @@ else
         Entity.Value = value;
         if (ServerContextService != null)
         {
-            await ServerContextService.DashboardEntityUserTriggerAsync(Entity);
+            await ServerContextService.DashboardEntityUserTriggerAsync(Entity, "Value", Entity.Value);
         }
     }
 }

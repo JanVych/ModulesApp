@@ -86,7 +86,7 @@ else
     private async Task OnTempChanged(DbRoomsTempEntity.Room room)
     {
         room.Disabled = true;
-        await ServerContextService._dashboardService.UpdateEntityAsync(Entity);
+        await ServerContextService._dashboardService.UpdateEntityAsync(Entity, room.Name, room.TargetTemp);
         room.Disabled = false;
     }
 

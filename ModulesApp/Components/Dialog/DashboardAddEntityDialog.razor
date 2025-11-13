@@ -56,6 +56,10 @@
                 {
                     <AccumulationTankEntity EditMode="true" Entity="@ate" />
                 }
+                else if (Entity is DbToggleGroupEntity tge)
+                {
+                    <ToggleGroupEntity EditMode="true" Entity="@tge" />
+                }
                 else
                 {
                     <MudText>Unknown entity type</MudText>
@@ -81,12 +85,13 @@
         DashboardEntityType.KeyValue,
         DashboardEntityType.Switch,
         DashboardEntityType.Button,
+        DashboardEntityType.ToggleGroup,
         DashboardEntityType.ValueSetter,
         DashboardEntityType.RoomsTemp,
         DashboardEntityType.Frame,
         DashboardEntityType.DataList,
         DashboardEntityType.LineChart24h,
-        DashboardEntityType.AccumulationTank
+        DashboardEntityType.AccumulationTank,
     };
 
     private void Submit() => MudDialog.Close(DialogResult.Ok(Entity));
@@ -107,6 +112,7 @@
             DashboardEntityType.Frame => new DbFrameEntity(),
             DashboardEntityType.LineChart24h => new DbLineChart24hEntity(),
             DashboardEntityType.AccumulationTank => new DbAccumulationTankEntity(),
+            DashboardEntityType.ToggleGroup => new DbToggleGroupEntity(),
             _ => new DbKeyValueEntity()
         };
     }

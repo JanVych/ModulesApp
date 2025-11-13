@@ -34,7 +34,7 @@
 
 
   <ItemGroup>
-    <Folder Include="data\programs\" />
+    <Folder Include="data\firmware\" />
     <Folder Include="Migrations\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>

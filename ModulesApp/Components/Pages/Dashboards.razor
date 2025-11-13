@@ -116,6 +116,12 @@
                             <AccumulationTankEntity EditMode="@EditMode" Entity="@ate"
                                                    DeleteButtonClick="DeleteDashBoardEntity" />
                         }
+                        else if (e is DbToggleGroupEntity tge)
+                        {
+                            <ToggleGroupEntity EditMode="@EditMode" Entity="@tge"
+                                               DeleteButtonClick="DeleteDashBoardEntity"
+                                               ServerContextService="_serverContextService" />
+                        }
                     }
                 }
             </div>

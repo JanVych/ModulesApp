@@ -27,7 +27,7 @@ public class DbRoomsTempEntity : DbDashboardEntity
             Data[key] = value;
             return;
         }
-        if (key == "RoomsNames")
+        else if (key == "RoomsNames")
         {
             var list = DataConvertor.ToList<string>(value);
 
@@ -79,6 +79,14 @@ public class DbRoomsTempEntity : DbDashboardEntity
         else if(key == "Title")
         {
             Title = DataConvertor.ToString(value) ?? string.Empty;
+        }
+        else
+        {
+            var room = Rooms.FirstOrDefault(r => r.Name == key);
+            if (room != null)
+            {
+                room.TargetTemp = DataConvertor.ToDecimal(value);
+            }
         }
     }
 

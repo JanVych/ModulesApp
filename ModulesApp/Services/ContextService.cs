@@ -114,15 +114,14 @@ public class ContextService
         }
     }
 
-
     public void SendToDashboardEntity(long entityId, string key, object? value)
     {
         _dashboardService.UpdateEntityAndNotify(entityId, key, value);
     }
 
-    public async Task DashboardEntityUserTriggerAsync(DbDashboardEntity entity)
+    public async Task DashboardEntityUserTriggerAsync(DbDashboardEntity entity, string? key=null, object? value=null)
     {
-        _dashboardService.UpdateEntity(entity);
+        await _dashboardService.UpdateEntityAsync(entity, key, value);
         await _serverTaskService.ExecuteTasksAsync(this, entity);
     }
 

@@ -17,6 +17,7 @@ public enum DashboardEntityType
     RoomsTemp,
     LineChart24h,
     AccumulationTank,
+    ToggleGroup
 }
 
 public enum EntityChartType

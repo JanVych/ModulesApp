@@ -139,7 +139,8 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
             .HasValue<DbKeyValueEntity>(DashboardEntityType.KeyValue)
             .HasValue<DbFrameEntity>(DashboardEntityType.Frame)
             .HasValue<DbLineChart24hEntity>(DashboardEntityType.LineChart24h)
-            .HasValue<DbAccumulationTankEntity>(DashboardEntityType.AccumulationTank);
+            .HasValue<DbAccumulationTankEntity>(DashboardEntityType.AccumulationTank)
+            .HasValue<DbToggleGroupEntity>(DashboardEntityType.ToggleGroup);
 
         base.OnModelCreating(builder);
     }

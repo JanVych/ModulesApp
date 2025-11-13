@@ -10,7 +10,17 @@ public class DbSwitchEntity : DbDashboardEntity
     public override void UpdateState(string key, object? value, bool toDatabse)
     {
         Data[key] = value;
-        LoadState();
+        if (!toDatabse)
+        {
+            if (key == "Value")
+            {
+                Value = DataConvertor.ToBool(value);
+            }
+            else if (key == "Title")
+            {
+                Title = DataConvertor.ToString(value);
+            }
+        }
     }
 
     public override void LoadState()

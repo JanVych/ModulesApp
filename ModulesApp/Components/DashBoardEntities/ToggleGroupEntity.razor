@@ -1,0 +1,80 @@
+﻿@using ModulesApp.Models.Dasboards
+@using System.Text.Json
+@using ModulesApp.Models.Dasboards.Entities
+@using ModulesApp.Services
+
+@if (EditMode)
+{
+    <MudPaper Class="pa-3" Style="width:300px; min-height:20px">
+        <MudStack Row="true">
+            <MudTextField @bind-Value="@Entity.Name" Label="Id" Required=true />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           OnClick="OnDeleteButtonClick" />
+        </MudStack>
+        <MudDivider />
+
+        @foreach (var item in Entity.Items)
+        {
+            <MudTextField @bind-Value="@item.Label" MaxLength="20" Label="Label" />
+            <MudTextField @bind-Value="@item.Value" MaxLength="20" Label="Value" />
+            <MudSelect @bind-Value="item.Color" Label="Color">
+                @foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>())
+                {
+                    <MudSelectItem Value="@color">@color</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" 
+            OnClick="() => Entity.Items.Remove(item)">
+                Remove
+            </MudButton>
+            <MudDivider />
+        }
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   OnClick="() => Entity.AddNewItem()">
+            Add
+        </MudButton>
+    </MudPaper>
+}
+else
+{
+    <MudToggleGroup T="string" SelectionMode="SelectionMode.SingleSelection" Value="Entity.Value" 
+                    Disabled="_disabled" ValueChanged="OnValueChanged"
+                    Style="width: 300px;" Color="Entity.Color" CheckMark=false FixedContent=false Size="Size.Large">
+        @foreach (var item in Entity.Items)
+        {
+            <MudToggleItem Value="@item.Value" Text="@item.Label" Disabled="_disabled"/>
+        }
+    </MudToggleGroup>
+}
+
+@code
+{
+    [Parameter, EditorRequired]
+    public DbToggleGroupEntity Entity { get; set; } = default!;
+    [Parameter]
+    public bool EditMode { get; set; } = false;
+    [Parameter]
+    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    [Parameter]
+    public ContextService? ServerContextService { get; set; }
+
+    private bool _disabled = false;
+
+    private void OnDeleteButtonClick()
+    {
+        DeleteButtonClick?.Invoke(Entity);
+    }
+
+    private async Task OnValueChanged(string value)
+    {
+        if(ServerContextService != null)
+        {
+            _disabled = true;
+            Entity.Value = value;
+            await ServerContextService.DashboardEntityUserTriggerAsync(Entity, "Value", Entity.Value);
+            // await Task.Delay(500);
+            _disabled = false;
+        }
+    }
+}
