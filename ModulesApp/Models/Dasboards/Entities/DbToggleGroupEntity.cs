@@ -9,12 +9,12 @@ public class DbToggleGroupEntity : DbDashboardEntity
     public class ToggleItem
     {
         public string Label { get; set; } = string.Empty;
-        public string Value { get; set; } = string.Empty;
+        public int Value { get; set; }
         public MudBlazor.Color Color { get; set; } = MudBlazor.Color.Primary;
     }
 
     [NotMapped]
-    public string Value { get; set; } = string.Empty;
+    public int Value { get; set; }
     [NotMapped]
     public MudBlazor.Color Color { get; set; } = MudBlazor.Color.Primary;
 
@@ -28,7 +28,7 @@ public class DbToggleGroupEntity : DbDashboardEntity
         Data[key] = value;
         if(!toDatabse && key == "Value")
         {
-            Value = DataConvertor.ToString(value);
+            Value = DataConvertor.ToInt32(value);
             LoadColor();
         }
     }
@@ -37,7 +37,7 @@ public class DbToggleGroupEntity : DbDashboardEntity
     {
         if (Data.TryGetValue("Value", out var t))
         {
-            Value = DataConvertor.ToString(t);
+            Value = DataConvertor.ToInt32(t);
         }
         if (Data.TryGetValue("Items", out var i))
         {
@@ -66,7 +66,7 @@ public class DbToggleGroupEntity : DbDashboardEntity
 
     public void AddNewItem()
     {
-        Items.Add(new ToggleItem { Label = $"label{Items.Count + 1}", Value = $"value{Items.Count + 1}" });
+        Items.Add(new ToggleItem { Label = $"label{Items.Count + 1}", Value = Items.Count + 1 });
     }
 
     public void LoadColor()

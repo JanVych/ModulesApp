@@ -12,23 +12,28 @@
                            Color="Color.Error"
                            OnClick="OnDeleteButtonClick" />
         </MudStack>
-        <MudDivider />
+        <MudDivider Class="my-3" />
 
         @foreach (var item in Entity.Items)
         {
-            <MudTextField @bind-Value="@item.Label" MaxLength="20" Label="Label" />
-            <MudTextField @bind-Value="@item.Value" MaxLength="20" Label="Value" />
+             <MudStack Row="true">
+                <MudTextField @bind-Value="@item.Label" MaxLength="20" Label="Label" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Color="Color.Error"
+                               OnClick="() => Entity.Items.Remove(item)" />
+             </MudStack>
+            
+            <MudNumericField @bind-Value="@item.Value" Label="Value" />
             <MudSelect @bind-Value="item.Color" Label="Color">
-                @foreach (var color in Enum.GetValues(typeof(Color)).Cast<Color>())
+                @foreach (var color in _colors)
                 {
-                    <MudSelectItem Value="@color">@color</MudSelectItem>
+                    <MudSelectItem Value="@color.MudColor">
+                        <MudPaper Style="@($"width:100%; height:15px; background-color:var({color.Css});")" />
+                    </MudSelectItem>
                 }
             </MudSelect>
-            <MudButton Variant="Variant.Outlined" Color="Color.Error" 
-            OnClick="() => Entity.Items.Remove(item)">
-                Remove
-            </MudButton>
-            <MudDivider />
+           
+            <MudDivider Class="my-2"/>
         }
         <MudButton Variant="Variant.Filled" Color="Color.Primary"
                    OnClick="() => Entity.AddNewItem()">
@@ -38,9 +43,10 @@
 }
 else
 {
-    <MudToggleGroup T="string" SelectionMode="SelectionMode.SingleSelection" Value="Entity.Value" 
+    <MudToggleGroup T="int" SelectionMode="SelectionMode.SingleSelection" Value="Entity.Value" 
                     Disabled="_disabled" ValueChanged="OnValueChanged"
-                    Style="width: 300px;" Color="Entity.Color" CheckMark=false FixedContent=false Size="Size.Large">
+                    Style="width: 300px;" Color="Entity.Color" 
+                    CheckMark=false FixedContent=false Size="Size.Large">
         @foreach (var item in Entity.Items)
         {
             <MudToggleItem Value="@item.Value" Text="@item.Label" Disabled="_disabled"/>
@@ -61,12 +67,22 @@ else
 
     private bool _disabled = false;
 
+    public static List<(Color MudColor, string Css)> _colors =
+    [
+        (Color.Primary, "--mud-palette-primary"),
+        (Color.Info, "--mud-palette-info"),
+        (Color.Success, "--mud-palette-success"),
+        (Color.Warning, "--mud-palette-warning"),
+        (Color.Error, "--mud-palette-error"),
+        (Color.Dark, "--mud-palette-dark"),
+    ];
+
     private void OnDeleteButtonClick()
     {
         DeleteButtonClick?.Invoke(Entity);
     }
 
-    private async Task OnValueChanged(string value)
+    private async Task OnValueChanged(int value)
     {
         if(ServerContextService != null)
         {

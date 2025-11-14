@@ -36,9 +36,7 @@
                     @foreach (var color in _colors)
                     {
                         <MudSelectItem Value="@color">
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                                <MudPaper Style="@SelectColorStyle(color)" />
-                            </MudStack>
+                            <MudPaper Style="@SelectColorStyle(color)" />
                         </MudSelectItem>
                     }
                 </MudSelect>
@@ -75,7 +73,6 @@ else
         </ApexChart>
     </MudPaper>
 
-
     <style>
         .chart-container {
             width: 100%;
@@ -86,7 +83,6 @@ else
             .chart-container .apexcharts-canvas {
                 width: 100% !important;
             }
-
     </style>
 }
 
@@ -102,11 +98,12 @@ else
     private ApexChart<DbLineChart24hEntity.SeriesData>? _chart;
     private ApexChartOptions<DbLineChart24hEntity.SeriesData> _chartOptions;
 
-    public static string[] _colors = new string[]
-    {
+    public static string[] _colors =
+    [
         "#A300D6", "#F86624", "#F9C80E", "#008FFB", "#00E396", "#FF4560",
-    };
-    string SelectColorStyle(string color) => $"width:100%; height:20px; background-color:{color};";
+    ];
+
+    string SelectColorStyle(string color) => $"width:100%; height:15px; background-color:{color};";
 
     protected override void OnInitialized()
     {

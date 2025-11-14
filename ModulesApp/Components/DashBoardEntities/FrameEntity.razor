@@ -48,6 +48,12 @@
             <LineChart24hEntity EditMode="@EditMode" Entity="@lc24"
                                DeleteButtonClick="(e) => OnDeleteButtonClick(e)"/>
         }
+        else if (e is DbToggleGroupEntity tge)
+        {
+            <ToggleGroupEntity EditMode="@EditMode" Entity="@tge"
+                               DeleteButtonClick="(e) => OnDeleteButtonClick(e)"
+                               ServerContextService="ServerContextService" />
+        }
     }
     @if (EditMode)
     {
