@@ -1,0 +1,114 @@
+﻿@using ModulesApp.Components.ServerTasks.Ports
+@using ModulesApp.Interfaces
+@using ModulesApp.Models.ServerTasks
+@using MudBlazor
+
+<TaskNodeWidget Node="Node"
+                Header="@($"Global-{Node.NodeModeType}")">
+
+    @if(Node.NodeModeType == NodeModeType.Get)
+    {
+            <MudSelect T="long"
+               Modal=false
+               Value="Node.LongVal1"
+               ValueChanged="ChangeType"
+               Variant="Variant.Outlined"
+               Label="Type"
+               Margin="Margin.Dense">
+        <MudSelectItem Value="(long)NodeValueType.String">@NodeValueType.String</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Number">@NodeValueType.Number</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Boolean">@NodeValueType.Boolean</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Array">@NodeValueType.Array</MudSelectItem>
+        <MudSelectItem Value="(long)NodeValueType.Any">@NodeValueType.Any</MudSelectItem>
+    </MudSelect>
+    }
+
+    <MudAutocomplete T="string"
+                     @bind-Text="Node.StringVal1"
+                     @bind-Value="Node.StringVal1"
+                     Label="Group"
+                     Style="max-width:180px"
+                     Variant="Variant.Outlined"
+                     Margin="Margin.Dense"
+                     CoerceText=false
+                     CoerceValue=false
+                     Clearable=true
+                     RelativeWidth="DropdownWidth.Adaptive"
+                     OnClearButtonClick="ClearButtonGroupClick"
+                     Modal=false
+                     Dense=false
+                     SearchFunc="@SearchGroup"
+                     AutoFocus="false"/>
+
+        <MudAutocomplete T="string"
+                         @bind-Text="Node.StringVal2"
+                         @bind-Value="Node.StringVal2"
+                         Label="Key"
+                         Style="max-width:180px"
+                         Variant="Variant.Outlined"
+                         Margin="Margin.Dense"
+                         CoerceText=false
+                         CoerceValue=false
+                         Clearable=true
+                         RelativeWidth="DropdownWidth.Adaptive"
+                         OnClearButtonClick="ClearButtonKeyClick"
+                         Modal=false
+                         Dense=false
+                         SearchFunc="@SearchKey"
+                         AutoFocus="false"/>
+
+    @if (Node.NodeModeType == NodeModeType.Set)
+    {
+        <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="@(Node.InputType == NodeInputType.Double)">
+            @Node.InputType input
+        </MudSwitch>
+    }
+
+</TaskNodeWidget>
+
+@code
+{
+    [Parameter] public GlobalValueNode Node { get; set; } = null!;
+
+    private void ChangeType(long value)
+    {
+        Node.LongVal1 = value;
+        var port = Node.Ports.FirstOrDefault() as TaskPort;
+        port!.DataType = (NodeValueType)value;
+    }
+
+    private async Task<IEnumerable<string>> SearchGroup(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Node.Groups ?? [];
+        }
+        return Node.Groups?.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)) ?? [];
+    }
+
+    private async Task<IEnumerable<string>> SearchKey(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Node.Keys ?? [];
+        }
+        return Node.Keys?.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase)) ?? [];
+    }
+
+    private void ClearButtonGroupClick() => Node.StringVal1 = string.Empty;
+    private void ClearButtonKeyClick() => Node.StringVal2 = string.Empty;
+
+
+    private void SwitchInputType(bool inputType)
+    {
+        Node.InputType = inputType ? NodeInputType.Double : NodeInputType.Single;
+        if (inputType)
+        {
+            Node.AddPorts();
+        }
+        else
+        {
+            Node.AddPorts();
+        }
+    }
+}

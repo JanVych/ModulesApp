@@ -91,7 +91,7 @@
 
         </MudAutocomplete>
     }
-    <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="ToBool(Node.InputType)">
+    <MudSwitch T="bool" ValueChanged="SwitchInputType" Size="Size.Small" Value="@(Node.InputType == NodeInputType.Double)">
         @Node.InputType input
     </MudSwitch>
 
@@ -140,8 +140,6 @@
             Node.AddPorts(NodeInputType.Single);
         }
     }
-
-    private bool ToBool(NodeInputType type) => type == NodeInputType.Double;
 
     private async Task<IEnumerable<string>> Search(string value, CancellationToken token)
     {

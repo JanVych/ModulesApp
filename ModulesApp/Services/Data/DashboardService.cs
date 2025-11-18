@@ -32,7 +32,7 @@ public class DashboardService
 
     public async Task<List<DbDashboard>> GetAllDashboardsAsync()
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
 
         var dashboards = await context.Dashboards
             .Include(d => d.Entities)
@@ -49,15 +49,15 @@ public class DashboardService
     public void UpdateEntityAndNotify(long entityId, string key, object? value)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        var entity = context.DashboardEntities
-            .Include(e => e.ChildEntities)
-            .FirstOrDefault(x => x.Id == entityId);
+        var entity = context.DashboardEntities.Find(entityId);
+
         if (entity != null)
         {
-            _notifyService.NotifyDashboardEntityDataChanged(entityId, key, value);
             entity.UpdateState(key, value, true);
-            context.DashboardEntities.Update(entity);
+            context.Entry(entity).Property(e => e.Data).IsModified = true;
+
             context.SaveChanges();
+            _notifyService.NotifyDashboardEntityDataChanged(entityId, key, value);
         }
     }
 
@@ -71,12 +71,15 @@ public class DashboardService
 
     public async Task UpdateEntityAsync(DbDashboardEntity entity, string? key = null, object? value = null)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+
         entity.SaveToData();
-        context.DashboardEntities.Update(entity);
+        context.DashboardEntities.Attach(entity);
+        context.Entry(entity).Property(e => e.Data).IsModified = true;
+
         await context.SaveChangesAsync();
 
-        if(key != null)
+        if (key != null)
         {
             _notifyService.NotifyDashboardEntityDataChanged(entity.Id, key, value);
         }
@@ -111,7 +114,7 @@ public class DashboardService
 
     public async Task<List<DbDashboardEntity>> GetAllDashBoardEntitiesAsync()
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.DashboardEntities
             .ToListAsync();
     }
@@ -119,7 +122,8 @@ public class DashboardService
     public DbDashboardEntity? GetEntity(long id)
     {
         using var context = _dbContextFactory.CreateDbContext();
-        return context.DashboardEntities
+        var entity = context.DashboardEntities
             .FirstOrDefault(x => x.Id == id);
+        return entity;
     }
 }

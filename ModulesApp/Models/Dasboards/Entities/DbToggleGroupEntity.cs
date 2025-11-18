@@ -15,6 +15,7 @@ public class DbToggleGroupEntity : DbDashboardEntity
 
     [NotMapped]
     public int Value { get; set; }
+
     [NotMapped]
     public MudBlazor.Color Color { get; set; } = MudBlazor.Color.Primary;
 
@@ -25,12 +26,17 @@ public class DbToggleGroupEntity : DbDashboardEntity
 
     public override void UpdateState(string key, object? value, bool toDatabse)
     {
-        Data[key] = value;
-        if(!toDatabse && key == "Value")
+        if(key == "Value")
         {
+            Data["PrewValue"] = Value;
             Value = DataConvertor.ToInt32(value);
             LoadColor();
         }
+        else
+        {
+            Data[key] = value;
+        }
+        
     }
 
     public override void LoadState()
@@ -38,6 +44,7 @@ public class DbToggleGroupEntity : DbDashboardEntity
         if (Data.TryGetValue("Value", out var t))
         {
             Value = DataConvertor.ToInt32(t);
+            LoadColor();
         }
         if (Data.TryGetValue("Items", out var i))
         {

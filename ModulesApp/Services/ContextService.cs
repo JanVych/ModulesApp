@@ -12,7 +12,7 @@ public class ContextService
     public readonly DashboardService _dashboardService;
     private readonly ActionService _moduleActionService;
     public readonly BackgroundServiceService _backgroundServiceService;
-    private readonly ServerTaskService _serverTaskService;
+    public readonly ServerTaskService _serverTaskService;
 
 
     public ContextService(ModuleService moduleService, DashboardService dashboardService, ActionService moduleActionService, BackgroundServiceService backgroundServiceService, ServerTaskService serverTaskService)

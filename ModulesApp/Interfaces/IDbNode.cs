@@ -15,6 +15,7 @@ public enum NodeType
     BooleanOperation,
     ArithmeticSaturation,
     Branch,
+    GlobalValue,
 }
 
 public enum NodeConditionType
@@ -68,6 +69,12 @@ public enum NodeBooleanOperationType
     Nand,
     Nor,
     Xnor,
+}
+
+public enum NodeModeType
+{
+    Get,
+    Set,
 }
 
 public enum PortPositionAlignment
@@ -136,6 +143,7 @@ public static class NodeExtensions
             NodeType.FromAny => $"From{space}Any",
             NodeType.BooleanOperation => "Boolean",
             NodeType.ArithmeticSaturation => "Saturation",
+            NodeType.GlobalValue => "Global",
             _ => type.ToString()
         };
     }

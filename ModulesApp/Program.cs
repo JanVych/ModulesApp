@@ -29,8 +29,10 @@ public class Program
         var connectionString = NormalizePath(builder.Configuration.GetConnectionString("SQLiteDb"));
         builder.Services.AddDbContextFactory<SQLiteDbContext>(options =>
         {
-            options.UseSqlite(connectionString); 
+            options
+                .UseSqlite(connectionString);
         });
+
 
         builder.Services.AddScoped(provider =>
             provider.GetRequiredService<IDbContextFactory<SQLiteDbContext>>().CreateDbContext());

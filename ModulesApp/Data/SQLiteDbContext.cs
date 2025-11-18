@@ -33,6 +33,8 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
     public DbSet<DbModuleProgram> Programs { get; set; }
     public DbSet<DbModuleProgramFile> ProgramsFiles { get; set; }
 
+    public DbSet<DbGlobalValue> GlobalValues { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         var SerializerOptions = new JsonSerializerOptions
@@ -96,9 +98,16 @@ public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(optio
             .HasValue<DbFromAnyNode>(NodeType.FromAny)
             .HasValue<DbBooleanOperationNode>(NodeType.BooleanOperation)
             .HasValue<DbArithmeticSaturationNode>(NodeType.ArithmeticSaturation)
-            .HasValue<DbBranchNode>(NodeType.Branch);
+            .HasValue<DbBranchNode>(NodeType.Branch)
+            .HasValue<DbGlobalValueNode>(NodeType.GlobalValue);
 
         builder.Entity<DbAction>()
+            .Property(p => p.Value)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, SerializerOptions),
+                v => JsonSerializer.Deserialize<object>(v, SerializerOptions) ?? string.Empty);
+
+        builder.Entity<DbGlobalValue>()
             .Property(p => p.Value)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, SerializerOptions),

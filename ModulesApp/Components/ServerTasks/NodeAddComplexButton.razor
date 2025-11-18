@@ -60,6 +60,7 @@
         NodeType.ArithmeticOperation => Enum.GetValues(typeof(NodeArithmeticOperationType)).Cast<int>().ToList(),
         NodeType.ConvertTo => [(int)NodeValueType.String, (int)NodeValueType.Number, (int)NodeValueType.Boolean, (int)NodeValueType.Array],
         NodeType.BooleanOperation => Enum.GetValues(typeof(NodeBooleanOperationType)).Cast<int>().ToList(),
+        NodeType.GlobalValue => Enum.GetValues(typeof(NodeModeType)).Cast<int>().ToList(),
         _ => new List<int>()
     };
 
@@ -75,6 +76,7 @@
             NodeType.ArithmeticOperation => ((NodeArithmeticOperationType)type).ToString(),
             NodeType.ConvertTo => ((NodeValueType)type).ToString(),
             NodeType.BooleanOperation => ((NodeBooleanOperationType)type).ToString(),
+            NodeType.GlobalValue => ((NodeModeType)type).ToString(),
             _ => "Unknown"
         };
     }

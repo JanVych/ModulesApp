@@ -79,6 +79,7 @@ public class ServerTaskService
             .Include(n => n.SourceLinks)
             .Include(n => n.TargetLinks)
             .AsSplitQuery()
+            .OrderBy(n => n.Order)
             .ToListAsync();
     }
 
@@ -133,6 +134,7 @@ public class ServerTaskService
                 NodeType.BooleanOperation => new DbBooleanOperationNode((BooleanOperationNode)node),
                 NodeType.ArithmeticSaturation => new DbArithmeticSaturationNode((ArithmeticSaturationNode)node),
                 NodeType.Branch => new DbBranchNode((BranchNode)node),
+                NodeType.GlobalValue => new DbGlobalValueNode((GlobalValueNode)node),
                 _ => throw new ArgumentException($"Unsupported node type: {node.Type}")
             });
         }
@@ -173,7 +175,7 @@ public class ServerTaskService
 
     public async Task ExecuteTasksAsync(ContextService serverContext, DbModule module)
     {
-        var tasks  = await GetTasksAsync(module);
+        var tasks = await GetTasksAsync(module);
         await ExecuteTasksAsync(serverContext, tasks);
     }
 
@@ -197,13 +199,14 @@ public class ServerTaskService
         }
     }
 
-    public async Task ExecuteTaskAsync(ContextService serverContext, DbTask task, Action<DbTaskNode,NodeValue?>? debugOutput = null)
+    public async Task ExecuteTaskAsync(ContextService serverContext, DbTask task, Action<DbTaskNode, NodeValue?>? debugOutput = null)
     {
         var nodes = await GetNodesAsync(task);
 
         foreach (var node in nodes)
         {
-            if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage) && node.Value.Type == NodeValueType.Waiting)
+            if ((node.Type == NodeType.DataDisplay || node.Type == NodeType.SendMessage || (node.Type == NodeType.GlobalValue && node.SubType == (int)NodeModeType.Set)) 
+                && node.Value.Type == NodeValueType.Waiting)
             {
                 //node.Process(serverContext);
                 var value = node.GetValue(null, serverContext);
@@ -211,5 +214,43 @@ public class ServerTaskService
             }
         }
     }
+
+    // global values
+
+    public List<DbGlobalValue> GetAllGlobalValues()
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        return context.GlobalValues.ToList();
+    }
+
+    public DbGlobalValue? GetGlobalValue(string group, string key)
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        return context.GlobalValues.FirstOrDefault(gv => gv.Group == group && gv.Key == key);
+    }
+
+    public void SetGlobalValue(string group, string key, object? value)
+    {
+        using var context = _dbContextFactory.CreateDbContext();
+        var globalValue = context.GlobalValues.FirstOrDefault(gv => gv.Group == group && gv.Key == key);
+
+        if (globalValue != null)
+        {
+            globalValue.Value = value;
+            context.GlobalValues.Update(globalValue);
+        }
+        else
+        {
+            globalValue = new DbGlobalValue
+            {
+                Group = group,
+                Key = key,
+                Value = value
+            };
+            context.GlobalValues.Add(globalValue);
+        }
+        context.SaveChanges();
+    }
+
 }
 

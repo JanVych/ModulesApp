@@ -3,14 +3,11 @@
 @using ModulesApp.Interfaces
 @using MudBlazor
 
-<TaskNodeSmallWidget Node="Node" Header="@GetHeader()"/>
+<TaskNodeSmallWidget 
+    Node="Node" 
+    Header="@($"To-{Node.ConvertToType}")" />
 
 @code
 {
     [Parameter] public ConvertToNode Node { get; set; } = null!;
-
-    private string GetHeader()
-    {
-        return $"To-{Node.ConvertToType}";
-    }
 }

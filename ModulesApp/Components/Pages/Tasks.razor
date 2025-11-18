@@ -106,6 +106,8 @@
                 <NodeAddButton NodeType="NodeType.Value" OnClick="() => AddNode(NodeType.Value)" />
                 <NodeAddButton NodeType="NodeType.DateTime" OnClick="() => AddNode(NodeType.DateTime)" />
 
+                <NodeAddComplexButton NodeType="NodeType.GlobalValue" OnCLick="AddNode" />
+
                 <NodeAddComplexButton NodeType="NodeType.Condition" OnCLick="AddNode" />
 
                 <NodeAddButton NodeType="NodeType.Branch" OnClick="() => AddNode(NodeType.Branch)" />
@@ -269,6 +271,7 @@
             _currentDiagram.RegisterComponent<BooleanOperationNode, BooleanOperationWidget>();
             _currentDiagram.RegisterComponent<ArithmeticSaturationNode, ArithmeticSaturationWidget>();
             _currentDiagram.RegisterComponent<BranchNode, BranchWidget>();
+            _currentDiagram.RegisterComponent<GlobalValueNode, GlobalValueWidget>();
 
             _modules = await _moduleService.GetAllAsync();
             _services = await _backgroundServiceService.GetAllAsync();
@@ -479,6 +482,10 @@
             {
                 _currentDiagram.Nodes.Add(new BranchNode(_serverContextService, point) { Order = smallestOrder });
             }
+            else if( type == NodeType.GlobalValue)
+            {
+                _currentDiagram.Nodes.Add(new GlobalValueNode(_serverContextService, (NodeModeType)subType, point) { Order = smallestOrder });
+            }
         }
     }
 
@@ -557,6 +564,10 @@
                 else if (node.Type == NodeType.Branch)
                 {
                     _currentDiagram.Nodes.Add(new BranchNode(_serverContextService, node));
+                }
+                else if (node.Type == NodeType.GlobalValue)
+                {
+                    _currentDiagram.Nodes.Add(new GlobalValueNode(_serverContextService, node));
                 }
             }
 
