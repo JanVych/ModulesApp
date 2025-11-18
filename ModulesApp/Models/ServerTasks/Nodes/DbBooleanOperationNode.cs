@@ -12,9 +12,9 @@ public class DbBooleanOperationNode : DbTaskNode
     public DbBooleanOperationNode(TaskNode node) : base(node){}
     public DbBooleanOperationNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
-        NodeValue leftValue = GetInputLeftValue(context);
+        NodeValue leftValue = await GetInputLeftValue(context);
         var left = false;
         var right = false;
 
@@ -42,7 +42,7 @@ public class DbBooleanOperationNode : DbTaskNode
 
         else
         {
-            NodeValue rightValue = GetInputValue(context, PortPositionAlignment.Bottom, "right");
+            NodeValue rightValue = await GetInputValue(context, PortPositionAlignment.Bottom, "right");
             if (rightValue.Type == NodeValueType.Invalid)
             {
                 Value = rightValue;

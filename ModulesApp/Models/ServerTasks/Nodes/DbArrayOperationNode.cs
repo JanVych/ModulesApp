@@ -11,7 +11,7 @@ public class DbArrayOperationNode : DbTaskNode
     public DbArrayOperationNode(TaskNode node) : base(node){}
     public DbArrayOperationNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
         NodeValue? arrayValue = null;
         NodeValue? secondInput = null;
@@ -29,12 +29,12 @@ public class DbArrayOperationNode : DbTaskNode
 
         if (InputType == NodeInputType.Double)
         {
-            arrayValue = GetInputValue(context, PortPositionAlignment.Top);
-            secondInput = GetInputValue(context, PortPositionAlignment.Bottom);
+            arrayValue = await GetInputValue(context, PortPositionAlignment.Top);
+            secondInput = await GetInputValue(context, PortPositionAlignment.Bottom);
         }
         else if(InputType == NodeInputType.Single)
         {
-            arrayValue = GetInputValue(context, PortPositionAlignment.Center);
+            arrayValue = await GetInputValue(context, PortPositionAlignment.Center);
         }
         
 

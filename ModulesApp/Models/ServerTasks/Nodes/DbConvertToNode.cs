@@ -12,9 +12,9 @@ public class DbConvertToNode : DbTaskNode
     public DbConvertToNode(TaskNode node) : base(node){}
     public DbConvertToNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
-        Value = GetInputValue(context, PortPositionAlignment.Center);
+        Value = await GetInputValue(context, PortPositionAlignment.Center);
 
         if (Value.Type != NodeValueType.Invalid)
         {

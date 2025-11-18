@@ -11,9 +11,9 @@ public class DbArithmeticSaturationNode : DbTaskNode
     public DbArithmeticSaturationNode(TaskNode node) : base(node){}
     public DbArithmeticSaturationNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
-        NodeValue value = GetInputValue(context, PortPositionAlignment.Center);
+        NodeValue value = await GetInputValue(context, PortPositionAlignment.Center);
         double? number = null;
 
         if (value.Type == NodeValueType.Invalid)

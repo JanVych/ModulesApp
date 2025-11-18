@@ -6,8 +6,8 @@
 @using System.Diagnostics
 
 @inject ModuleProgramManager _moduleprogramManager
-@inject ModuleProgramService _moduleProgramService
-@inject ContextService _serverContextService
+@inject ModuleProgramRepository _moduleProgramService
+@inject ContextService _contextService
 @inject NavigationManager _navigationManager
 
 @page "/programs"
@@ -211,7 +211,7 @@
             }
             _selectedProgram = _programs.FirstOrDefault();
 
-            _modules = await _serverContextService.GetAllModulesAsync();
+            _modules = await _contextService.ModuleRepository.GetAllAsync();
             _selectedModule = _modules?.FirstOrDefault();
             StateHasChanged();
         }
@@ -351,7 +351,9 @@
         if (_selectedProgram != null && _selectedModule != null)
         {
             _disableOta = true;
-            _serverContextService.SendToModule(_selectedModule.Id, "PerformOTA", _selectedProgram.Name);
+            // _serverContextService.SendToModule(_selectedModule.Id, "PerformOTA", _selectedProgram.Name);
+            await _contextService.ActionRepository.SendToModuleAsync(_selectedModule.Id, "PerformOTA", _selectedProgram.Name);
+
             await Task.Delay(500);
             _disableOta = false;
         }

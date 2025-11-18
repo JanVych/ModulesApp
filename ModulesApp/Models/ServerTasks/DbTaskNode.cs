@@ -68,7 +68,7 @@ public abstract class DbTaskNode : IDbNode
     }
     public DbTaskNode(){}
 
-    public virtual NodeValue GetValue(DbTaskLink link, ContextService context)
+    public async virtual Task<NodeValue> GetValue(DbTaskLink? link, ContextService context)
     {
         if (Value.Type == NodeValueType.Waiting)
         {
@@ -79,37 +79,37 @@ public abstract class DbTaskNode : IDbNode
             else
             {
                 IsProcessed = true;
-                Process(context);
+                await Process(context);
                 IsProcessed = false;
             }    
         }
         return Value;
     }
 
-    public virtual void Process(ContextService context)
+    public async virtual Task Process(ContextService context)
     {
         throw new NotImplementedException();
     }
 
-    public NodeValue GetInputValue(ContextService context, PortPositionAlignment position, string portName = "")
+    public async Task<NodeValue> GetInputValue(ContextService context, PortPositionAlignment position, string portName = "")
     {
         DbTaskLink? link = TargetLinks.FirstOrDefault(l => l.TargetPositionAlignment == position);
         if (link == null)
         {
             return new NodeValue.InvalidValue($"In node: {Order}, no {portName} input value!");
         }
-        return link.GetValue(context);
+        return await link.GetValue(context);
     }
 
-    public NodeValue GetInputLeftValue(ContextService context)
+    public async Task<NodeValue> GetInputLeftValue(ContextService context)
     {
         if (InputType == NodeInputType.Double)
         {
-            return GetInputValue(context, PortPositionAlignment.Top, "left");
+            return await GetInputValue(context, PortPositionAlignment.Top, "left");
         }
         else
         {
-            return GetInputValue(context, PortPositionAlignment.Center, "left");
+            return await GetInputValue(context, PortPositionAlignment.Center, "left");
         }
     }
 }

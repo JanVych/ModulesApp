@@ -9,10 +9,10 @@ namespace ModulesApp.Services;
 public class ModuleProgramManager
 {
     private readonly IConfiguration _configuration;
-    private readonly ModuleProgramService _moduleProgramService;
+    private readonly ModuleProgramRepository _moduleProgramService;
     //private IServiceProvider _serviceProvider;
 
-    public ModuleProgramManager(IConfiguration configuration, ModuleProgramService moduleProgramService)
+    public ModuleProgramManager(IConfiguration configuration, ModuleProgramRepository moduleProgramService)
     {
         _configuration = configuration;
         _moduleProgramService = moduleProgramService;

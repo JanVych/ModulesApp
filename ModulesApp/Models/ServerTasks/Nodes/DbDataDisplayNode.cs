@@ -11,11 +11,11 @@ public class DbDataDisplayNode : DbTaskNode
     public DbDataDisplayNode(TaskNode node) : base(node){}
     public DbDataDisplayNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
         if (InputType == NodeInputType.Double)
         {
-            var triggerInputValue = GetInputValue(context, PortPositionAlignment.Top, "trigger");
+            var triggerInputValue = await GetInputValue(context, PortPositionAlignment.Top, "trigger");
             if (triggerInputValue.Type == NodeValueType.Invalid)
             {
                 Value = triggerInputValue;
@@ -28,16 +28,16 @@ public class DbDataDisplayNode : DbTaskNode
                 Value = new NodeValue.InvalidValue($"In node: {Order}, trigger input was false");
                 return;
             }
-            Value = GetInputValue(context, PortPositionAlignment.Bottom, "data");
+            Value = await GetInputValue(context, PortPositionAlignment.Bottom, "data");
         }
         else
         {
-            Value = GetInputValue(context, PortPositionAlignment.Center, "data");
+            Value = await GetInputValue(context, PortPositionAlignment.Center, "data");
         }
 
         if (Value.Type != NodeValueType.Invalid)
         {
-            var entity = context._dashboardService.GetEntity(LongVal1);
+            var entity = await context.DashboardRepository.GetEntityAsync(LongVal1);
             string key = entity?.Type switch
             {
                 DashboardEntityType.KeyValue => "Value",
@@ -46,7 +46,7 @@ public class DbDataDisplayNode : DbTaskNode
                 DashboardEntityType.Switch => "Value",
                 _ => "Value"
             };
-            context.SendToDashboardEntity(LongVal1, key, Value.GetValue());
+            await context.DashboardRepository.SendToDashboardEntity(LongVal1, key, Value.GetValue());
         }
     }
 }

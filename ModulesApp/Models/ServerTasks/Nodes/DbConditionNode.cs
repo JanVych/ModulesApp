@@ -11,9 +11,9 @@ public class DbConditionNode : DbTaskNode
     public DbConditionNode(TaskNode node) : base(node){}
     public DbConditionNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
-        NodeValue leftValue = GetInputLeftValue(context);
+        NodeValue leftValue = await GetInputLeftValue(context);
         if (leftValue.Type == NodeValueType.Invalid)
         {
             Value = leftValue;
@@ -26,7 +26,7 @@ public class DbConditionNode : DbTaskNode
         }
 
         NodeValue rightValue = InputType == NodeInputType.Double
-            ? GetInputValue(context, PortPositionAlignment.Bottom, "right")
+            ? await GetInputValue(context, PortPositionAlignment.Bottom, "right")
             : new NodeValue.NumberValue(DoubleVal1);
 
         if (rightValue.Type == NodeValueType.Invalid)

@@ -59,7 +59,7 @@ else
     [Parameter]
     public bool EditMode { get; set; } = false;
     [Parameter]
-    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    public Func<DbDashboardEntity?, Task>? DeleteButtonClick { get; set; }
     [Parameter]
     public ContextService ServerContextService { get; set; } = default!;
 
@@ -86,7 +86,7 @@ else
     private async Task OnTempChanged(DbRoomsTempEntity.Room room)
     {
         room.Disabled = true;
-        await ServerContextService._dashboardService.UpdateEntityAsync(Entity, room.Name, room.TargetTemp);
+        await ServerContextService.DashboardRepository.UpdateAsync(Entity, room.Name, room.TargetTemp);
         room.Disabled = false;
     }
 

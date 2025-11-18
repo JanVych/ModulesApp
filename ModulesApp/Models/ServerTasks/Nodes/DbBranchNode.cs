@@ -10,9 +10,9 @@ public class DbBranchNode : DbTaskNode
     public DbBranchNode(TaskNode node) : base(node){}
     public DbBranchNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
-        var triggerInputValue = GetInputValue(context, PortPositionAlignment.Top, "trigger");
+        var triggerInputValue = await GetInputValue(context, PortPositionAlignment.Top, "trigger");
         if (triggerInputValue.Type == NodeValueType.Invalid)
         {
             Value = triggerInputValue;
@@ -21,11 +21,11 @@ public class DbBranchNode : DbTaskNode
 
         if (DataConvertor.ToBool(triggerInputValue.GetValue()))
         {
-            Value = GetInputValue(context, PortPositionAlignment.Center, "data");
+            Value = await GetInputValue(context, PortPositionAlignment.Center, "data");
         }
         else
         {
-            Value = GetInputValue(context, PortPositionAlignment.Bottom, "data");
+            Value = await GetInputValue(context, PortPositionAlignment.Bottom, "data");
         }
     }
 }

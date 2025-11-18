@@ -7,8 +7,8 @@ namespace ModulesApp.Controllers;
 [ApiController]
 public class FirmwareController : ControllerBase
 {
-    ModuleProgramService _moduleProgramService;
-    public FirmwareController(ModuleProgramService moduleProgramService)
+    ModuleProgramRepository _moduleProgramService;
+    public FirmwareController(ModuleProgramRepository moduleProgramService)
     {
         _moduleProgramService = moduleProgramService;
     }

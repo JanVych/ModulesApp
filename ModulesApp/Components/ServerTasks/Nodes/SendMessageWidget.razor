@@ -106,17 +106,17 @@
     {
         if (type == (long)TargetType.Module)
         {
-            Node.Modules ??= await Node._context.GetAllModulesAsync();
+            Node.Modules ??= await Node._context.ModuleRepository.GetAllAsync();
             Node.LongVal1 = Node.Modules.FirstOrDefault()?.Id ?? 0;
         }
         else if (type == (long)TargetType.Service)
         {
-            Node.Services ??= await Node._context.GetAllBackgroundServicesAsync();
+            Node.Services ??= await Node._context.BackgroundServiceRepository.GetAllAsync();
             Node.LongVal1 = Node.Services.FirstOrDefault()?.Id ?? 0;
         }
         else if (type == (long)TargetType.Dashboard)
         {
-            Node.Entities ??= await Node._context.GetAllDashBoardEntitiesAsync();
+            Node.Entities ??= await Node._context.DashboardRepository.GetAllDashBoardEntitiesAsync();
             Node.LongVal1 = Node.Entities.FirstOrDefault()?.Id ?? 0;
         }
         Node.LongVal2 = type;

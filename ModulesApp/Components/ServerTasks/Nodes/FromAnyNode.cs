@@ -21,7 +21,7 @@ public class FromAnyNode : TaskNode
     {
         Type = NodeType.FromAny;
 
-        Modules = context.GetAllModules();
+        Modules = context.ModuleRepository.GetAll();
         LongVal1 = Modules.FirstOrDefault()?.Id ?? 0;
         LongVal2 = (long)TargetType.Module;
         LongVal3 = (long)NodeValueType.Any;
@@ -35,15 +35,15 @@ public class FromAnyNode : TaskNode
         TargetType type = (TargetType)LongVal2;
         if (type == TargetType.Module)
         {
-            Modules = context.GetAllModules();
+            Modules = context.ModuleRepository.GetAll();
         }
         else if (type == TargetType.Service)
         {
-            Services = context.GetAllBackgroundServices();
+            Services = context.BackgroundServiceRepository.GetAll();
         }
         else if (type == TargetType.Dashboard)
         {
-            Entities = context.GetAllDashBoardEntities();
+            Entities = context.DashboardRepository.GetAllDashBoardEntities();
         }
         SetKeys();
 
@@ -53,7 +53,6 @@ public class FromAnyNode : TaskNode
     public void SetKeys()
     {
         Keys = null;
-
 
         if ((TargetType)LongVal2 == TargetType.Module)
         {

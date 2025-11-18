@@ -93,7 +93,7 @@ else
     [Parameter]
     public bool EditMode { get; set; } = false;
     [Parameter]
-    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    public Func<DbDashboardEntity?, Task>? DeleteButtonClick { get; set; }
 
     private ApexChart<DbLineChart24hEntity.SeriesData>? _chart;
     private ApexChartOptions<DbLineChart24hEntity.SeriesData> _chartOptions;

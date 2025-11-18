@@ -17,10 +17,10 @@
 @using Blazor.Diagrams.Options
 @using Blazor.Diagrams.Core.Models
 
-@inject ServerTaskService _serverTaskService
-@inject ModuleService _moduleService
-@inject BackgroundServiceService _backgroundServiceService
-@inject DashboardService _dashboardService
+@inject ServerTaskRepository _serverTaskService
+@inject ModuleRepository _moduleService
+@inject BackgroundServiceRepository _backgroundServiceService
+@inject DashboardRepository _dashboardService
 @inject ContextService _serverContextService
 
 @page "/tasks"

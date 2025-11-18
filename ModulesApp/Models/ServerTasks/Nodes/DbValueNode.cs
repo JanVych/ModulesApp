@@ -8,7 +8,7 @@ public class DbValueNode : DbTaskNode
     public DbValueNode(TaskNode node) : base(node){}
     public DbValueNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
         NodeValueType type = (NodeValueType)LongVal1;
         if (type == NodeValueType.Number)

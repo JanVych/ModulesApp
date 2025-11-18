@@ -26,7 +26,7 @@ public abstract class BackgroundService: IJob
             {
                 _ = long.TryParse(context.JobDetail.Key.Name, out long id);
 
-                service = await _context._backgroundServiceService.GetAndDeleteActionsAsync(id)
+                service = await _context.BackgroundServiceRepository.GetAndDeleteActionsAsync(id)
                     ?? throw new ArgumentNullException(id.ToString(), "Background service not found.");
 
                 Actions = service.Actions;
@@ -34,8 +34,8 @@ public abstract class BackgroundService: IJob
                 await ExecuteAsync(context);
 
                 service.MessageData = MessageData;
-                _context.UpdateFromBackgroundService(service);
-                await _context.ExecuteServerTasksAsync(service);
+                await _context.BackgroundServiceRepository.UpdateFromBackgroundServiceAsync(service);
+                await _context.ServerTaskRepository.ExecuteTasksAsync(_context ,service);
             }
         }
         catch (Exception ex)

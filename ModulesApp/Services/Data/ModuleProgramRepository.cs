@@ -4,11 +4,11 @@ using ModulesApp.Models.ModulesPrograms;
 
 namespace ModulesApp.Services.Data;
 
-public class ModuleProgramService
+public class ModuleProgramRepository
 {
     private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
-    public ModuleProgramService(IDbContextFactory<SQLiteDbContext> dbContextFactory)
+    public ModuleProgramRepository(IDbContextFactory<SQLiteDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
@@ -21,7 +21,7 @@ public class ModuleProgramService
 
     public async Task<List<DbModuleProgram>> GetProgramsListAsync()
     {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
         return await db.Programs
             .Include(p => p.Files)
             .Include(p => p.Firmware)
@@ -30,14 +30,14 @@ public class ModuleProgramService
 
     public async Task<List<DbModuleFirmware>> GetFirmwareListAsync()
     {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
         return await db.Firmwares
             .ToListAsync();
     }
 
     public async Task<DbModuleProgram> AddAsync(DbModuleProgram program)
     {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
         db.Programs.Add(program);
         await db.SaveChangesAsync();
         return program;
@@ -45,28 +45,28 @@ public class ModuleProgramService
 
     public async Task UpdateAsync(DbModuleProgram program)
     {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
         db.Programs.Update(program);
         await db.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(DbModuleProgram program)
     {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
         db.Programs.Remove(program);
         await db.SaveChangesAsync();
     }
 
     public async Task AddAsync(DbModuleFirmware firmware)
     {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
         db.Firmwares.Add(firmware);
         await db.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(DbModuleFirmware firmware)
     {
-        using var db = await _dbContextFactory.CreateDbContextAsync();
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
         db.Firmwares.Remove(firmware);
         await db.SaveChangesAsync();
     }

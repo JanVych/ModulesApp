@@ -22,15 +22,11 @@ public class DbToggleGroupEntity : DbDashboardEntity
     [NotMapped]
     public List<ToggleItem> Items { get; set; } = new();
 
-
-
     public override void UpdateState(string key, object? value, bool toDatabse)
     {
         if(key == "Value")
         {
-            Data["PrewValue"] = Value;
-            Value = DataConvertor.ToInt32(value);
-            LoadColor();
+            ChangeValue(DataConvertor.ToInt32(value));
         }
         else
         {
@@ -74,6 +70,17 @@ public class DbToggleGroupEntity : DbDashboardEntity
     public void AddNewItem()
     {
         Items.Add(new ToggleItem { Label = $"label{Items.Count + 1}", Value = Items.Count + 1 });
+    }
+
+    public void ChangeValue(int newValue)
+    {
+        if(Value != newValue)
+        {
+            Data["PrewValue"] = Value;
+            Data["Value"] = newValue;
+            Value = newValue;
+            LoadColor();
+        }
     }
 
     public void LoadColor()

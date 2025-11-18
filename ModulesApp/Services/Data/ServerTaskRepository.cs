@@ -13,11 +13,11 @@ using ModulesApp.Models.ServerTasks.Nodes;
 
 namespace ModulesApp.Services.Data;
 
-public class ServerTaskService
+public class ServerTaskRepository
 {
     private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
-    public ServerTaskService(IDbContextFactory<SQLiteDbContext> dbContextFactory)
+    public ServerTaskRepository(IDbContextFactory<SQLiteDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
@@ -209,7 +209,7 @@ public class ServerTaskService
                 && node.Value.Type == NodeValueType.Waiting)
             {
                 //node.Process(serverContext);
-                var value = node.GetValue(null, serverContext);
+                var value = await node.GetValue(null, serverContext);
                 debugOutput?.Invoke(node, value);
             }
         }

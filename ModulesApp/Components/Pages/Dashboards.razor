@@ -5,7 +5,7 @@
 @using ModulesApp.Services
 @using ModulesApp.Services.Data
 
-@inject DashboardService _dashBoardService
+@inject DashboardRepository _dashBoardService
 @inject ContextService _serverContextService
 @inject IDialogService DialogService
 @inject NotifyService _notifyService
@@ -165,7 +165,7 @@ else
                         Name = "Home",
                         IconString = Icons.Material.Filled.Home
                     };
-                _dashBoardService.AddDashBoard(home);
+                await _dashBoardService.AddAsync(home);
                 _dashboards.Add(home);
             }
             _selectedDashboard = _dashboards.FirstOrDefault();
@@ -173,21 +173,21 @@ else
         }
     }
 
-    private void DeleteDashBoard(MudChip<DbDashboard> chip)
+    private async Task DeleteDashBoard(MudChip<DbDashboard> chip)
     {
         if (_dashboards != null && chip.Value != null)
         {
-            _dashBoardService.DeleteDashboard(chip.Value);
+            await _dashBoardService.DeleteAsync(chip.Value);
             _dashboards.Remove(chip.Value);
             _selectedDashboard = _dashboards.FirstOrDefault();
         }
     }
 
-    private void DeleteDashBoardEntity(DbDashboardEntity entity)
+    private async Task DeleteDashBoardEntity(DbDashboardEntity entity)
     {
         if (_selectedDashboard != null)
         {
-            _dashBoardService.DeleteEntity(entity);
+            await _dashBoardService.DeleteyAsync(entity);
             _selectedDashboard.Entities.Remove(entity);
             StateHasChanged();
         }
@@ -218,16 +218,16 @@ else
     {
         if (_selectedDashboard != null)
         {
-            await _dashBoardService.UpdateEntitiesAsync(_selectedDashboard.Entities);
+            await _dashBoardService.UpdateAsync(_selectedDashboard.Entities);
         }
     }
 
-    private void AddDashBoardEntity(DbDashboardEntity entity)
+    private async Task AddDashBoardEntity(DbDashboardEntity entity)
     {
         if (_selectedDashboard != null)
         {
             entity.DashboardId = _selectedDashboard.Id;
-            _dashBoardService.AddEntity(entity);
+            await _dashBoardService.AddAsync(entity);
             _selectedDashboard.Entities.Add(entity);
         }
     }
@@ -270,7 +270,7 @@ else
         {
             if (result.Data is DbDashboard entity)
             {
-                _dashBoardService.AddDashBoard(entity);
+                await _dashBoardService.AddAsync(entity);
                 _dashboards?.Add(entity);
                 _selectedDashboard = entity;
             }

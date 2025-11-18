@@ -1,16 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Data;
 using ModulesApp.Models.BackgroundServices;
+using System.Text.Json;
 
 namespace ModulesApp.Services.Data;
 
-public class BackgroundServiceService
+public class BackgroundServiceRepository
 {
     private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
     private readonly NotifyService _notifyService;
 
-    public BackgroundServiceService(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
+    public BackgroundServiceRepository(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
         _notifyService = notifyService;
@@ -22,16 +23,23 @@ public class BackgroundServiceService
         _notifyService.NotifyBackgroundServiceChanged();
     }
 
-    public DbBackgroundService? Get(long id)
+    public async Task<JsonElement?> GetMessageDataAsync(long serviceId, string key)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        return context.BackgroundServices
-            .FirstOrDefault(x => x.Id == id);
+        var service = await GetAsync(serviceId);
+        if (service == null || service.MessageData == null)
+        {
+            return null;
+        }
+        if (service.MessageData.TryGetValue(key, out var value) && value is JsonElement element)
+        {
+            return element;
+        }
+        return null;
     }
 
     public async Task<DbBackgroundService?> GetAsync(long id)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.BackgroundServices
             .Include(x => x.Actions)
             .Include(x => x.ServerTasks)
@@ -41,7 +49,7 @@ public class BackgroundServiceService
 
     public async Task<DbBackgroundService?> GetAndDeleteActionsAsync(long id)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
         var services = await context.BackgroundServices
             .Include(x => x.Actions)
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -54,7 +62,7 @@ public class BackgroundServiceService
 
     public async Task<List<DbBackgroundService>> GetAllAsync()
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
         return await context.BackgroundServices
             .ToListAsync();
     }
@@ -68,30 +76,28 @@ public class BackgroundServiceService
 
     public async Task AddAsync(DbBackgroundService service)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
         context.BackgroundServices.Add(service);
         await SaveChangesAsync(context);
     }
 
     public async Task UpdateAsync(DbBackgroundService service)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
-        context.BackgroundServices.Update(service);
-        await SaveChangesAsync(context);
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        context.Entry(service).State = EntityState.Modified;
+        await context.SaveChangesAsync();
     }
 
-    public void UpdateFromBackgroundService(DbBackgroundService service)
-    {        
-        using var context = _dbContextFactory.CreateDbContext();
-        var existingService = context.BackgroundServices
-            .FirstOrDefault(x => x.Id == service.Id);
-        
+    public async Task UpdateFromBackgroundServiceAsync(DbBackgroundService service)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+
+        var existingService = await context.BackgroundServices.FindAsync(service.Id);
         if (existingService != null)
         {
             existingService.MessageData = service.MessageData;
             existingService.ConfigurationData = service.ConfigurationData;
-            context.BackgroundServices.Update(existingService);
-            SaveChangesAsync(context).GetAwaiter().GetResult();
+            await context.SaveChangesAsync();
         }
     }
 
@@ -100,12 +106,5 @@ public class BackgroundServiceService
         using var context = await _dbContextFactory.CreateDbContextAsync();
         context.BackgroundServices.Remove(service);
         await SaveChangesAsync(context);
-    }
-
-    public bool Exist(long id)
-    {
-        using var context = _dbContextFactory.CreateDbContext();
-        return context.BackgroundServices
-            .Any(x => x.Id == id);
     }
 }

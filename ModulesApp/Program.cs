@@ -62,12 +62,12 @@ public class Program
         }).AddEntityFrameworkStores<SQLiteDbContext>();
 
         //data services
-        builder.Services.AddScoped<ModuleService>();
-        builder.Services.AddScoped<ActionService>();
-        builder.Services.AddScoped<DashboardService>();
-        builder.Services.AddScoped<ServerTaskService>();
-        builder.Services.AddScoped<BackgroundServiceService>();
-        builder.Services.AddScoped<ModuleProgramService>();
+        builder.Services.AddScoped<ModuleRepository>();
+        builder.Services.AddScoped<ActionRepository>();
+        builder.Services.AddScoped<DashboardRepository>();
+        builder.Services.AddScoped<ServerTaskRepository>();
+        builder.Services.AddScoped<BackgroundServiceRepository>();
+        builder.Services.AddScoped<ModuleProgramRepository>();
 
         builder.Services.AddScoped<ContextService>();
 

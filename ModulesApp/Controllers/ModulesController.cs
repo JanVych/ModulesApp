@@ -11,13 +11,13 @@ namespace ModulesApp.Controllers;
 [ApiController]
 public class ModulesController : ControllerBase
 {
-    private readonly ModuleService _moduleService;
-    private readonly ActionService _modulActionsService;
-    private readonly ServerTaskService _serverTasksService;
+    private readonly ModuleRepository _moduleService;
+    private readonly ActionRepository _modulActionsService;
+    private readonly ServerTaskRepository _serverTasksService;
 
     private readonly ContextService _serverContextService;
 
-    public ModulesController(ModuleService modulesService, ActionService moduleActionsService, ServerTaskService serverTaskService, ContextService serverContextService)
+    public ModulesController(ModuleRepository modulesService, ActionRepository moduleActionsService, ServerTaskRepository serverTaskService, ContextService serverContextService)
     {
         _moduleService = modulesService;
         _modulActionsService = moduleActionsService;

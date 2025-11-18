@@ -61,7 +61,7 @@ else
     [Parameter]
     public bool EditMode { get; set; } = false;
     [Parameter]
-    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    public Func<DbDashboardEntity?, Task>? DeleteButtonClick { get; set; }
     [Parameter]
     public ContextService? ServerContextService { get; set; }
 
@@ -87,12 +87,8 @@ else
         if(ServerContextService != null)
         {
             _disabled = true;
-            Entity.Data["PrewValue"] = Entity.Value;
-            Entity.Value = value;
-            Entity.Data["Value"] = value;
-            Entity.LoadColor();
+            Entity.ChangeValue(value);
             await ServerContextService.DashboardEntityUserTriggerAsync(Entity, "Value", Entity.Value);
-            // await Task.Delay(500);
             _disabled = false;
         }
     }

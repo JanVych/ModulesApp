@@ -45,8 +45,8 @@ public class DbTaskLink
     {
     }
 
-    public NodeValue GetValue(ContextService context)
+    public async Task<NodeValue> GetValue(ContextService context)
     {
-        return Source.GetValue(this, context);
+        return await Source.GetValue(this, context);
     }
 }

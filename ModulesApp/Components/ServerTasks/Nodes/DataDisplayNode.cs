@@ -13,7 +13,7 @@ public class DataDisplayNode : TaskNode
     public DataDisplayNode(ContextService context, Point? position = null) : base(context, position)
     {
         Type = NodeType.DataDisplay;
-        Entities = context.GetAllDashBoardEntities();
+        Entities = context.DashboardRepository.GetAllDashBoardEntities();
         LongVal1 = Entities.FirstOrDefault()?.Id ?? 0;
         AddPorts(NodeInputType.Single);
     }
@@ -21,7 +21,7 @@ public class DataDisplayNode : TaskNode
     public DataDisplayNode(ContextService context, DbTaskNode dbNode) : base(context, dbNode)
     {
         AddPorts(InputType);
-        Entities = context.GetAllDashBoardEntities();
+        Entities = context.DashboardRepository.GetAllDashBoardEntities();
     }
 
     public void AddPorts(NodeInputType type)

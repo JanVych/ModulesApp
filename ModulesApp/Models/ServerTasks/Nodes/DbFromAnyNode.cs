@@ -9,21 +9,21 @@ public class DbFromAnyNode : DbTaskNode
     public DbFromAnyNode(TaskNode node) : base(node){}
     public DbFromAnyNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
         TargetType targetType = (TargetType)LongVal2;
         JsonElement? value;
         if (targetType == TargetType.Module)
         {
-            value = context.GetMessageFromModule(LongVal1, StringVal1);
+            value = await context.ModuleRepository.GetMessageDataAsync(LongVal1, StringVal1);
         }
         else if (targetType == TargetType.Service)
         {
-            value = context.GetMessageFromService(LongVal1, StringVal1);
+            value = await context.BackgroundServiceRepository.GetMessageDataAsync(LongVal1, StringVal1);
         }
         else if (targetType == TargetType.Dashboard)
         {
-            value = context.GetMessageFromDashBoardEntity(LongVal1, StringVal1);
+            value = await context.DashboardRepository.GetMessageDataAsync(LongVal1, StringVal1);
         }
         else
         {

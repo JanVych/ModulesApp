@@ -85,10 +85,9 @@
     [Parameter]
     public ContextService? ServerContextService { get; set; }
     [Parameter]
-    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
-
+    public Func<DbDashboardEntity?, Task>? DeleteButtonClick { get; set; }
     [Parameter]
-    public Action<DbDashboardEntity?>? AddButtonClick { get; set; }
+    public Func<DbDashboardEntity?, Task>? AddButtonClick { get; set; }
 
     [Parameter]
     public bool DisableActions { get; set; } = false;
@@ -96,9 +95,12 @@
     private string GetFrameStyle() => EditMode ? "border: 2px solid var(--mud-palette-primary); padding: 10px;" : string.Empty;
 
 
-    private void OnDeleteButtonClick(DbDashboardEntity entity)
+    private async Task OnDeleteButtonClick(DbDashboardEntity entity)
     {
-        DeleteButtonClick?.Invoke(entity);
+        if (DeleteButtonClick != null)
+        {
+            await DeleteButtonClick.Invoke(entity);
+        }
     }
 
     private async Task OnAddButtonClick()

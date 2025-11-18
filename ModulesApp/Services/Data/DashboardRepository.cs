@@ -1,33 +1,34 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Data;
 using ModulesApp.Models.Dasboards;
+using System.Text.Json;
 
 namespace ModulesApp.Services.Data;
 
-public class DashboardService
+public class DashboardRepository
 {
     private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
     private readonly NotifyService _notifyService;
 
-    public DashboardService(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
+    public DashboardRepository(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
         _notifyService = notifyService;
     }
 
-    public void AddDashBoard(DbDashboard dashboard)
+    public async Task AddAsync(DbDashboard dashboard)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        context.Dashboards.Add(dashboard);
-        context.SaveChanges();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await context.Dashboards.AddAsync(dashboard);
+        await context.SaveChangesAsync();
     }
 
-    public void DeleteDashboard(DbDashboard dashboard)
+    public async Task DeleteAsync(DbDashboard dashboard)
     {
-        using var context = _dbContextFactory.CreateDbContext();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
         context.Dashboards.Remove(dashboard);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
     public async Task<List<DbDashboard>> GetAllDashboardsAsync()
@@ -44,32 +45,47 @@ public class DashboardService
         return dashboards;
     }
 
+    public async Task<JsonElement?> GetMessageDataAsync(long serviceId, string key)
+    {
+        var entity = await GetEntityAsync(serviceId);
+        if (entity == null || entity.Data == null)
+        {
+            return null;
+        }
+        if (entity.Data.TryGetValue(key, out var value) && value is JsonElement element)
+        {
+            return element;
+        }
+        return null;
+    }
+
     /// Entities
 
-    public void UpdateEntityAndNotify(long entityId, string key, object? value)
+    public async Task AddAsync(DbDashboardEntity entity)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var entity = context.DashboardEntities.Find(entityId);
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
 
+        entity.SaveToData();
+        await context.DashboardEntities.AddAsync(entity);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task SendToDashboardEntity(long entityId, string key, object? value)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+
+        var entity = await context.DashboardEntities.FindAsync(entityId);
         if (entity != null)
         {
             entity.UpdateState(key, value, true);
             context.Entry(entity).Property(e => e.Data).IsModified = true;
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             _notifyService.NotifyDashboardEntityDataChanged(entityId, key, value);
         }
     }
 
-    public void AddEntity(DbDashboardEntity entity)
-    {
-        using var context = _dbContextFactory.CreateDbContext();
-        entity.SaveToData();
-        context.DashboardEntities.Add(entity);
-        context.SaveChanges();
-    }
-
-    public async Task UpdateEntityAsync(DbDashboardEntity entity, string? key = null, object? value = null)
+    public async Task UpdateAsync(DbDashboardEntity entity, string? key = null, object? value = null)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync();
 
@@ -85,7 +101,7 @@ public class DashboardService
         }
     }
 
-    public async Task UpdateEntitiesAsync(List<DbDashboardEntity> entities)
+    public async Task UpdateAsync(List<DbDashboardEntity> entities)
     {
         await using var context = _dbContextFactory.CreateDbContext();
 
@@ -94,15 +110,14 @@ public class DashboardService
             entity.SaveToData();
             context.DashboardEntities.Update(entity);
         }
-
         await context.SaveChangesAsync();
     }
 
-    public void DeleteEntity(DbDashboardEntity entity)
+    public async Task DeleteyAsync(DbDashboardEntity entity)
     {
-        using var context = _dbContextFactory.CreateDbContext();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
         context.DashboardEntities.Remove(entity);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
     public List<DbDashboardEntity> GetAllDashBoardEntities()
@@ -119,11 +134,9 @@ public class DashboardService
             .ToListAsync();
     }
 
-    public DbDashboardEntity? GetEntity(long id)
+    public async Task<DbDashboardEntity?> GetEntityAsync(long id)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var entity = context.DashboardEntities
-            .FirstOrDefault(x => x.Id == id);
-        return entity;
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.DashboardEntities.FindAsync(id);
     }
 }

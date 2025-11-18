@@ -67,7 +67,7 @@ public class GlobalValueNode : TaskNode
 
     public void LoadStrings(ContextService context)
     {
-        Globals = context._serverTaskService.GetAllGlobalValues();
+        Globals = context.ServerTaskRepository.GetAllGlobalValues();
         Groups = Globals.Select(g => g.Group).Distinct().ToList();
     }
 }

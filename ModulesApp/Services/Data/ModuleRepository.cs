@@ -1,16 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ModulesApp.Data;
 using ModulesApp.Models;
+using System.Text.Json;
 
 namespace ModulesApp.Services.Data;
 
-public class ModuleService
+public class ModuleRepository
 {
     private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
     private readonly NotifyService _notifyService;
 
-    public ModuleService(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
+    public ModuleRepository(IDbContextFactory<SQLiteDbContext> dbContextFactory, NotifyService notifyService)
     {
         _dbContextFactory = dbContextFactory;
         _notifyService = notifyService;
@@ -81,11 +82,11 @@ public class ModuleService
             .ToList();
     }
 
-    public DbModule? Get(long id)
+    public async Task<DbModule?> GetAsync(long id)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        return context.Modules
-            .FirstOrDefault(x => x.Id == id);
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.Modules
+            .FindAsync(id);
     }
 
     public async Task<DbModule?> GetAsyncIncludeAll(long id)
@@ -103,9 +104,18 @@ public class ModuleService
         return context.Modules.Any(x => x.Id == id && x.Key == key);
     }
 
-    public bool Exist(long id)
+    public async Task<JsonElement?> GetMessageDataAsync(long moduleId, string key)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        return context.Modules.Any(x => x.Id == id);
+        var module = await GetAsync(moduleId);
+        if (module == null || module.Data == null)
+        {
+            return null;
+        }
+
+        if (module.Data.TryGetValue(key, out var value) && value is JsonElement element)
+        {
+            return element;
+        }
+        return null;
     }
 }

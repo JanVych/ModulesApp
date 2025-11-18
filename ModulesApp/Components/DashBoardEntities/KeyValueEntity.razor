@@ -56,7 +56,7 @@ else
     [Parameter]
     public bool EditMode { get; set; } = false;
     [Parameter]
-    public Action<DbDashboardEntity?>? DeleteButtonClick { get; set; }
+    public Func<DbDashboardEntity?, Task>? DeleteButtonClick { get; set; }
 
     private List<string> _iconsList = new()
     {

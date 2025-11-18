@@ -8,9 +8,9 @@ namespace ModulesApp.Services;
 public class BackgroundServiceManager
 {
     private readonly ISchedulerFactory _schedulerFactory;
-    private readonly BackgroundServiceService _backgroundService;
+    private readonly BackgroundServiceRepository _backgroundService;
 
-    public BackgroundServiceManager(ISchedulerFactory schedulerFactory, BackgroundServiceService backgroundService)
+    public BackgroundServiceManager(ISchedulerFactory schedulerFactory, BackgroundServiceRepository backgroundService)
     {
         _schedulerFactory = schedulerFactory;
         _backgroundService = backgroundService;

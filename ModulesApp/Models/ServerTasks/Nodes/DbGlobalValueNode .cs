@@ -12,11 +12,11 @@ public class DbGlobalValueNode : DbTaskNode
     public DbGlobalValueNode(TaskNode node) : base(node){}
     public DbGlobalValueNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
         if(NodeModeType == NodeModeType.Get)
         {
-            var global = context._serverTaskService.GetGlobalValue(StringVal1, StringVal2);
+            var global = context.ServerTaskRepository.GetGlobalValue(StringVal1, StringVal2);
             if(global?.Value is not JsonElement jValue)
             {
                 Value = new NodeValue.InvalidValue($"In node: {Order}, global group: {StringVal1}, key: {StringVal2} does not exist");
@@ -36,7 +36,7 @@ public class DbGlobalValueNode : DbTaskNode
         {
             if (InputType == NodeInputType.Double)
             {
-                var triggerInputValue = GetInputValue(context, PortPositionAlignment.Top, "trigger");
+                var triggerInputValue = await GetInputValue(context, PortPositionAlignment.Top, "trigger");
                 if (triggerInputValue.Type == NodeValueType.Invalid)
                 {
                     Value = triggerInputValue;
@@ -49,11 +49,11 @@ public class DbGlobalValueNode : DbTaskNode
                     Value = new NodeValue.InvalidValue($"In node: {Order}, trigger input was false");
                     return;
                 }
-                Value = GetInputValue(context, PortPositionAlignment.Bottom, "data");
+                Value = await GetInputValue(context, PortPositionAlignment.Bottom, "data");
             }
             else
             {
-                Value = GetInputValue(context, PortPositionAlignment.Center, "data");
+                Value = await GetInputValue(context, PortPositionAlignment.Center, "data");
             }
             if (Value.Type == NodeValueType.Invalid)
             {
@@ -64,7 +64,7 @@ public class DbGlobalValueNode : DbTaskNode
                 Value = new NodeValue.InvalidValue($"In node: {Order}, key can not be empty!");
                 return;
             }
-            context._serverTaskService.SetGlobalValue(StringVal1, StringVal2, Value.GetValue());
+            context.ServerTaskRepository.SetGlobalValue(StringVal1, StringVal2, Value.GetValue());
         }
     }
 }

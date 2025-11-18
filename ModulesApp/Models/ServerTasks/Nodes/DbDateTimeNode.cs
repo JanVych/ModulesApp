@@ -9,7 +9,7 @@ public class DbDateTimeNode : DbTaskNode
     public DbDateTimeNode(TaskNode node) : base(node){}
     public DbDateTimeNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
         var dateTime = DateTime.Now;
         NodeDateTimeOutputType outputType = (NodeDateTimeOutputType)LongVal1;

@@ -9,7 +9,7 @@ public class DbFromMessageNode : DbTaskNode
     public DbFromMessageNode(TaskNode node) : base(node){}
     public DbFromMessageNode(){}
 
-    public override void Process(ContextService context)
+    public async override Task Process(ContextService context)
     {
         JsonElement? value;
         if (Task == null)
@@ -20,15 +20,15 @@ public class DbFromMessageNode : DbTaskNode
 
         if(Task.TriggerSourceType == TargetType.Module && Task.ModuleId is long moduleId)
         {
-            value = context.GetMessageFromModule(moduleId, StringVal1);
+            value = await context.ModuleRepository.GetMessageDataAsync(moduleId, StringVal1);
         }
         else if (Task.TriggerSourceType == TargetType.Service && Task.BackgroundServiceId is long backgroundServiceId)
         {
-            value = context.GetMessageFromService(backgroundServiceId, StringVal1);
+            value = await context.BackgroundServiceRepository.GetMessageDataAsync(backgroundServiceId, StringVal1);
         }
         else if (Task.TriggerSourceType == TargetType.Dashboard && Task.DashboardEntityId is long dashboardEntityId)
         {
-            value = context.GetMessageFromDashBoardEntity(dashboardEntityId, StringVal1);
+            value = await context.DashboardRepository.GetMessageDataAsync(dashboardEntityId, StringVal1);
         }
         else
         {

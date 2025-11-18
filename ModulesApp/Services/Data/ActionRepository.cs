@@ -4,53 +4,54 @@ using ModulesApp.Models;
 
 namespace ModulesApp.Services.Data;
 
-public class ActionService
+public class ActionRepository
 {
     private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
 
-    public ActionService(IDbContextFactory<SQLiteDbContext> dbContextFactory)
+    public ActionRepository(IDbContextFactory<SQLiteDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
 
-    public void AddOrReplace(string key, object? value, long? moduleId, long? backgroundServiceId)
+    public async Task SendToModuleAsync(long moduleId, string key, object? value)
     {
-        using var context = _dbContextFactory.CreateDbContext();
-        var existingActions = context.Actions.Where(x => x.Key == key && x.ModuleId == moduleId && x.BackgroundServiceId == backgroundServiceId);
-        context.Actions.RemoveRange(existingActions);
-        var newAction = new DbAction
-        {
-            Key = key,
-            Value = value,
-            ModuleId = moduleId,
-            BackgroundServiceId = backgroundServiceId
-        };
-        context.Actions.Add(newAction);
-        context.SaveChanges();
+        await AddOrReplaceAsync(key, value, moduleId, null);
+    }
+
+    public async Task SendToBackgroundServiceAsync(long backgroundServiceId, string key, object? value)
+    {
+        await AddOrReplaceAsync(key, value, null, backgroundServiceId);
     }
 
     public async Task AddOrReplaceAsync(string key, object? value, long? moduleId, long? backgroundServiceId)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+
+        if (moduleId == null && backgroundServiceId == null) return;
+
+        if (moduleId != null && !await context.Modules.AnyAsync(x => x.Id == moduleId)) return;
+
+        if (backgroundServiceId != null && !await context.BackgroundServices.AnyAsync(x => x.Id == backgroundServiceId)) return;
+
+
         await context.Actions
             .Where(x => x.Key == key && x.ModuleId == moduleId && x.BackgroundServiceId == backgroundServiceId)
             .ExecuteDeleteAsync();
 
-        var newAction = new DbAction
+        context.Actions.Add(new DbAction
         {
             Key = key,
             Value = value,
             ModuleId = moduleId,
             BackgroundServiceId = backgroundServiceId
-        };
+        });
 
-        context.Actions.Add(newAction);
         await context.SaveChangesAsync();
     }
 
     public async Task<List<DbAction>> GetListAndDeleteAsync(DbModule module)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
         var actions = await context.Actions
             .Where(x => x.ModuleId == module.Id)
             .AsNoTracking()
