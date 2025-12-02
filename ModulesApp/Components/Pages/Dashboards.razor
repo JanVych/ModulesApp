@@ -35,13 +35,23 @@
                             Variant="Variant.Text"
                             SelectionMode="SelectionMode.SingleSelection"
                             Size="Size.Large"
-                            AllClosable="@EditMode"
-                            OnClose="DeleteDashBoard"
+                            AllClosable="false"
                             Color="Color.Primary">
                     @foreach (var d in _dashboards)
                     {
-                        <MudChip Value="@d" Style="height: 50px" Icon="@d.IconString">
-                            <MudText>@d.Name</MudText>
+                        <MudChip Value="@d" Style="height: 50px">
+                            <MudIcon Icon="@d.IconString" />
+                            @if (!string.IsNullOrEmpty(d.Name))
+                            {
+                                <MudText Class="ml-2">@d.Name</MudText>
+                            }
+                            @if (EditMode)
+                            {
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                               Color="Color.Default"
+                                               Class="ml-2" 
+                                               OnClick="() => OpenDashboardDialog(d, true)" />
+                            }
                         </MudChip>
                     }
                     @if (EditMode)
@@ -52,18 +62,18 @@
                                  Variant="Variant.Text"
                                  Size="Size.Large"
                                  Icon="@Icons.Material.Filled.Add"
-                                 OnClick="OpenDashboardDialog" />
+                                 OnClick="OpenNewDashboardDialog" />
                     }
                 </MudChipSet>
             </div>
-            
+
         </MudItem>
 
         <MudItem xs="12">
             <div class="d-flex align-start justify-center flex-wrap gap-4">
                 @foreach (var e in _selectedDashboard.Entities)
                 {
-                    if(e.ParentEntityId == null)
+                    if (e.ParentEntityId == null)
                     {
                         @if (e is DbDataListEntity dle)
                         {
@@ -79,8 +89,8 @@
                         else if (e is DbRoomsTempEntity tle)
                         {
                             <RoomsTempEntity EditMode="@EditMode" Entity="@tle"
-                                                    DeleteButtonClick="DeleteDashBoardEntity"
-                                                    ServerContextService="_serverContextService" />
+                                             DeleteButtonClick="DeleteDashBoardEntity"
+                                             ServerContextService="_serverContextService" />
                         }
                         else if (e is DbButtonEntity be)
                         {
@@ -104,17 +114,17 @@
                             <FrameEntity EditMode="@EditMode" Entity="@fe"
                                          ServerContextService="_serverContextService"
                                          DeleteButtonClick="DeleteDashBoardEntity"
-                                         AddButtonClick="AddDashBoardEntity"/>
+                                         AddButtonClick="AddDashBoardEntity" />
                         }
                         else if (e is DbLineChart24hEntity lc24e)
                         {
                             <LineChart24hEntity EditMode="@EditMode" Entity="@lc24e"
-                                               DeleteButtonClick="DeleteDashBoardEntity" />
+                                                DeleteButtonClick="DeleteDashBoardEntity" />
                         }
                         else if (e is DbAccumulationTankEntity ate)
                         {
                             <AccumulationTankEntity EditMode="@EditMode" Entity="@ate"
-                                                   DeleteButtonClick="DeleteDashBoardEntity" />
+                                                    DeleteButtonClick="DeleteDashBoardEntity" />
                         }
                         else if (e is DbToggleGroupEntity tge)
                         {
@@ -129,9 +139,9 @@
     }
 </MudGrid>
 
-@if(EditMode)
+@if (EditMode)
 {
-    <MudFab StartIcon="@Icons.Material.Filled.ArrowBack" Color="Color.Secondary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() =>ChangeEditMode(false)"/>
+    <MudFab StartIcon="@Icons.Material.Filled.ArrowBack" Color="Color.Secondary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(false)" />
     <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Style="position: fixed; bottom: 16px; right: 88px;" OnClick="OpenAddEntityDialog" />
 }
 else
@@ -161,10 +171,10 @@ else
             if (_dashboards.Count == 0)
             {
                 var home = new DbDashboard
-                    {
-                        Name = "Home",
-                        IconString = Icons.Material.Filled.Home
-                    };
+                {
+                    Name = "Home",
+                    IconString = Icons.Material.Filled.Home
+                };
                 await _dashBoardService.AddAsync(home);
                 _dashboards.Add(home);
             }
@@ -173,12 +183,12 @@ else
         }
     }
 
-    private async Task DeleteDashBoard(MudChip<DbDashboard> chip)
+    private async Task DeleteDashBoard(DbDashboard dashboard)
     {
-        if (_dashboards != null && chip.Value != null)
+        if (_dashboards != null && dashboard != null)
         {
-            await _dashBoardService.DeleteAsync(chip.Value);
-            _dashboards.Remove(chip.Value);
+            await _dashBoardService.DeleteAsync(dashboard);
+            _dashboards.Remove(dashboard);
             _selectedDashboard = _dashboards.FirstOrDefault();
         }
     }
@@ -199,7 +209,7 @@ else
         {
             // var entity = _selectedDashboard.Entities.FirstOrDefault(e => e.Id == message.EntityId);
             var entity = _dashboards?.SelectMany(d => d.Entities).FirstOrDefault(e => e.Id == message.EntityId);
-            if(entity != null)
+            if (entity != null)
             {
                 entity.UpdateState(message.Key, message.Value);
             }
@@ -242,25 +252,30 @@ else
         {
             if (result.Data is DbDashboardEntity entity)
             {
-                AddDashBoardEntity(entity);
+                await AddDashBoardEntity(entity);
             }
         }
     }
 
-    private async Task OpenDashboardDialog() =>
+    private async Task OpenNewDashboardDialog()
+    {
         await OpenDashboardDialog(new DbDashboard
         {
             Name = "New Dashboard",
             IconString = Icons.Material.Filled.Home
-        });
+        }, false);
+    }
 
-    private async Task OpenDashboardDialog(DbDashboard dashboard)
+    private async Task OpenDashboardDialog(DbDashboard? dashboard, bool isEditMode)
     {
+        if (dashboard == null) return;
+
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
         var parameters = new DialogParameters
         {
-            { "Dashboard", dashboard }
+            { "Dashboard", dashboard },
+            { "IsEditMode", isEditMode  }
         };
 
         var dRef = await DialogService.ShowAsync<DashboardDialog>("Add Entity", parameters, options);
@@ -273,6 +288,10 @@ else
                 await _dashBoardService.AddAsync(entity);
                 _dashboards?.Add(entity);
                 _selectedDashboard = entity;
+            }
+            if (result.Data is string response && response == "delete")
+            {
+                await DeleteDashBoard(dashboard);
             }
         }
     }
