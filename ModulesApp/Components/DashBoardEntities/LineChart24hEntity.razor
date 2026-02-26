@@ -128,7 +128,7 @@ else
                         Download = false
                     }
                 }
-                
+
             },
             Title = new Title
             {
@@ -219,6 +219,26 @@ else
         };
 
         Entity.UpdateAsync += UpdateSeries;
+    }
+
+    // TODO
+    // After the first render, we need to call RenderAsync to ensure the chart is rerendered with the correct dimensions.
+    // Task.Delay is used to ensure that the chart has been rendered at least once before we call RenderAsync, otherwise we might get an error about the chart not being initialized.
+    // Task.Delay shud be removed in futere.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _chart is not null)
+        {
+            await Task.Delay(100);
+            try
+            {
+                await _chart.RenderAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"C# Exception rendering chart: {ex.Message}");
+            }
+        }
     }
 
     private void AddSeries()
