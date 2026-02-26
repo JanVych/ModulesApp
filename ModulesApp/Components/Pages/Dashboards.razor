@@ -246,7 +246,7 @@ else
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
-        var dRef = await DialogService.ShowAsync<DashboardAddEntityDialog>("Simple Dialog", options);
+        var dRef = await DialogService.ShowAsync<DashboardAddEntityDialog>("Add entity", options);
         var result = await dRef.Result;
         if (result is not null && !result.Canceled)
         {
@@ -261,8 +261,8 @@ else
     {
         await OpenDashboardDialog(new DbDashboard
         {
-            Name = "New Dashboard",
-            IconString = Icons.Material.Filled.Home
+            Name = "New",
+            IconString = Icons.Material.Filled.Dashboard
         }, false);
     }
 
@@ -278,15 +278,18 @@ else
             { "IsEditMode", isEditMode  }
         };
 
-        var dRef = await DialogService.ShowAsync<DashboardDialog>("Add Entity", parameters, options);
+        var dRef = await DialogService.ShowAsync<DashboardDialog>("Add Dashboard", parameters, options);
         var result = await dRef.Result;
 
         if (result is not null && !result.Canceled)
         {
             if (result.Data is DbDashboard entity)
             {
-                await _dashBoardService.AddAsync(entity);
-                _dashboards?.Add(entity);
+                await _dashBoardService.AddOrUpdateAsync(entity);
+                if (_dashboards is not null && !_dashboards.Exists(d => d.Id == entity.Id))
+                {
+                    _dashboards.Add(entity);
+                }
                 _selectedDashboard = entity;
             }
             if (result.Data is string response && response == "delete")
