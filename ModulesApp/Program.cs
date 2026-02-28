@@ -112,18 +112,13 @@ public class Program
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 
-        // Map the POST /Account/Logout endpoint
         var accountGroup = app.MapGroup("/Account");
-        accountGroup.MapPost("/Logout", async (
-            ClaimsPrincipal user,
-            [FromServices] SignInManager<IdentityUser> signInManager,
-            [FromForm] string returnUrl) =>
+        accountGroup.MapGet("/Logout", async ([FromServices] SignInManager<IdentityUser> signInManager) =>
         {
             await signInManager.SignOutAsync();
-            return TypedResults.LocalRedirect($"~/{returnUrl}");
-        });
+            return Results.LocalRedirect("/Account/Login");
+        }).RequireAuthorization();
 
-        
         using (var scope = app.Services.CreateScope())
         {
             var bacgroundServiceManager = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();

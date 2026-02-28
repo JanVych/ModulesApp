@@ -4,49 +4,40 @@
 
 @inherits LayoutComponentBase
 
+@implements IBrowserViewportObserver
+@implements IAsyncDisposable
+
 @inject SignInManager<IdentityUser> _singManager
 @inject IApexChartService _chartService
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime _jsRuntime
+@inject IBrowserViewportService BrowserViewportService
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <MudLayout Id="mainLayout" Style="height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch;">
-    <MudAppBar Elevation="1" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h6" Class="ml-1">Menu</MudText>
+    <MudAppBar Elevation="0" Dense="true">
+
+        <AuthorizeView>
+            <MudIconButton Icon="@ToggleDrawerIcon" Size="MudBlazor.Size.Medium" Color="MudBlazor.Color.Primary" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+
+            <MudText Typo="Typo.h6" Class="ml-1" Color="MudBlazor.Color.Primary">Krepenec</MudText>
+            <MudIcon Icon="@Icons.Material.Filled.MyLocation" Class="ml-2" Color="MudBlazor.Color.Primary" Size="MudBlazor.Size.Medium" />
+        </AuthorizeView>
+
         <MudSpacer />
 
         <MudIconButton Icon="@(ToggleFullScreenIcon)" Color="MudBlazor.Color.Inherit" OnClick="@ToggleFulscreen" />
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="MudBlazor.Color.Inherit" OnClick="@DarkModeToggle"/>
-
-        <AuthorizeView>
-            <Authorized>
-                <form action="Account/Logout" method="post">
-                    <AntiforgeryToken />
-                    <input type="hidden" name="ReturnUrl" value="@_currentUrl" />
-                    <button type="submit" class="mud-nav-link mud-ripple">
-                        <MudIcon Icon="@Icons.Material.Filled.Logout" Color="MudBlazor.Color.Inherit" Class="mr-2"/> Logout
-                    </button>
-                </form>
-            </Authorized>
-            <NotAuthorized>
-                @* <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Href="account/login" /> Login *@
-            </NotAuthorized>
-        </AuthorizeView>
-
     </MudAppBar>
 
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always">
-        <MudDrawerHeader>
-            <MudText Typo="Typo.h6">Krepenec</MudText>
-        </MudDrawerHeader>
+    <MudDrawer @bind-Open="_isDrawerOpen" Elevation="0" Variant="@_drawerVariant" ClipMode="DrawerClipMode.Always" Width="180px" @key="_drawerVariant" Breakpoint="Breakpoint.Xs">
         <NavMenu />
     </MudDrawer>
 
-    <MudMainContent Class="mt-10 px-2 pt-4" Style="height: calc(100vh - 48px)">
-        <CascadingValue Value="@_isDarkMode">
+    <MudMainContent Class="mt-10 px-2 pt-2" Style="height: calc(100vh - 44px);">
+        <CascadingValue Value="_isDarkMode" Name="IsDarkMode">
             @Body
         </CascadingValue>
     </MudMainContent>
@@ -64,12 +55,16 @@
     }
 </style>
 
-@code {
-    private string? _currentUrl;
-    private bool _drawerOpen = false;
+@code 
+{
+    public bool _isDrawerOpen = false;
     private bool _isDarkMode = true;
     private MudTheme? _theme = null;
     private bool _isFulscreen = false;
+
+    private DrawerVariant _drawerVariant = DrawerVariant.Temporary;
+    private Breakpoint _currentBreakPoint;
+    Guid IBrowserViewportObserver.Id { get; } = Guid.NewGuid();
 
     protected override void OnInitialized()
     {
@@ -83,28 +78,36 @@
         };
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await BrowserViewportService.SubscribeAsync(this, fireImmediately: true);
+        }
+    }
+
     private async Task ToggleFulscreen()
     {
         if(!_isFulscreen)
         {
-             await JSRuntime.InvokeVoidAsync("openFullscreen", "mainLayout");
+            await _jsRuntime.InvokeVoidAsync("openFullscreen", "mainLayout");
         }
         else
         {
-            await JSRuntime.InvokeVoidAsync("exitFullscreen");
+            await _jsRuntime.InvokeVoidAsync("exitFullscreen");
         }
         _isFulscreen = !_isFulscreen;
     }
 
     private void DrawerToggle()
     {
-        _drawerOpen = !_drawerOpen;
+        _isDrawerOpen = !_isDrawerOpen;
     }
 
     private async Task DarkModeToggle()
     {
         _isDarkMode = !_isDarkMode;
-        
+
         var chartsOptions = new ApexChartBaseOptions
         {
             Theme = new Theme { Mode = _isDarkMode ? Mode.Dark : Mode.Light, Palette = PaletteType.Palette2 }
@@ -162,6 +165,41 @@
         true => Icons.Material.Rounded.FullscreenExit,
         false => Icons.Material.Outlined.Fullscreen,
     };
+
+    public string ToggleDrawerIcon => _isDrawerOpen switch
+    {
+        true => Icons.Material.Rounded.MenuOpen,
+        false => Icons.Material.Outlined.Menu,
+    };
+
+    ResizeOptions IBrowserViewportObserver.ResizeOptions { get; } = new()
+    {
+        ReportRate = 250,
+        NotifyOnBreakpointOnly = true
+    };
+
+    async Task IBrowserViewportObserver.NotifyBrowserViewportChangeAsync(BrowserViewportEventArgs browserViewportEventArgs)
+    {
+        if (browserViewportEventArgs.IsImmediate)
+        {
+            _currentBreakPoint = browserViewportEventArgs.Breakpoint;
+            _drawerVariant = _currentBreakPoint is Breakpoint.Xs or Breakpoint.Sm ? DrawerVariant.Temporary : DrawerVariant.Mini;
+            _isDrawerOpen = false;
+        }
+        else
+        {
+            if (browserViewportEventArgs.Breakpoint is Breakpoint.Xs or Breakpoint.Sm)
+            {
+                _drawerVariant = DrawerVariant.Temporary;
+                _isDrawerOpen = false;
+            }
+            else
+            {
+                _drawerVariant = DrawerVariant.Mini;
+            }
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async ValueTask DisposeAsync() => await BrowserViewportService.UnsubscribeAsync(this);
 }
-
-

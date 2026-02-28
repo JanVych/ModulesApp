@@ -24,6 +24,21 @@ public class DashboardRepository
         await context.SaveChangesAsync();
     }
 
+    public async Task AddOrUpdateAsync(DbDashboard dashboard)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        var existing = await context.Dashboards.FindAsync(dashboard.Id);
+        if (existing is null)
+        {
+            await context.Dashboards.AddAsync(dashboard);
+        }
+        else
+        {
+            context.Entry(existing).CurrentValues.SetValues(dashboard);
+        }
+        await context.SaveChangesAsync();
+    }
+
     public async Task DeleteAsync(DbDashboard dashboard)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync();
