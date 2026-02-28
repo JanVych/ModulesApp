@@ -2,11 +2,8 @@
 @using ModulesApp.Models.Dasboards.Entities
 @using ApexCharts
 
-@* @implements IBrowserViewportObserver *@
-@implements IAsyncDisposable
+@implements IDisposable
 
-@* @inject IBrowserViewportService BrowserViewportService
- *@
 @if (EditMode)
 {
     <MudPaper Class="pa-3" Style="width:600px;">
@@ -58,25 +55,22 @@
 else
 {
     <MudPaper Class="pa-3 chart-container" Style="width: 100%; height: 316px;">
-        @if (_showChart)
-        {
-            <ApexChart @ref="_chart"
-                       TItem="DbLineChart24hEntity.SeriesData"
-                       Height="292"
-                       Title="@Entity.Title"
-                       Options="_chartOptions">
-                @foreach (var serie in Entity.SeriesList)
-                {
-                    <ApexPointSeries TItem="DbLineChart24hEntity.SeriesData"
-                                     Items="@serie.ReducedData"
-                                     Name="@serie.Name"
-                                     SeriesType="SeriesType.Line"
-                                     Color="@serie.Color"
-                                     XValue="e => e.Time"
-                                     YValue="e => e.Value" />
-                }
-            </ApexChart>
-        }
+        <ApexChart @ref="_chart"
+                   TItem="DbLineChart24hEntity.SeriesData"
+                   Height="292"
+                   Title="@Entity.Title"
+                   Options="_chartOptions">
+            @foreach (var serie in Entity.SeriesList)
+            {
+                <ApexPointSeries TItem="DbLineChart24hEntity.SeriesData"
+                                 Items="@serie.ReducedData"
+                                 Name="@serie.Name"
+                                 SeriesType="SeriesType.Line"
+                                 Color="@serie.Color"
+                                 XValue="e => e.Time"
+                                 YValue="e => e.Value" />
+            }
+        </ApexChart>
     </MudPaper>
     <style>
         .chart-container .apexcharts-canvas {
@@ -94,21 +88,8 @@ else
     [Parameter]
     public Func<DbDashboardEntity?, Task>? DeleteButtonClick { get; set; }
 
-    // [CascadingParameter(Name = "IsDrawerOpen")]
-    // private bool IsDrawerOpen { get; set; }
-    // private bool _previousDrawerOpen;
-
-    private bool _showChart = true;
     private ApexChart<DbLineChart24hEntity.SeriesData>? _chart;
     private ApexChartOptions<DbLineChart24hEntity.SeriesData> _chartOptions = default!;
-
-    // private Breakpoint _currentBreakpoint;
-    // Guid IBrowserViewportObserver.Id { get; } = Guid.NewGuid();
-    // ResizeOptions IBrowserViewportObserver.ResizeOptions { get; } = new()
-    // {
-    //     ReportRate = 200,
-    //     NotifyOnBreakpointOnly = true
-    // };
 
     public static string[] _colors =
         [
@@ -240,58 +221,6 @@ else
         Entity.UpdateAsync += UpdateSeries;
     }
 
-    // TODO
-    // After the first render, we need to call RenderAsync to ensure the chart is rerendered with the correct dimensions.
-    // Task.Delay is used to ensure that the chart has been rendered at least once before we call RenderAsync, otherwise we might get an error about the chart not being initialized.
-    // Task.Delay shud be removed in futere.
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // await BrowserViewportService.SubscribeAsync(this, fireImmediately: true);
-
-            if (_chart is not null)
-            {
-                await Task.Delay(200);
-                try
-                {
-                    await _chart.RenderAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"C# Exception rendering chart: {ex.Message}");
-                }
-            }
-        }
-    }
-
-    // protected override async Task OnParametersSetAsync()
-    // {
-    //     if (IsDrawerOpen != _previousDrawerOpen && _chart is not null && (_currentBreakpoint != Breakpoint.Xs && _currentBreakpoint != Breakpoint.Sm))
-    //     {
-    //         _previousDrawerOpen = IsDrawerOpen;
-    //         if (_previousDrawerOpen)
-    //         {
-    //             _showChart = false;
-    //             await Task.Delay(200);
-    //             await InvokeAsync(StateHasChanged);
-    //             await _chart.RenderAsync();
-    //             _showChart = true;
-    //         }
-    //         else
-    //         {
-    //             await Task.Delay(100);
-    //             await _chart.RenderAsync();
-    //             await InvokeAsync(StateHasChanged);
-    //         }
-    //     }
-    // }
-
-    // async Task IBrowserViewportObserver.NotifyBrowserViewportChangeAsync(BrowserViewportEventArgs browserViewportEventArgs)
-    // {
-    //     _currentBreakpoint = browserViewportEventArgs.Breakpoint;
-    // }
-
     private void AddSeries()
     {
         var set = new HashSet<long>(Entity.SeriesList.Select(x => x.Id));
@@ -322,8 +251,7 @@ else
         if(_chart != null)
         {
             await _chart.UpdateSeriesAsync();
-            // await _chart.UpdateOptionsAsync(false, false, false);
-            await InvokeAsync(StateHasChanged);            
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -334,13 +262,10 @@ else
 
     private string GetSeriesName(DbLineChart24hEntity.Series serie) => $"SeriesName{serie.Id}";
     private string GetSeriesValueMessage(DbLineChart24hEntity.Series serie) => $"Value{serie.Id}";
-    // private string GetSeriesDataXName(DbLineChartEntity.Series serie) => $"SeriesDataX{serie.Data.Count}";
-    // private string GetSeriesDataYName(DbLineChartEntity.Series serie) => $"SeriesDataY{serie.Data.Count}";
 
-    public async ValueTask DisposeAsync()
+    public void Dispose()
     {
         Entity.UpdateAsync -= UpdateSeries;
-        // await BrowserViewportService.UnsubscribeAsync(this);
         _chart?.Dispose();
     }
 }

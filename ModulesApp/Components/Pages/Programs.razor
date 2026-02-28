@@ -179,9 +179,6 @@
 
 @code
 {
-    [CascadingParameter(Name = "IsDarkMode")]
-    protected bool IsDarkMode { get; set; }
-
     private bool _showProgramsList = true;
     private bool _showProgramSettings = true;
     private bool _showOutput = false;
@@ -198,6 +195,25 @@
     private int _activePanelIndex = 0;
     private StandaloneCodeEditor? _editor;
     private bool _disableOta = false;
+
+    private bool _isDarkMode;
+    [CascadingParameter(Name = "IsDarkMode")]
+    protected bool IsDarkMode
+    {
+        get => _isDarkMode;
+        set
+        {
+            if(value != _isDarkMode)
+            {
+                _isDarkMode = value;
+                _editor?.UpdateOptions(new EditorUpdateOptions
+                {
+                    Theme = IsDarkMode ? "vs-dark" : "vs-light"
+                });
+            }
+
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -287,26 +303,6 @@
         _navigationManager.NavigateTo("/programs/add");
     }
 
-    // private async Task SaveNewProgram()
-    // {
-    //     if (_newProgramFirmware != null && _programs != null)
-    //     {
-    //         var newProgram = new DbModuleProgram
-    //             {
-    //                 Name = _newProgramName,
-    //             };
-    //         newProgram = await _moduleprogramManager.CreateNewProgram(newProgram);
-    //         if (newProgram != null)
-    //         {
-    //             await newProgram.LoadtProgramFiles();
-    //             _programs.Add(newProgram);
-    //             _tabs?.ActivatePanel(0);
-    //             _selectedProgram = newProgram;
-    //         }
-    //     }
-    //     _showNewProgram = false;
-    // }
-
     private async Task ReloadProgram()
     {
         if (_selectedProgram != null && _editor != null)
@@ -351,7 +347,6 @@
         if (_selectedProgram != null && _selectedModule != null)
         {
             _disableOta = true;
-            // _serverContextService.SendToModule(_selectedModule.Id, "PerformOTA", _selectedProgram.Name);
             await _contextService.ActionRepository.SendToModuleAsync(_selectedModule.Id, "PerformOTA", _selectedProgram.Name);
 
             await Task.Delay(500);

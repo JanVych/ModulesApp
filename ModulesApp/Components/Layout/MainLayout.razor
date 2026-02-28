@@ -32,15 +32,30 @@
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="MudBlazor.Color.Inherit" OnClick="@DarkModeToggle"/>
     </MudAppBar>
 
-    <MudDrawer @bind-Open="_isDrawerOpen" Elevation="0" Variant="@_drawerVariant" ClipMode="DrawerClipMode.Always" Width="180px" @key="_drawerVariant" Breakpoint="Breakpoint.Xs">
-        <NavMenu />
-    </MudDrawer>
-
-    <MudMainContent Class="mt-10 px-2 pt-2" Style="height: calc(100vh - 44px);">
-        <CascadingValue Value="_isDarkMode" Name="IsDarkMode">
-            @Body
-        </CascadingValue>
-    </MudMainContent>
+    @* Depending on the screen size, the drawer will be either temporary (overlay) or mini (persistent).
+    Duplicit code for @Body is needed to prevent the content from being rendered under the drawer when in mini mode (ApexCharts). *@
+    @if (_currentBreakPoint is Breakpoint.Sm or Breakpoint.Xs)
+    {
+        <MudDrawer @bind-Open="_isDrawerOpen" Elevation="0" Variant="DrawerVariant.Temporary" ClipMode="DrawerClipMode.Always" Width="180px">
+            <NavMenu />
+        </MudDrawer>
+        <MudMainContent Class="mt-10 px-2 pt-2" Style="height: calc(100vh - 44px);">
+            <CascadingValue Value="_isDarkMode" Name="IsDarkMode">
+                @Body
+            </CascadingValue>
+        </MudMainContent>
+    }
+    else
+    {
+        <MudDrawer @bind-Open="_isDrawerOpen" Elevation="0" Variant="DrawerVariant.Mini" ClipMode="DrawerClipMode.Always" Width="180px">
+            <NavMenu />
+        </MudDrawer>
+        <MudMainContent Class="mt-10 px-2 pt-2" Style="height: calc(100vh - 44px);">
+            <CascadingValue Value="_isDarkMode" Name="IsDarkMode">
+                @Body
+            </CascadingValue>
+        </MudMainContent>
+    }
 </MudLayout>
 
 <div id="blazor-error-ui">
@@ -62,7 +77,6 @@
     private MudTheme? _theme = null;
     private bool _isFulscreen = false;
 
-    private DrawerVariant _drawerVariant = DrawerVariant.Temporary;
     private Breakpoint _currentBreakPoint;
     Guid IBrowserViewportObserver.Id { get; } = Guid.NewGuid();
 
@@ -180,24 +194,13 @@
 
     async Task IBrowserViewportObserver.NotifyBrowserViewportChangeAsync(BrowserViewportEventArgs browserViewportEventArgs)
     {
-        if (browserViewportEventArgs.IsImmediate)
+        _currentBreakPoint = browserViewportEventArgs.Breakpoint;
+
+        if (_currentBreakPoint is Breakpoint.Xs or Breakpoint.Sm)
         {
-            _currentBreakPoint = browserViewportEventArgs.Breakpoint;
-            _drawerVariant = _currentBreakPoint is Breakpoint.Xs or Breakpoint.Sm ? DrawerVariant.Temporary : DrawerVariant.Mini;
             _isDrawerOpen = false;
         }
-        else
-        {
-            if (browserViewportEventArgs.Breakpoint is Breakpoint.Xs or Breakpoint.Sm)
-            {
-                _drawerVariant = DrawerVariant.Temporary;
-                _isDrawerOpen = false;
-            }
-            else
-            {
-                _drawerVariant = DrawerVariant.Mini;
-            }
-        }
+
         await InvokeAsync(StateHasChanged);
     }
 
