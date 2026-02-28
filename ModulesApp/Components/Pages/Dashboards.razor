@@ -139,16 +139,29 @@
     }
 </MudGrid>
 
-@if (EditMode)
-{
-    <MudFab StartIcon="@Icons.Material.Filled.ArrowBack" Color="Color.Secondary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(false)" />
-    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Style="position: fixed; bottom: 16px; right: 88px;" OnClick="OpenAddEntityDialog" />
-}
-else
-{
-    <MudFab StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(true)" />
-}
+<MudHidden Breakpoint="Breakpoint.SmAndUp" Invert=true>
+    @if (EditMode)
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.ArrowBack" Color="Color.Secondary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(false)" />
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Style="position: fixed; bottom: 16px; right: 88px;" OnClick="OpenAddEntityDialog" />
+    }
+    else
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(true)" />
+    }
+</MudHidden>
 
+<MudHidden Breakpoint="Breakpoint.SmAndUp" Invert=false>
+    @if (EditMode)
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.ArrowBack" Size="Size.Small" IconSize="Size.Small" Color="Color.Secondary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(false)" />
+        <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" IconSize="Size.Small" Color="Color.Primary" Style="position: fixed; bottom: 16px; right: 68px;" OnClick="OpenAddEntityDialog" />
+    }
+    else
+    {
+        <MudFab StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small" Color="Color.Primary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(true)" />
+    }
+</MudHidden>
 
 @code
 {
