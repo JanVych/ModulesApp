@@ -1,17 +1,17 @@
 ﻿@using ModulesApp.Models.Dasboards.Entities
 
-<MudPaper Class="pa-3" Height="160px" Width="185px" Elevation="1">
+<MudPaper Class="pa-3" Height="160px" Width="185px" Elevation="1" Style="@IfTargetTemColor">
     @if (Room != null)
     {
         <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="1">
             <MudStack Row=true Justify="Justify.SpaceAround" AlignItems="AlignItems.Center">
-                <MudIcon Icon="@Room.Icon" Color="Color.Default" Size="Size.Medium" />
-                <MudText Typo="Typo.h6" Color="Color.Default">
+                <MudIcon Icon="@Room.Icon" Size="Size.Medium" />
+                <MudText Typo="Typo.h6">
                     @Room.Name
                 </MudText>
             </MudStack>
 
-            <MudText Typo="Typo.h4" Style="@GetColorStyle(Room.CurrentTemp)">
+            <MudText Typo="Typo.h4" Style="@($"color:{GetColorStyle(Room.CurrentTemp)}")">
                 @CurrentTempString(Room.CurrentTemp)
             </MudText>
 
@@ -53,6 +53,10 @@
     [Parameter]
     public Func<DbRoomsTempEntity.Room, Task>? TargetTempUpdated { get; set; }
 
+    public string IfTargetTemColor => Room.CurrentTemp >= Room.TargetTemp ? 
+        $"border-color: {GetColorStyle(Room.CurrentTemp)};  border-width: 1px;" :
+        $"";
+
     private string CurrentTempString(decimal? number)
     {
         if (number == null)
@@ -90,12 +94,13 @@
     {
         return currentTemp switch
         {
-            > 23 => "color: #FFA726",
-            > 20 => "color: #FFB74D",
-            > 18 => "color: #FFCC80",
-            > 15 => "color: #FFE0B2",
-            > 12 => "color: #B3E5FC",
-            _ => "color: #81D4FA"
+            > 28 => "#EF5350",
+            > 23 => "#FFA726",
+            > 20 => "#FFB74D",
+            > 18 => "#FFCC80",
+            > 15 => "#FFE0B2",
+            > 12 => "#B3E5FC",
+            _ => "#81D4FA"
         };
     }
 }
