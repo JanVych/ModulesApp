@@ -2,8 +2,11 @@
 @using ModulesApp.Models.Dasboards.Entities
 @using ApexCharts
 
-@implements IDisposable
+@* @implements IBrowserViewportObserver *@
+@implements IAsyncDisposable
 
+@* @inject IBrowserViewportService BrowserViewportService
+ *@
 @if (EditMode)
 {
     <MudPaper Class="pa-3" Style="width:600px;">
@@ -11,8 +14,8 @@
             <MudStack Row="true">
                 <MudTextField @bind-Value="@Entity.Name" Label="Id" Required=true />
                 <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                               Color="MudBlazor.Color.Error"
-                               OnClick="OnDeleteButtonClick" />
+                Color="MudBlazor.Color.Error"
+                OnClick="OnDeleteButtonClick" />
             </MudStack>
             <MudDivider />
             <MudSelect @bind-Value="@Entity.SampleFrequency" Label="Sample Frequency">
@@ -21,7 +24,7 @@
                     <MudSelectItem Value="@type"/>
                 }
             </MudSelect>
-           
+
             <MudTextField @bind-Value="@Entity.Title" MaxLength="20" Label="Title" />
             <MudNumericField @bind-Value="Entity.RoundValuesTo" MaxLength="20" Label="Round values to" />
             @foreach (var serie in Entity.SeriesList)
@@ -29,8 +32,8 @@
                 <MudStack Row=true>
                     <MudTextField @bind-Value="serie.Name" Label="@GetSeriesName(serie)" />
                     <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                   Color="MudBlazor.Color.Error"
-                                   OnClick="@(() => DeleteSeries(serie))" />
+                    Color="MudBlazor.Color.Error"
+                    OnClick="@(() => DeleteSeries(serie))" />
                 </MudStack>
                 <MudSelect @bind-Value="@serie.Color" Label="Color">
                     @foreach (var color in _colors)
@@ -41,13 +44,13 @@
                     }
                 </MudSelect>
                 <MudText Typo="Typo.body2">Add point message key: @GetSeriesValueMessage(serie)</MudText>
-               
+
                 <MudDivider Class="pt-2"/>
             }
             <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="AddSeries">
                 Add Series
             </MudButton>
-            
+
 
         </MudStack>
     </MudPaper>
@@ -55,26 +58,29 @@
 else
 {
     <MudPaper Class="pa-3 chart-container" Style="width: 100%; height: 316px;">
-        <ApexChart @ref="_chart"
-                   TItem="DbLineChart24hEntity.SeriesData"
-                   Height="292"
-                   Title="@Entity.Title"
-                   Options="_chartOptions">
-            @foreach (var serie in Entity.SeriesList)
-            {
-                <ApexPointSeries TItem="DbLineChart24hEntity.SeriesData"
-                                 Items="@serie.ReducedData"
-                                 Name="@serie.Name"
-                                 SeriesType="SeriesType.Line"
-                                 Color="@serie.Color"
-                                 XValue="e => e.Time"
-                                 YValue="e => e.Value" />
-            }
-        </ApexChart>
+        @if (_showChart)
+        {
+            <ApexChart @ref="_chart"
+                       TItem="DbLineChart24hEntity.SeriesData"
+                       Height="292"
+                       Title="@Entity.Title"
+                       Options="_chartOptions">
+                @foreach (var serie in Entity.SeriesList)
+                {
+                    <ApexPointSeries TItem="DbLineChart24hEntity.SeriesData"
+                                     Items="@serie.ReducedData"
+                                     Name="@serie.Name"
+                                     SeriesType="SeriesType.Line"
+                                     Color="@serie.Color"
+                                     XValue="e => e.Time"
+                                     YValue="e => e.Value" />
+                }
+            </ApexChart>
+        }
     </MudPaper>
     <style>
         .chart-container .apexcharts-canvas {
-            width: 100% !important;
+        width: 100% !important;
         } 
     </style>
 }
@@ -88,11 +94,24 @@ else
     [Parameter]
     public Func<DbDashboardEntity?, Task>? DeleteButtonClick { get; set; }
 
+    // [CascadingParameter(Name = "IsDrawerOpen")]
+    // private bool IsDrawerOpen { get; set; }
+    // private bool _previousDrawerOpen;
+
+    private bool _showChart = true;
     private ApexChart<DbLineChart24hEntity.SeriesData>? _chart;
     private ApexChartOptions<DbLineChart24hEntity.SeriesData> _chartOptions = default!;
 
+    // private Breakpoint _currentBreakpoint;
+    // Guid IBrowserViewportObserver.Id { get; } = Guid.NewGuid();
+    // ResizeOptions IBrowserViewportObserver.ResizeOptions { get; } = new()
+    // {
+    //     ReportRate = 200,
+    //     NotifyOnBreakpointOnly = true
+    // };
+
     public static string[] _colors =
-    [
+        [
         "#A300D6", "#F86624", "#F9C80E", "#008FFB", "#00E396", "#FF4560",
     ];
 
@@ -101,79 +120,79 @@ else
     protected override void OnInitialized()
     {
         _chartOptions = new ApexChartOptions<DbLineChart24hEntity.SeriesData>
-        {
-            Chart = new Chart
             {
-                Background = "transparent",
-                ForeColor = "var(--mud-palette-text-primary)",
-                FontFamily = "Roboto, Helvetica, Arial, sans-serif",
-                Zoom = new Zoom
+                Chart = new Chart
                 {
-                    Enabled = false
-                },
-                Animations = new Animations
-                {
-                    Enabled = true
-                },
-                Toolbar = new Toolbar
-                {
-                    Show = false,
-                    Tools = new Tools
+                    Background = "transparent",
+                    ForeColor = "var(--mud-palette-text-primary)",
+                    FontFamily = "Roboto, Helvetica, Arial, sans-serif",
+                    Zoom = new Zoom
                     {
-                        Zoom = true,
-                        Zoomin = true,
-                        Zoomout = true,
-                        Pan = false,
-                        Reset = true,
-                        Download = false
+                        Enabled = false
+                    },
+                    Animations = new Animations
+                    {
+                        Enabled = true
+                    },
+                    Toolbar = new Toolbar
+                    {
+                        Show = false,
+                        Tools = new Tools
+                        {
+                            Zoom = true,
+                            Zoomin = true,
+                            Zoomout = true,
+                            Pan = false,
+                            Reset = true,
+                            Download = false
+                        }
                     }
-                }
 
-            },
-            Title = new Title
-            {
-                Align = ApexCharts.Align.Center,
-                Margin = 20,
-                OffsetY = -10,
-                Floating = true,
-                Style = new TitleStyle
+                },
+                Title = new Title
                 {
-                    FontSize = "24px",
-                    FontWeight = "400",
-                    Color = "var(--mud-palette-primary)"
+                    Align = ApexCharts.Align.Center,
+                    Margin = 20,
+                    OffsetY = -10,
+                    Floating = true,
+                    Style = new TitleStyle
+                    {
+                        FontSize = "24px",
+                        FontWeight = "400",
+                        Color = "var(--mud-palette-primary)"
 
-                }
-            },
+                    }
+                },
 
-            Stroke = new Stroke
-            {
-                Width = 2,
-                Curve = Curve.Smooth
-            },
-            Markers = new Markers
-            {
-                Size = 0
-            },
-
-            Legend = new Legend
-            {
-                Show = true,
-                Position = LegendPosition.Bottom,
-                HorizontalAlign = ApexCharts.Align.Center,
-                Floating = false,
-                Markers = new LegendMarkers
+                Stroke = new Stroke
                 {
-                    StrokeWidth = 0,
-                }
-
-            },
-            Xaxis = new XAxis
-            {
-                Type = XAxisType.Datetime,
-                Tooltip = new XAxisTooltip { Enabled = false },
-                Labels = new XAxisLabels
+                    Width = 2,
+                    Curve = Curve.Smooth
+                },
+                Markers = new Markers
                 {
-                    Formatter = @"
+                    Size = 0
+                },
+
+                Legend = new Legend
+                {
+                    Show = true,
+                    Position = LegendPosition.Bottom,
+                    HorizontalAlign = ApexCharts.Align.Center,
+                    Floating = false,
+                    Markers = new LegendMarkers
+                    {
+                        StrokeWidth = 0,
+                    }
+
+                },
+                Xaxis = new XAxis
+                {
+                    Type = XAxisType.Datetime,
+                    Tooltip = new XAxisTooltip { Enabled = false },
+                    Labels = new XAxisLabels
+                    {
+                        Formatter = @"
                     function(value, timestamp, opts) {
                         if (!value) return '';
 
@@ -189,10 +208,10 @@ else
                             return d.getHours().toString().padStart(2, '0') + ':00';
                         }
                     }"
-                }
-            },
+                    }
+                },
 
-            Yaxis = new List<YAxis>
+                Yaxis = new List<YAxis>
             {
                 new YAxis
                 {
@@ -203,20 +222,20 @@ else
                 }
             },
 
-            Tooltip = new ApexCharts.Tooltip
-            {
-                Enabled = true,
-                X = new TooltipX
+                Tooltip = new ApexCharts.Tooltip
                 {
+                    Enabled = true,
+                    X = new TooltipX
+                    {
                     // Format the x-value in the hover box to show exact time
-                    Formatter = @"
+                        Formatter = @"
                     function(value) {
                         var d = new Date(value);
                         return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     }"
+                    }
                 }
-            }
-        };
+            };
 
         Entity.UpdateAsync += UpdateSeries;
     }
@@ -227,19 +246,51 @@ else
     // Task.Delay shud be removed in futere.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && _chart is not null)
+        if (firstRender)
         {
-            await Task.Delay(100);
-            try
+            // await BrowserViewportService.SubscribeAsync(this, fireImmediately: true);
+
+            if (_chart is not null)
             {
-                await _chart.RenderAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"C# Exception rendering chart: {ex.Message}");
+                await Task.Delay(200);
+                try
+                {
+                    await _chart.RenderAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"C# Exception rendering chart: {ex.Message}");
+                }
             }
         }
     }
+
+    // protected override async Task OnParametersSetAsync()
+    // {
+    //     if (IsDrawerOpen != _previousDrawerOpen && _chart is not null && (_currentBreakpoint != Breakpoint.Xs && _currentBreakpoint != Breakpoint.Sm))
+    //     {
+    //         _previousDrawerOpen = IsDrawerOpen;
+    //         if (_previousDrawerOpen)
+    //         {
+    //             _showChart = false;
+    //             await Task.Delay(200);
+    //             await InvokeAsync(StateHasChanged);
+    //             await _chart.RenderAsync();
+    //             _showChart = true;
+    //         }
+    //         else
+    //         {
+    //             await Task.Delay(100);
+    //             await _chart.RenderAsync();
+    //             await InvokeAsync(StateHasChanged);
+    //         }
+    //     }
+    // }
+
+    // async Task IBrowserViewportObserver.NotifyBrowserViewportChangeAsync(BrowserViewportEventArgs browserViewportEventArgs)
+    // {
+    //     _currentBreakpoint = browserViewportEventArgs.Breakpoint;
+    // }
 
     private void AddSeries()
     {
@@ -286,9 +337,10 @@ else
     // private string GetSeriesDataXName(DbLineChartEntity.Series serie) => $"SeriesDataX{serie.Data.Count}";
     // private string GetSeriesDataYName(DbLineChartEntity.Series serie) => $"SeriesDataY{serie.Data.Count}";
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         Entity.UpdateAsync -= UpdateSeries;
+        // await BrowserViewportService.UnsubscribeAsync(this);
         _chart?.Dispose();
     }
 }
