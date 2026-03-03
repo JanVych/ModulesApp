@@ -1,19 +1,30 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.Reflection
 
 <MudNavMenu Style="display: flex; flex-flow: column; height: inherit;">
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-            <MudNavLink Href="modules" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Monitor">Modules</MudNavLink>
-            <MudNavLink Href="services" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DesignServices">Services</MudNavLink>
-            <MudNavLink Href="tasks" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Task">Tasks</MudNavLink>
+            <MudNavLink Href="modules" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Memory">Modules</MudNavLink>
+            <MudNavLink Href="services" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Schedule">Services</MudNavLink>
+            <MudNavLink Href="tasks" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Storage">Tasks</MudNavLink>
             <MudNavLink Href="programs" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Code">Programs</MudNavLink>
             <MudSpacer />
             <MudNavLink Href="settings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
-            <MudNavLink Href="account/logout" Class="mb-6" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Logout">Logout</MudNavLink>
+            <MudNavLink Href="account/logout" Class="mb-0" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Logout">Logout</MudNavLink>
+
+            <MudDivider Class="my-2 flex-grow-0" DividerType="DividerType.FullWidth" />
+            <MudText Typo="Typo.caption" Class="mb-2 align-self-center" Style="opacity: 0.4;">@($"v{AppVersion}")</MudText>
         </Authorized>
     </AuthorizeView>
 
 </MudNavMenu>
+
+@code 
+{
+    private string AppVersion =>
+        Assembly.GetExecutingAssembly()
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "?";
+}
 
 
