@@ -1,8 +1,8 @@
 ﻿using Blazor.Diagrams.Core.Geometry;
 using ModulesApp.Components.ServerTasks.Ports;
-using ModulesApp.Interfaces;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Services;
+using ModulesApp.Types;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
 

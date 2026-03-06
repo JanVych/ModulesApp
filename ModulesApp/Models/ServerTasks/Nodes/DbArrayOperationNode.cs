@@ -1,5 +1,5 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
-using ModulesApp.Interfaces;
+using ModulesApp.Types;
 using ModulesApp.Services;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;

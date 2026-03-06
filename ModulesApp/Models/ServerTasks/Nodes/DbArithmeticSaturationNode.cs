@@ -1,6 +1,6 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
-using ModulesApp.Interfaces;
 using ModulesApp.Services;
+using ModulesApp.Types;
 
 namespace ModulesApp.Models.ServerTasks.Nodes;
 
