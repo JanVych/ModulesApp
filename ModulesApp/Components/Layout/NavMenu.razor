@@ -1,5 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using System.Reflection
+@using ModulesApp.Components.Dialog
+
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
 
 <MudNavMenu Style="display: flex; flex-flow: column; height: inherit;">
     <AuthorizeView>
@@ -11,20 +15,32 @@
             <MudNavLink Href="programs" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Code">Programs</MudNavLink>
             <MudSpacer />
             <MudNavLink Href="settings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
-            <MudNavLink Href="account/logout" Class="mb-0" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Logout">Logout</MudNavLink>
+            <MudNavLink Class="mb-0" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Logout" OnClick="OpenDialogAsync" >Logout</MudNavLink>
 
             <MudDivider Class="my-2 flex-grow-0" DividerType="DividerType.FullWidth" />
             <MudText Typo="Typo.caption" Class="mb-2 align-self-center" Style="opacity: 0.4;">@($"v{AppVersion}")</MudText>
         </Authorized>
     </AuthorizeView>
-
 </MudNavMenu>
 
-@code 
+@code
 {
     private string AppVersion =>
         Assembly.GetExecutingAssembly()
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "?";
+
+    private async Task OpenDialogAsync()
+    {
+        var canceled = await DialogService.ShowAsyncAndReturnResult(
+            "Logout",
+            "Are you sure you want to logout?",
+            "Logout");
+
+        if (!canceled)
+        {
+            Navigation.NavigateTo("account/logout", forceLoad: true);
+        }
+    }
 }
 
 
