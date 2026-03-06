@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Data;
-using ModulesApp.Interfaces;
+using ModulesApp.Types;
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.Dasboards;
