@@ -6,9 +6,9 @@ namespace ModulesApp.Services.Data;
 
 public class ActionRepository
 {
-    private readonly IDbContextFactory<SQLiteDbContext> _dbContextFactory;
+    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
 
-    public ActionRepository(IDbContextFactory<SQLiteDbContext> dbContextFactory)
+    public ActionRepository(IDbContextFactory<AppDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
