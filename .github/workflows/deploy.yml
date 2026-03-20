@@ -69,10 +69,9 @@ jobs:
       # 8.1 Write appsettings.Production.json
       - name: Write appsettings.Production.json
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "cat > ${{ secrets.DEPLOY_PATH }}/appsettings.Production.json << 'EOF'
-            ${{ secrets.APP_SETTINGS }}
-            EOF"
+          echo '${{ secrets.APP_SETTINGS }}' > ./appsettings.Production.json
+          scp ./appsettings.Production.json \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/appsettings.Production.json
 
       # 9. Start the service after deploying
       - name: Start systemctl service
