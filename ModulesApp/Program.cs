@@ -3,14 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ModulesApp.Components;
-using ModulesApp.Components.Pages;
 using ModulesApp.Data;
 using ModulesApp.Services;
 using ModulesApp.Services.Data;
 using MudBlazor.Services;
 using Quartz;
-using System.Security.Claims;
-
 
 namespace ModulesApp;
 
@@ -26,16 +23,14 @@ public class Program
             .AddInteractiveServerComponents();
 
         // database
-        var connectionString = NormalizePath(builder.Configuration.GetConnectionString("SQLiteDb"));
-        builder.Services.AddDbContextFactory<SQLiteDbContext>(options =>
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        builder.Services.AddDbContextFactory<AppDbContext>(options =>
         {
-            options
-                .UseSqlite(connectionString);
+            options.UseNpgsql(connectionString);
         });
 
-
         builder.Services.AddScoped(provider =>
-            provider.GetRequiredService<IDbContextFactory<SQLiteDbContext>>().CreateDbContext());
+            provider.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
 
         // quartz, background services
         builder.Services.AddQuartz(q =>
@@ -59,7 +54,7 @@ public class Program
             options.Password.RequireDigit = false;
             options.Password.RequiredLength = 8;
             options.SignIn.RequireConfirmedAccount = false;
-        }).AddEntityFrameworkStores<SQLiteDbContext>();
+        }).AddEntityFrameworkStores<AppDbContext>();
 
         //data services
         builder.Services.AddScoped<ModuleRepository>();
@@ -68,6 +63,7 @@ public class Program
         builder.Services.AddScoped<ServerTaskRepository>();
         builder.Services.AddScoped<BackgroundServiceRepository>();
         builder.Services.AddScoped<ModuleProgramRepository>();
+        builder.Services.AddScoped<LegacyJsonMigrationService>();
 
         builder.Services.AddScoped<ContextService>();
 
@@ -121,6 +117,9 @@ public class Program
 
         using (var scope = app.Services.CreateScope())
         {
+            var legacyMigration = scope.ServiceProvider.GetRequiredService<LegacyJsonMigrationService>();
+            legacyMigration.MigrateAsync().GetAwaiter().GetResult();
+
             var bacgroundServiceManager = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();
             var moduleProgramManager = scope.ServiceProvider.GetRequiredService<ModuleProgramManager>();
             // Launch background services
@@ -130,10 +129,5 @@ public class Program
         }
 
         app.Run();
-    }
-
-    static string? NormalizePath(string? connectionString)
-    {
-        return connectionString?.Replace("\\", Path.DirectorySeparatorChar.ToString());
     }
 }
