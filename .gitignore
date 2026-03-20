@@ -6,6 +6,7 @@
 #custom
 **/programs/
 **/firmware/
+appsettings.Production.json
 
 # User-specific files
 *.rsuser
