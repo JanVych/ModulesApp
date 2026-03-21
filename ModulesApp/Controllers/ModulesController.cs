@@ -76,7 +76,7 @@ public class ModulesController : ControllerBase
 
     private async Task<string?> ProcessExistingModule(DbModule module)
     {
-        module.LastResponse = DateTime.Now;
+        module.LastResponse = DateTime.UtcNow;
         // update module status
         _moduleService.Update(module);
 
@@ -101,7 +101,7 @@ public class ModulesController : ControllerBase
     {
         // add new module to DB,
         // TODO remove
-        module.LastResponse = DateTime.Now;
+        module.LastResponse = DateTime.UtcNow;
         module.Id = 0;
         module.Key = module.LastResponse.GetHashCode().ToString();
         module.Name = $"esp-32-{module.LastResponse.GetHashCode() % 1_000_000}";

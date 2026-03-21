@@ -48,7 +48,7 @@ public class DbModule
 
     public string LastResponseText()
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         var diff = now - LastResponse;
 
         return diff?.TotalSeconds switch
@@ -73,7 +73,7 @@ public class DbModule
 
     public Color LastResponseColor()
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         var diff = now - LastResponse;
         return diff?.TotalMinutes switch
         {

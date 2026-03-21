@@ -370,7 +370,7 @@
     private DbModule CreateNewModule()
     {
         DbModule module = new();
-        module.LastResponse = DateTime.Now;
+        module.LastResponse = DateTime.UtcNow;
         module.Id = 0;
         module.Key = module.LastResponse.GetHashCode().ToString();
         module.Name = _moduleName;
