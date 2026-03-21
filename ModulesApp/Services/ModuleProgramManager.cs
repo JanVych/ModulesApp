@@ -22,7 +22,7 @@ public class ModuleProgramManager
 
     //}
 
-    public async Task RegisterFirmwares()
+    public async Task RegisterFirmwaresAsync()
     {
         var path = _configuration["AppSettings:FirmwarePath"];
         if (string.IsNullOrEmpty(path))

@@ -8,12 +8,11 @@ using ModulesApp.Models.Dasboards.Entities;
 using ModulesApp.Models.ModulesPrograms;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
-using System.Reflection.Emit;
 using System.Text.Json;
 
 namespace ModulesApp.Data;
 
-public class SQLiteDbContext(DbContextOptions options) : IdentityDbContext(options)
+public class AppDbContext(DbContextOptions options) : IdentityDbContext(options)
 {
     public DbSet<DbModule> Modules { get; set; }
 
