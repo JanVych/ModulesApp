@@ -125,7 +125,7 @@ public class Program
             // Launch background services
             bacgroundServiceManager.LaunchAsync().GetAwaiter().GetResult();
             // Register firmwares
-            moduleProgramManager.RegisterFirmwares().GetAwaiter().GetResult();
+            moduleProgramManager.RegisterFirmwaresAsync().GetAwaiter().GetResult();
         }
 
         app.Run();
