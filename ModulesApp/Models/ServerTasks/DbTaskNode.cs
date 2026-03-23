@@ -1,6 +1,7 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Interfaces;
 using ModulesApp.Services;
+using ModulesApp.Types;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -43,6 +44,8 @@ public abstract class DbTaskNode : IDbNode
 
     [NotMapped]
     public bool IsProcessed { get; private set; } = false;
+    NodeType IDbNode.Type { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    NodeInputType IDbNode.InputType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public DbTaskNode(TaskNode node)
     {

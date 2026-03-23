@@ -1,6 +1,6 @@
 ﻿using Blazor.Diagrams.Core.Geometry;
 using ModulesApp.Components.ServerTasks.Ports;
-using ModulesApp.Interfaces;
+using ModulesApp.Types;
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.Dasboards;

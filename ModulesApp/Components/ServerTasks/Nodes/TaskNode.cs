@@ -4,6 +4,7 @@ using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Interfaces;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Services;
+using ModulesApp.Types;
 using MudBlazor;
 
 namespace ModulesApp.Components.ServerTasks.Nodes;
@@ -32,6 +33,8 @@ public abstract class TaskNode : NodeModel, IDbNode
 
     // not in db
     public bool ShowIdentifier { get; set; } = false;
+    NodeType IDbNode.Type { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    NodeInputType IDbNode.InputType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public TaskNode(ContextService context, Point? position = null) : base(position)
     {

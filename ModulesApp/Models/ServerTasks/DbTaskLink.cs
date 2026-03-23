@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using ModulesApp.Components.ServerTasks.Ports;
 using ModulesApp.Services;
-using ModulesApp.Interfaces;
+using ModulesApp.Types;
 
 namespace ModulesApp.Models.ServerTasks;
 

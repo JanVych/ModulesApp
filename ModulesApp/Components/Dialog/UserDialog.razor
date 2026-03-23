@@ -1,0 +1,35 @@
+﻿<MudDialog Class="pa-3" TitleClass="blur">
+    <DialogContent>
+        <div class="mb-2">
+            <MudText>@ContentText</MudText>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+<style>
+    .mud-overlay-dialog {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public string? ContentText { get; set; }
+
+    [Parameter]
+    public string? ButtonText { get; set; }
+
+    [Parameter]
+    public Color Color { get; set; }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog.Cancel();
+}

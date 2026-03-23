@@ -1,6 +1,6 @@
 ﻿using ModulesApp.Components.ServerTasks.Nodes;
 using ModulesApp.Helpers;
-using ModulesApp.Interfaces;
+using ModulesApp.Types;
 using ModulesApp.Models.Dasboards;
 using ModulesApp.Services;
 

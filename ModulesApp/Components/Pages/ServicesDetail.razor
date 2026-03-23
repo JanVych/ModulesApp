@@ -1,14 +1,17 @@
 ﻿@using ModulesApp.Components.BackgroundServices
-@using ModulesApp.Models
 @using ModulesApp.Models.BackgroundServices
+@using ModulesApp.Models
 @using ModulesApp.Services
 @using ModulesApp.Services.Data
 @using System.Text.Json
+@using ModulesApp.Components.Dialog
+@using ModulesApp.Types
 
 @inject NavigationManager _navigationManager
 @inject BackgroundServiceManager _backgroundServiceManager
 @inject BackgroundServiceRepository _backgroundServiceService
 @inject NotifyService _notifyService
+@inject IDialogService _dialogService
 
 @implements IDisposable
 
@@ -250,7 +253,10 @@
 
     private async Task DeleteService()
     {
-        if (_service != null)
+        if (_service == null) return;
+
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.DeleteService);
+        if (result != null && !result.Canceled)
         {
             await _backgroundServiceManager.DeleteServiceAsync(_service);
             _navigationManager.NavigateTo("/services");
