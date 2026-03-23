@@ -63,7 +63,6 @@ public class Program
         builder.Services.AddScoped<ServerTaskRepository>();
         builder.Services.AddScoped<BackgroundServiceRepository>();
         builder.Services.AddScoped<ModuleProgramRepository>();
-        builder.Services.AddScoped<LegacyJsonMigrationService>();
 
         builder.Services.AddScoped<ContextService>();
 
@@ -117,9 +116,6 @@ public class Program
 
         using (var scope = app.Services.CreateScope())
         {
-            var legacyMigration = scope.ServiceProvider.GetRequiredService<LegacyJsonMigrationService>();
-            legacyMigration.MigrateAsync().GetAwaiter().GetResult();
-
             var bacgroundServiceManager = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();
             var moduleProgramManager = scope.ServiceProvider.GetRequiredService<ModuleProgramManager>();
             // Launch background services
