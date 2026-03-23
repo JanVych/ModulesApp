@@ -10,7 +10,7 @@
 @inject SignInManager<IdentityUser> _singManager
 @inject IApexChartService _chartService
 @inject IJSRuntime _jsRuntime
-@inject IBrowserViewportService BrowserViewportService
+@inject IBrowserViewportService _browserViewportService
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudPopoverProvider />
@@ -96,7 +96,7 @@
     {
         if (firstRender)
         {
-            await BrowserViewportService.SubscribeAsync(this, fireImmediately: true);
+            await _browserViewportService.SubscribeAsync(this, fireImmediately: true);
         }
     }
 
@@ -204,5 +204,5 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    public async ValueTask DisposeAsync() => await BrowserViewportService.UnsubscribeAsync(this);
+    public async ValueTask DisposeAsync() => await _browserViewportService.UnsubscribeAsync(this);
 }

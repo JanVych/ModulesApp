@@ -16,12 +16,14 @@
 @using Blazor.Diagrams.Core.Routers
 @using Blazor.Diagrams.Options
 @using Blazor.Diagrams.Core.Models
+@using ModulesApp.Components.Dialog
 
 @inject ServerTaskRepository _serverTaskService
 @inject ModuleRepository _moduleService
 @inject BackgroundServiceRepository _backgroundServiceService
 @inject DashboardRepository _dashboardService
 @inject ContextService _serverContextService
+@inject IDialogService _dialogService
 
 @page "/tasks"
 @attribute [Authorize]
@@ -318,7 +320,10 @@
 
     private async Task DeleteTask()
     {
-        if (_selectedTask != null)
+        if (_selectedTask == null) return;
+
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.DeleteTask);
+        if(result != null && !result.Canceled)
         {
             ClearDiagram();
             await _serverTaskService.DeleteAsync(_selectedTask);

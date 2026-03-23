@@ -2,11 +2,14 @@
 @using ModulesApp.Services
 @using ModulesApp.Services.Data
 @using System.Text.Json
+@using ModulesApp.Components.Dialog
+@using ModulesApp.Types
 
 @inject ActionRepository _actionService
 @inject ModuleRepository _moduleService
 @inject NavigationManager _navigationManager
 @inject NotifyService _notifyService
+@inject IDialogService _dialogService
 
 @implements IDisposable
 
@@ -269,17 +272,13 @@ else
 
     private async Task DeleteModule()
     {
-        if (_module != null)
-        {
-            try
-            {
-                await _moduleService.DeleteAsync(_module);
-                _navigationManager.NavigateTo("/modules");
-            }
-            catch (Exception ex)
-            {
+        if (_module == null) return;
 
-            }
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.DeleteModule);
+        if (result != null && !result.Canceled)
+        {
+            await _moduleService.DeleteAsync(_module);
+            _navigationManager.NavigateTo("/modules");
         }
     }   
 

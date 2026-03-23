@@ -4,11 +4,14 @@
 @using ModulesApp.Services
 @using ModulesApp.Services.Data
 @using System.Diagnostics
+@using ModulesApp.Components.Dialog
+@using ModulesApp.Types
 
 @inject ModuleProgramManager _moduleprogramManager
 @inject ModuleProgramRepository _moduleProgramService
 @inject ContextService _contextService
 @inject NavigationManager _navigationManager
+@inject IDialogService _dialogService
 
 @page "/programs"
 @attribute [Authorize]
@@ -33,22 +36,22 @@
 
         <MudStack Row=true Spacing="2">
             <MudTooltip Text="Save">
-                <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveProgram" />
+                <MudIconButton Icon="@Icons.Material.Filled.Save" Color="Color.Primary" OnClick="@SaveProgram" Disabled="_disableActions"/>
             </MudTooltip>
             <MudTooltip Text="Reload">
-                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Primary" OnClick="ReloadProgram" />
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Primary" OnClick="ReloadProgram" Disabled="_disableActions"/>
             </MudTooltip>
             <MudTooltip Text="Delete">
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteProgram" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@DeleteProgram" Disabled="_disableActions"/>
             </MudTooltip>
         </MudStack>
 
         <MudStack Row=true Spacing="2">
             <MudTooltip Text="Build">
-                <MudIconButton Icon="@Icons.Material.Filled.Build" Color="@Color.Primary" OnClick="BuilProgram" />
+                <MudIconButton Icon="@Icons.Material.Filled.Build" Color="@Color.Primary" OnClick="BuilProgram" Disabled="_disableActions"/>
             </MudTooltip>
             <MudTooltip Text="Clean">
-                <MudIconButton Icon="@Icons.Material.Filled.Wash" Color="@Color.Primary" OnClick="CleanProgram" />
+                <MudIconButton Icon="@Icons.Material.Filled.Wash" Color="@Color.Primary" OnClick="CleanProgram" Disabled="_disableActions"/>
             </MudTooltip>
         </MudStack>
 
@@ -146,7 +149,7 @@
                     </MudSelect>
                 </div>
 
-                <MudButton Variant="Variant.Filled" Disabled="_disableOta" Color="Color.Primary" OnClick="SetOtaUpdate">
+                <MudButton Variant="Variant.Filled" Disabled="_disableActions" Color="Color.Primary" OnClick="SetOtaUpdate">
                     Send OTA Update
                 </MudButton>
 
@@ -182,6 +185,7 @@
     private bool _showProgramsList = true;
     private bool _showProgramSettings = true;
     private bool _showOutput = false;
+    private bool _disableActions = false;
 
     private List<DbModuleProgram> _programs = [];
     private DbModuleProgram? _selectedProgram;
@@ -194,7 +198,6 @@
     private MudTabs? _tabs;
     private int _activePanelIndex = 0;
     private StandaloneCodeEditor? _editor;
-    private bool _disableOta = false;
 
     private bool _isDarkMode;
     [CascadingParameter(Name = "IsDarkMode")]
@@ -278,23 +281,31 @@
 
     private async Task CleanProgram()
     {
-        _outputText = string.Empty;
-        _showOutput = true;
-        if (_selectedProgram != null)
+        if (_selectedProgram == null) return;
+
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.CleanProgram);
+        if (result != null && !result.Canceled)
         {
             _outputText = string.Empty;
+            _showOutput = true;
+            _disableActions = true;
             await _moduleprogramManager.CleanProgramAsync(_selectedProgram, OutputHandler);
+            _disableActions = false;
         }
     }
 
     private async Task BuilProgram()
     {
-        _outputText = string.Empty;
-        _showOutput = true;
-        if (_selectedProgram != null)
+        if (_selectedProgram == null) return;
+
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.BuildProgram);
+        if (result != null && !result.Canceled)
         {
             _outputText = string.Empty;
+            _showOutput = true;
+            _disableActions = true;
             await _moduleprogramManager.BuildProgramAsync(_selectedProgram, OutputHandler);
+            _disableActions = false;
         }
     }
 
@@ -314,7 +325,11 @@
 
     private async Task DeleteProgram()
     {
-        if (_selectedProgram != null && _programs != null)
+        if (_selectedProgram == null || _programs == null) return;
+
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.DeleteProgram);
+
+        if (result != null && !result.Canceled)
         {
             await _moduleprogramManager.DeleteProgram(_selectedProgram);
             _programs.Remove(_selectedProgram);
@@ -344,13 +359,17 @@
 
     private async Task SetOtaUpdate()
     {
-        if (_selectedProgram != null && _selectedModule != null)
+        if (_selectedProgram == null || _selectedModule == null) return;
+
+        var message = $"Are you sure you want to start an OTA update of '{_selectedProgram.Name}' on module '{_selectedModule.Name}'?";
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.ProgramSendOTA, message);
+        if (result != null && !result.Canceled)
         {
-            _disableOta = true;
+            _disableActions = true;
             await _contextService.ActionRepository.SendToModuleAsync(_selectedModule.Id, "PerformOTA", _selectedProgram.Name);
 
             await Task.Delay(500);
-            _disableOta = false;
+            _disableActions = false;
         }
     }
 }

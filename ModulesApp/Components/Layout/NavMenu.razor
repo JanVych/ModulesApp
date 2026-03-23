@@ -1,9 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using System.Reflection
 @using ModulesApp.Components.Dialog
+@using ModulesApp.Types
 
-@inject IDialogService DialogService
-@inject NavigationManager Navigation
+@inject IDialogService _dialogService
+@inject NavigationManager _navigationManager
 
 <MudNavMenu Style="display: flex; flex-flow: column; height: inherit;">
     <AuthorizeView>
@@ -31,14 +32,11 @@
 
     private async Task OpenDialogAsync()
     {
-        var canceled = await DialogService.ShowAsyncAndReturnResult(
-            "Logout",
-            "Are you sure you want to logout?",
-            "Logout");
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.Logout);
 
-        if (!canceled)
+        if (result != null && !result.Canceled)
         {
-            Navigation.NavigateTo("account/logout", forceLoad: true);
+            _navigationManager.NavigateTo("account/logout", forceLoad: true);
         }
     }
 }

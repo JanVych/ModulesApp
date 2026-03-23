@@ -1,11 +1,13 @@
 ﻿@using ModulesApp.Models
 @using ModulesApp.Services
 @using ModulesApp.Services.Data
+@using ModulesApp.Components.Dialog
+@using ModulesApp.Types
 
 @inject ModuleRepository _moduleService
-@inject IDialogService _dialogService
 @inject NavigationManager _navigationManager
 @inject NotifyService _notifyService
+@inject IDialogService _dialogService
 
 @implements IDisposable
 
@@ -110,8 +112,8 @@
 
     private async Task DeleteModule(DbModule module)
     {
-        bool? result = await _mudMessageBox.ShowAsync();
-        if (result == true)
+        var result = await _dialogService.ShowAndReturnAsync(DialogType.DeleteModule);
+        if (result != null && !result.Canceled)
         {
             _moduleService.Delete(module);
         }
