@@ -1,10 +1,12 @@
-﻿<MudDialog>
+﻿<MudDialog Class="pa-3" TitleClass="blur">
     <DialogContent>
-        <MudText>@ContentText</MudText>
+        <div class="mb-2">
+            <MudText>@ContentText</MudText>
+        </div>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
         <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="Cancel">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
