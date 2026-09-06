@@ -72,14 +72,13 @@ jobs:
       - name: Install EF Core tools
         run: dotnet tool install --global dotnet-ef --version 9.0.8
 
-      # 4.2 Build a self-contained migrations bundle for linux-arm64
+      # 4.2 Build a framework-dependent migrations bundle for linux-arm64
       - name: Build migrations bundle
         run: |
           dotnet ef migrations bundle \
             --project ./ModulesApp/ModulesApp.csproj \
             --configuration Release \
             --runtime linux-arm64 \
-            --self-contained \
             --output ./efbundle \
             --force
 
