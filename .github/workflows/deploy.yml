@@ -68,6 +68,21 @@ jobs:
             --no-self-contained \
             --output ./publish  
 
+      # 4.1 Install EF Core CLI tool (needed to build the migrations bundle)
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef --version 9.0.8
+
+      # 4.2 Build a self-contained migrations bundle for linux-arm64
+      - name: Build migrations bundle
+        run: |
+          dotnet ef migrations bundle \
+            --project ./ModulesApp/ModulesApp.csproj \
+            --configuration Release \
+            --runtime linux-arm64 \
+            --self-contained \
+            --output ./efbundle \
+            --force
+
       # 5. Set up SSH key from GitHub Secret
       - name: Configure SSH key
         run: |
@@ -75,6 +90,20 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      # 5.1 Copy the migration bundle to the server
+      - name: Copy migration bundle to server
+        run: |
+          scp ./efbundle \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/efbundle
+
+      # 5.2 Apply the database migration (runs on the Pi, against the local Postgres)
+      #     If this step fails, the workflow stops here and the old service is
+      #     never touched, so the previous version keeps running.
+      - name: Run database migration
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "chmod +x /tmp/efbundle && /tmp/efbundle --connection '${{ secrets.DB_CONNECTION_STRING }}' && rm -f /tmp/efbundle"
 
       # 6. Stop the service before deploying
       - name: Stop systemctl service
