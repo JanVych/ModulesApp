@@ -1,5 +1,6 @@
 ﻿@using ModulesApp.Components.DashBoardEntities
 @using ModulesApp.Components.Dialog
+@using ModulesApp.Models
 @using ModulesApp.Models.Dasboards
 @using ModulesApp.Models.Dasboards.Entities
 @using ModulesApp.Services
@@ -150,18 +151,21 @@
         <MudFab StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(true)" />
     }
 </MudHidden>
+@if (_userSettings?.IsEditButtonVisibleOnSmallScreens ?? false)
+{
+    <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert=false>
 
-<MudHidden Breakpoint="Breakpoint.SmAndUp" Invert=false>
-    @if (EditMode)
-    {
-        <MudFab StartIcon="@Icons.Material.Filled.ArrowBack" Size="Size.Small" IconSize="Size.Small" Color="Color.Secondary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(false)" />
-        <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" IconSize="Size.Small" Color="Color.Primary" Style="position: fixed; bottom: 16px; right: 68px;" OnClick="OpenAddEntityDialog" />
-    }
-    else
-    {
-        <MudFab StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small" Color="Color.Primary" Style="position: fixed; bottom: 16px; right: 16px;" OnClick="() => ChangeEditMode(true)" />
-    }
-</MudHidden>
+        @if (EditMode)
+        {
+            <MudFab StartIcon="@Icons.Material.Filled.ArrowBack" Size="Size.Small" IconSize="Size.Small" Color="Color.Secondary" Style="position: fixed; bottom: 10px; right: 16px;" OnClick="() => ChangeEditMode(false)" />
+            <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" IconSize="Size.Small" Color="Color.Primary" Style="position: fixed; bottom: 10px; right: 68px;" OnClick="OpenAddEntityDialog" />
+        }
+        else
+        {
+            <MudFab StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small" Color="Color.Primary" Style="position: fixed; bottom: 10px; right: 16px;" OnClick="() => ChangeEditMode(true)" />
+        }
+    </MudHidden>
+}
 
 @code
 {
@@ -171,9 +175,13 @@
 
     private DbDashboard? _selectedDashboard;
 
-    protected override void OnInitialized()
+    private UserSettings? _userSettings;
+
+    protected async override Task OnInitializedAsync()
     {
         _notifyService.DashboardEntityDataEvent += OnDashBoardEntityDataChanged;
+        var dbUserSettings = await _serverContextService.UserSettingsRepository.GetAsync();
+        _userSettings = dbUserSettings?.Settings;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

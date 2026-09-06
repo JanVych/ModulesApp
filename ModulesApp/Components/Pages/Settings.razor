@@ -1,10 +1,33 @@
-﻿@page "/settings"
+﻿@using ModulesApp.Models
+@using ModulesApp.Services
 
-<PageTitle>Error</PageTitle>
+@inject ContextService _contextService
 
-<MudText Typo="Typo.h4" Class="mx-4 my-2">Settings</MudText>
+@page "/settings"
+
+
+<PageTitle>Settings</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mx-4 mb-2">Settings</MudText>
+
+<MudSwitch T="bool" ValueChanged="OnChangeIsEditButtonHiddenOnSmallScreens" Color="Color.Primary"
+           Value="@(_userSettings?.Settings.IsEditButtonVisibleOnSmallScreens ?? false)" Label="Show dashboard edit button on small screens" />
 
 @code
 {
+    private DbUserSettings? _userSettings;
 
+    protected override async Task OnInitializedAsync()
+    {
+        _userSettings = await _contextService.UserSettingsRepository.GetAsync();
+    }
+
+    private async Task OnChangeIsEditButtonHiddenOnSmallScreens(bool value)
+    {
+        if (_userSettings != null)
+        {
+            _userSettings.Settings.IsEditButtonVisibleOnSmallScreens = value;
+            await _contextService.UserSettingsRepository.UpdateAsync(_userSettings);
+        }
+    }
 }
