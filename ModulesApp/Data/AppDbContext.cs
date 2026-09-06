@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using ModulesApp.Types;
 using ModulesApp.Models;
 using ModulesApp.Models.BackgroundServices;
 using ModulesApp.Models.Dasboards;
@@ -8,6 +7,7 @@ using ModulesApp.Models.Dasboards.Entities;
 using ModulesApp.Models.ModulesPrograms;
 using ModulesApp.Models.ServerTasks;
 using ModulesApp.Models.ServerTasks.Nodes;
+using ModulesApp.Types;
 using System.Text.Json;
 
 namespace ModulesApp.Data;
@@ -33,6 +33,7 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext(options)
     public DbSet<DbModuleProgramFile> ProgramsFiles { get; set; }
 
     public DbSet<DbGlobalValue> GlobalValues { get; set; }
+    public DbSet<DbUserSettings> UserSettings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -149,6 +150,15 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext(options)
             .HasValue<DbLineChart24hEntity>(DashboardEntityType.LineChart24h)
             .HasValue<DbAccumulationTankEntity>(DashboardEntityType.AccumulationTank)
             .HasValue<DbToggleGroupEntity>(DashboardEntityType.ToggleGroup);
+
+        builder.Entity<DbUserSettings>(entity =>
+        {
+            entity.Property(e => e.Settings)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, SerializerOptions),
+                    v => JsonSerializer.Deserialize<UserSettings>(v, SerializerOptions) ?? new UserSettings());
+        });
 
         base.OnModelCreating(builder);
     }

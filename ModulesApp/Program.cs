@@ -63,6 +63,7 @@ public class Program
         builder.Services.AddScoped<ServerTaskRepository>();
         builder.Services.AddScoped<BackgroundServiceRepository>();
         builder.Services.AddScoped<ModuleProgramRepository>();
+        builder.Services.AddScoped<UserSettingsRepository>();
 
         builder.Services.AddScoped<ContextService>();
 
