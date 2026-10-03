@@ -46,6 +46,6 @@ Nullable reference types are enabled project-wide — always handle potential nu
 
 ## Git Workflow
 
-- Branch naming: `feature/short-description` (e.g. `feature/dashboard-charts`)
+- Branch naming: `feature/short-description` for new features (e.g. `feature/dashboard-charts`), `fix/short-description` for bug fixes (e.g. `fix/dashboard-card-order`)
 - Never commit directly to `master`
 - Always push the branch to origin and open a PR targeting `master`

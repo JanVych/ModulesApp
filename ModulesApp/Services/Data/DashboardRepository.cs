@@ -50,7 +50,6 @@ public class DashboardRepository
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync();
 
-        // Explicit ordering: without it Postgres returns rows in physical order, which changes after updates.
         var dashboards = await context.Dashboards
             .Include(d => d.Entities.OrderBy(e => e.Id))
             .ThenInclude(e => e.ChildEntities.OrderBy(c => c.Id))
