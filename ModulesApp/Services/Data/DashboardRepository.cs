@@ -51,8 +51,9 @@ public class DashboardRepository
         await using var context = await _dbContextFactory.CreateDbContextAsync();
 
         var dashboards = await context.Dashboards
-            .Include(d => d.Entities)
-            .ThenInclude(e => e.ChildEntities)
+            .Include(d => d.Entities.OrderBy(e => e.Id))
+            .ThenInclude(e => e.ChildEntities.OrderBy(c => c.Id))
+            .OrderBy(d => d.Id)
             .ToListAsync();
 
         dashboards.AsParallel().ForAll(d => d.Entities.ForEach(e => e.LoadState()));
