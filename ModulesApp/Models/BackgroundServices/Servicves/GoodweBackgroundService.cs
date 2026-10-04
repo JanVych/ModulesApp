@@ -7,6 +7,9 @@ namespace ModulesApp.Models.BackgroundServices.Servicves;
 
 public class GoodweBackgroundService : BackgroundService
 {
+    private const int _maxPowerW = 30000;
+    private const float _maxTemperature = 100f;
+
     public enum BatteryStatus
     {
         NoBattery = 0,
@@ -31,9 +34,7 @@ public class GoodweBackgroundService : BackgroundService
     //private readonly ModbusRtuUdp _modbusRtuUdp = new(0xF7, 8899, "192.168.0.240", 2);
     private ModbusRtuUdp? _modbusRtuUdp;
 
-    public GoodweBackgroundService(ContextService contextService) : base(contextService) 
-    {
-    }
+    public GoodweBackgroundService(ContextService contextService) : base(contextService) {}
 
     public override async Task ExecuteAsync(IJobExecutionContext context)
     {
@@ -81,28 +82,48 @@ public class GoodweBackgroundService : BackgroundService
         _modbusRtuUdp.Close();
     }
 
-    public uint? GetPvTotalPower() => _modbusRtuUdp?.ReadU32Register(35301);
+    private static T? Gate<T>(T? value, T min, T max) where T : struct, IComparable<T>
+    {
+        if (value == null)
+        {
+            return null;
+        }
+        if (value.Value.CompareTo(min) < 0 || value.Value.CompareTo(max) > 0)
+        {
+            Console.WriteLine($"Goodwe, value {value} out of range <{min}, {max}>, dropped");
+            return null;
+        }
+        return value;
+    }
+
+    public uint? GetPvTotalPower() => Gate(_modbusRtuUdp?.ReadU32Register(35301), 0u, (uint)_maxPowerW);
 
     /// <summary>
     /// Get Grid Power in wats
     /// </summary>
     /// <returns>negative value = consuming, positive value = suplying</returns>
-    public int? GetGridPower() => _modbusRtuUdp?.ReadS32Register(35139);
-    public int? GetBackupPower() => _modbusRtuUdp?.ReadS32Register(35169);
-    public int? GetLoadPower() => _modbusRtuUdp?.ReadS32Register(35171);
+    public int? GetGridPower() => Gate(_modbusRtuUdp?.ReadS32Register(35139), -_maxPowerW, _maxPowerW);
+    public int? GetBackupPower() => Gate(_modbusRtuUdp?.ReadS32Register(35169), -_maxPowerW, _maxPowerW);
+    public int? GetLoadPower() => Gate(_modbusRtuUdp?.ReadS32Register(35171), -_maxPowerW, _maxPowerW);
 
     /// <summary>
     /// Get Battery Power in wats
     /// </summary>
     /// <returns>negative value = charging, positive value = discharging </returns>
-    public int? GetBatteryPower() => _modbusRtuUdp?.ReadS32Register(35182);
-    public float? GetInverterInternalTemperature() => _modbusRtuUdp?.ReadS16Register(35174) / 10f;
-    public float? GetBatteryTemperature() => _modbusRtuUdp?.ReadU16Register(37003) / 10f;
-    public ushort? GetBatterySOC() => _modbusRtuUdp?.ReadU16Register(37007);
+    public int? GetBatteryPower() => Gate(_modbusRtuUdp?.ReadS32Register(35182), -_maxPowerW, _maxPowerW);
+    public float? GetInverterInternalTemperature() => Gate(_modbusRtuUdp?.ReadS16Register(35174) / 10f, -_maxTemperature, _maxTemperature);
+    public float? GetBatteryTemperature() => Gate(_modbusRtuUdp?.ReadU16Register(37003) / 10f, -_maxTemperature, _maxTemperature);
+    public ushort? GetBatterySOC() => Gate(_modbusRtuUdp?.ReadU16Register(37007), (ushort)0, (ushort)100);
     public BatteryStatus? GetBatteryStatus()
     {
         var value = _modbusRtuUdp?.ReadU16Register(35184);
-        return value == null ? null : (BatteryStatus)value;
+        if (value == null)
+        {
+            return null;
+        }
+
+        var status = (BatteryStatus)value;
+        return Enum.IsDefined(status) ? status : null;
     }
 
     public void SetBatteryDays(byte days)
