@@ -11,6 +11,11 @@ public class ModbusRtuUdp
         public CrcException(string message, Exception inner) : base(message, inner) { }
     }
 
+    public class ModbusException : Exception
+    {
+        public ModbusException(string message) : base(message) { }
+    }
+
     private byte DeviceAddress { get; set; }
 
     public int ServerPort { get; set; }
@@ -126,21 +131,18 @@ public class ModbusRtuUdp
         {
             client = _udpClient;
         }
-        var bytes = TrySendAndRecive(client, data);
-
-        if (bytes.Length == 5)
+        try
         {
-            Console.WriteLine($"Frame sended: {string.Join(", ", data)}");
-            Console.WriteLine($"Error frame recive: {string.Join(", ", bytes)}");
-            Console.WriteLine();
+            return TrySendAndRecive(client, data);
         }
-
-        if (local)
+        finally
         {
-            client.Close();
-            client.Dispose();
+            if (local)
+            {
+                client.Close();
+                client.Dispose();
+            }
         }
-        return bytes;
     }
 
     private byte[] TrySendAndRecive(UdpClient client, byte[] data)
@@ -151,24 +153,66 @@ public class ModbusRtuUdp
             {
                 client.Send(data, data.Length);
                 IPEndPoint remoteEndPoint = new(IPAddress.Any, ServerPort);
-                var bytes = client.Receive(ref remoteEndPoint);
-                if (ResponseHeaderSize > 0)
+                while (true)
                 {
-                    bytes = bytes[ResponseHeaderSize..];
+                    var bytes = client.Receive(ref remoteEndPoint);
+                    if (ResponseHeaderSize > 0)
+                    {
+                        bytes = bytes[ResponseHeaderSize..];
+                    }
+                    CheckCrc(bytes);
+
+                    if (IsResponseTo(data, bytes))
+                    {
+                        return bytes;
+                    }
+                    if (IsExceptionResponseTo(data, bytes))
+                    {
+                        throw new ModbusException($"Exception code {bytes[2]}, request: {string.Join(", ", data)}");
+                    }
+
+                    // valid frame, but answer to a different (stale / duplicated) request -> discard and keep waiting
+                    Console.WriteLine($"ModbusRtuUdp, discarded unexpected frame: {string.Join(", ", bytes)} (request: {string.Join(", ", data)})");
                 }
-                CheckCrc(bytes);
-                return bytes;
             }
             catch (Exception ex)
             {
                 //Console.WriteLine($"ModbusRtuUdp: {i} | {ex.Message}");
-                if (i == NumberofAttempts)
+                if (ex is ModbusException || i == NumberofAttempts)
                 {
                     throw;
                 }
             }
         }
         return [];
+    }
+
+    /// <summary>
+    /// Checks that the response matches the request: device address, function code, byte count / echoed address and value.
+    /// </summary>
+    private bool IsResponseTo(byte[] request, byte[] response)
+    {
+        if (response.Length < 5 || response[0] != DeviceAddress || response[1] != request[1])
+        {
+            return false;
+        }
+
+        switch (request[1])
+        {
+            case 0x03:
+                var amount = request[4] << 8 | request[5];
+                return response.Length == 5 + amount * 2 && response[2] == amount * 2;
+            case 0x06:
+                // echo of the request (without CRC)
+                return response.Length == request.Length && response.AsSpan(0, 6).SequenceEqual(request.AsSpan(0, 6));
+            default:
+                return true;
+        }
+    }
+
+    private bool IsExceptionResponseTo(byte[] request, byte[] response)
+    {
+        return response.Length == 5 && response[0] == DeviceAddress && response[1] == (request[1] | 0x80);
     }
 
     public bool Open()
