@@ -27,8 +27,8 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext(options)
 
     public DbSet<DbAction> Actions { get; set; }
 
-    //public DbSet<DbModuleIDF> IDFs { get; set; }
     public DbSet<DbModuleFirmware> Firmwares { get; set; }
+    public DbSet<DbModuleIDF> Idfs { get; set; }
     public DbSet<DbModuleProgram> Programs { get; set; }
     public DbSet<DbModuleProgramFile> ProgramsFiles { get; set; }
 
@@ -59,6 +59,16 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext(options)
             .WithMany(m => m.ServerTasks)
             .HasForeignKey(t => t.DashboardEntityId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<DbModuleFirmware>()
+            .HasOne(f => f.Idf)
+            .WithMany()
+            .HasForeignKey(f => f.IdfId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<DbModuleIDF>()
+            .HasIndex(i => i.Version)
+            .IsUnique();
 
         builder.Entity<DbAction>()
             .HasOne(a => a.Module)

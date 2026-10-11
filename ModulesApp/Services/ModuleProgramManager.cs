@@ -2,7 +2,6 @@
 using ModulesApp.Services.Data;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 
 namespace ModulesApp.Services;
 
@@ -21,45 +20,6 @@ public class ModuleProgramManager
     //{
 
     //}
-
-    public async Task RegisterFirmwaresAsync()
-    {
-        var path = _configuration["AppSettings:FirmwarePath"];
-        if (string.IsNullOrEmpty(path))
-        {
-            Console.WriteLine("Config: AppSettings:FirmwarePath, does not exist in appsettings.json");
-            return;
-        }
-        var firmwareDirs = Directory.GetDirectories(NormalizePath(path));
-        var firmwares = await _moduleProgramService.GetFirmwareListAsync();
-
-        foreach (var f in firmwares)
-        {
-            if (!Path.Exists(f.Path))
-            {
-                await _moduleProgramService.DeleteAsync(f);
-            }
-        }
-
-        foreach ( var f in firmwareDirs )
-        {
-            if (firmwares.Any(x => x.Path == f))
-            {
-                continue;
-            }
-            string json = File.ReadAllText(Path.Combine(f, "settings.json"));
-            var config = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-
-            var newFirmware = new DbModuleFirmware
-            {
-                Name = Path.GetFileName(f),
-                Path = f,
-                Version = config?["Version"] ?? string.Empty, 
-                IdfVersion = config?["IDFVersion"] ?? string.Empty
-            };
-            await _moduleProgramService.AddAsync(newFirmware);
-        }
-    }
 
     public async Task BuildProgramAsync(DbModuleProgram program, DataReceivedEventHandler outputHandler)
     {
@@ -106,7 +66,7 @@ public class ModuleProgramManager
         var idfPath = GetIDFPath(program.Firmware);
         if (string.IsNullOrEmpty(idfPath))
         {
-            InvokeOutputHandler(outputHandler, $"IDF version {program.Firmware.IdfVersion} path not found,");
+            InvokeOutputHandler(outputHandler, $"IDF path not found for firmware {program.Firmware.Name}.");
             return;
         }
         if (!Directory.Exists(programPath))
@@ -246,21 +206,9 @@ public class ModuleProgramManager
         handler.Invoke(null, args!);
     }
 
-    private string? GetIDFPath(DbModuleFirmware firmware)
+    private static string? GetIDFPath(DbModuleFirmware firmware)
     {
-        IConfigurationSection? section = null;
-        section = _configuration.GetSection("AppSettings:IDFPaths");
-        if(section != null)
-        {
-            foreach (var item in section.GetChildren())
-            {
-                if (item["Version"] == firmware.IdfVersion)
-                {
-                    return item["Path"];
-                }
-            }
-        }
-        return null;
+        return firmware.Idf?.NormalizedPath;
     }
 
     private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
