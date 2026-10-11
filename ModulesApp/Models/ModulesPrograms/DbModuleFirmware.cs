@@ -17,7 +17,7 @@ public class DbModuleFirmware
 
     public long? IdfId { get; set; }
     [ForeignKey("IdfId")]
-    public DbModuleIDF? Idf { get; set; }
+    public DbModuleIdf? Idf { get; set; }
 
     public string NormalizedPath => Path.Replace("\\", System.IO.Path.DirectorySeparatorChar.ToString());
 }

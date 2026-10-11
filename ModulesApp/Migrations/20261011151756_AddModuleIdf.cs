@@ -18,7 +18,7 @@ namespace ModulesApp.Migrations
                 nullable: true);
 
             migrationBuilder.CreateTable(
-                name: "ModuleIDF",
+                name: "ModuleIdf",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -28,7 +28,7 @@ namespace ModulesApp.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ModuleIDF", x => x.Id);
+                    table.PrimaryKey("PK_ModuleIdf", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
@@ -37,25 +37,25 @@ namespace ModulesApp.Migrations
                 column: "IdfId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ModuleIDF_Version",
-                table: "ModuleIDF",
+                name: "IX_ModuleIdf_Version",
+                table: "ModuleIdf",
                 column: "Version",
                 unique: true);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ModuleFirmware_ModuleIDF_IdfId",
+                name: "FK_ModuleFirmware_ModuleIdf_IdfId",
                 table: "ModuleFirmware",
                 column: "IdfId",
-                principalTable: "ModuleIDF",
+                principalTable: "ModuleIdf",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.SetNull);
 
             // keep existing IDF versions (paths are filled in later)
             migrationBuilder.Sql(@"
-                INSERT INTO ""ModuleIDF"" (""Version"", ""Path"")
+                INSERT INTO ""ModuleIdf"" (""Version"", ""Path"")
                 SELECT DISTINCT ""IdfVersion"", '' FROM ""ModuleFirmware"" WHERE ""IdfVersion"" <> '';
                 UPDATE ""ModuleFirmware"" f SET ""IdfId"" = i.""Id""
-                FROM ""ModuleIDF"" i WHERE i.""Version"" = f.""IdfVersion"";");
+                FROM ""ModuleIdf"" i WHERE i.""Version"" = f.""IdfVersion"";");
 
             migrationBuilder.DropColumn(
                 name: "IdfVersion",
@@ -74,14 +74,14 @@ namespace ModulesApp.Migrations
 
             migrationBuilder.Sql(@"
                 UPDATE ""ModuleFirmware"" f SET ""IdfVersion"" = i.""Version""
-                FROM ""ModuleIDF"" i WHERE i.""Id"" = f.""IdfId"";");
+                FROM ""ModuleIdf"" i WHERE i.""Id"" = f.""IdfId"";");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_ModuleFirmware_ModuleIDF_IdfId",
+                name: "FK_ModuleFirmware_ModuleIdf_IdfId",
                 table: "ModuleFirmware");
 
             migrationBuilder.DropTable(
-                name: "ModuleIDF");
+                name: "ModuleIdf");
 
             migrationBuilder.DropIndex(
                 name: "IX_ModuleFirmware_IdfId",

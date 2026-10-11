@@ -449,7 +449,7 @@ namespace ModulesApp.Migrations
                     b.ToTable("ModuleFirmware");
                 });
 
-            modelBuilder.Entity("ModulesApp.Models.ModulesPrograms.DbModuleIDF", b =>
+            modelBuilder.Entity("ModulesApp.Models.ModulesPrograms.DbModuleIdf", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -470,7 +470,7 @@ namespace ModulesApp.Migrations
                     b.HasIndex("Version")
                         .IsUnique();
 
-                    b.ToTable("ModuleIDF");
+                    b.ToTable("ModuleIdf");
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ModulesPrograms.DbModuleProgram", b =>
@@ -1014,7 +1014,7 @@ namespace ModulesApp.Migrations
 
             modelBuilder.Entity("ModulesApp.Models.ModulesPrograms.DbModuleFirmware", b =>
                 {
-                    b.HasOne("ModulesApp.Models.ModulesPrograms.DbModuleIDF", "Idf")
+                    b.HasOne("ModulesApp.Models.ModulesPrograms.DbModuleIdf", "Idf")
                         .WithMany()
                         .HasForeignKey("IdfId")
                         .OnDelete(DeleteBehavior.SetNull);

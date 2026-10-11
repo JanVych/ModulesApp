@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ModulesApp.Models.ModulesPrograms;
 
 
-[Table("ModuleIDF")]
-public class DbModuleIDF
+[Table("ModuleIdf")]
+public class DbModuleIdf
 {
-    public DbModuleIDF() { }
+    public DbModuleIdf() { }
 
     [Key]
     public long Id { get; set; }

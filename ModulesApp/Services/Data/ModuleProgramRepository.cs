@@ -37,7 +37,7 @@ public class ModuleProgramRepository
             .ToListAsync();
     }
 
-    public async Task<List<DbModuleIDF>> GetIdfListAsync()
+    public async Task<List<DbModuleIdf>> GetIdfListAsync()
     {
         await using var db = await _dbContextFactory.CreateDbContextAsync();
         return await db.Idfs.ToListAsync();
