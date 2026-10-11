@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ModulesApp.Data;
-using ModulesApp.Models;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -411,7 +410,7 @@ namespace ModulesApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<UserSettings>("Settings")
+                    b.Property<string>("Settings")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
@@ -428,9 +427,8 @@ namespace ModulesApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("IdfVersion")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<long?>("IdfId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -446,7 +444,33 @@ namespace ModulesApp.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IdfId");
+
                     b.ToTable("ModuleFirmware");
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.ModulesPrograms.DbModuleIdf", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Version")
+                        .IsUnique();
+
+                    b.ToTable("ModuleIdf");
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ModulesPrograms.DbModuleProgram", b =>
@@ -986,6 +1010,16 @@ namespace ModulesApp.Migrations
                     b.Navigation("BackgroundService");
 
                     b.Navigation("Module");
+                });
+
+            modelBuilder.Entity("ModulesApp.Models.ModulesPrograms.DbModuleFirmware", b =>
+                {
+                    b.HasOne("ModulesApp.Models.ModulesPrograms.DbModuleIdf", "Idf")
+                        .WithMany()
+                        .HasForeignKey("IdfId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Idf");
                 });
 
             modelBuilder.Entity("ModulesApp.Models.ModulesPrograms.DbModuleProgram", b =>

@@ -15,11 +15,9 @@ public class DbModuleFirmware
     public string Path { get; set; } = string.Empty;
     public string Version { get; set; } = string.Empty;
 
-    public string IdfVersion { get; set; } = string.Empty;
-
-    //public long IDFId { get; set; }
-    //[ForeignKey("IDFId")]
-    //public DbModuleIDF IDF { get; set; } = null!;
+    public long? IdfId { get; set; }
+    [ForeignKey("IdfId")]
+    public DbModuleIdf? Idf { get; set; }
 
     public string NormalizedPath => Path.Replace("\\", System.IO.Path.DirectorySeparatorChar.ToString());
 }

@@ -25,6 +25,7 @@ public class ModuleProgramRepository
         return await db.Programs
             .Include(p => p.Files)
             .Include(p => p.Firmware)
+                .ThenInclude(f => f.Idf)
             .ToListAsync();
     }
 
@@ -32,7 +33,14 @@ public class ModuleProgramRepository
     {
         await using var db = await _dbContextFactory.CreateDbContextAsync();
         return await db.Firmwares
+            .Include(f => f.Idf)
             .ToListAsync();
+    }
+
+    public async Task<List<DbModuleIdf>> GetIdfListAsync()
+    {
+        await using var db = await _dbContextFactory.CreateDbContextAsync();
+        return await db.Idfs.ToListAsync();
     }
 
     public async Task<DbModuleProgram> AddAsync(DbModuleProgram program)

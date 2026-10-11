@@ -118,11 +118,8 @@ public class Program
         using (var scope = app.Services.CreateScope())
         {
             var bacgroundServiceManager = scope.ServiceProvider.GetRequiredService<BackgroundServiceManager>();
-            var moduleProgramManager = scope.ServiceProvider.GetRequiredService<ModuleProgramManager>();
             // Launch background services
             bacgroundServiceManager.LaunchAsync().GetAwaiter().GetResult();
-            // Register firmwares
-            moduleProgramManager.RegisterFirmwaresAsync().GetAwaiter().GetResult();
         }
 
         app.Run();
