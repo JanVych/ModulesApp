@@ -45,7 +45,7 @@ public class ModuleProgramManager
     }
     public void BuildNvsData(DbModuleProgram program, DataReceivedEventHandler? outputHandler)
     {
-        var idfPath = GetIDFPath(program.Firmware);
+        var idfPath = program.Firmware.Idf?.NormalizedPath;
         if (string.IsNullOrEmpty(idfPath))
         {
             InvokeOutputHandler(outputHandler, "IDF path not found for the specified firmware.");
@@ -63,7 +63,7 @@ public class ModuleProgramManager
     private void RunEspIdfCommand(DbModuleProgram program, string command, DataReceivedEventHandler? outputHandler)
     {
         var programPath = Path.GetFullPath(program.Path);
-        var idfPath = GetIDFPath(program.Firmware);
+        var idfPath = program.Firmware.Idf?.NormalizedPath;
         if (string.IsNullOrEmpty(idfPath))
         {
             InvokeOutputHandler(outputHandler, $"IDF path not found for firmware {program.Firmware.Name}.");
@@ -204,11 +204,6 @@ public class ModuleProgramManager
 
         var args = ctor?.Invoke([message]) as DataReceivedEventArgs;
         handler.Invoke(null, args!);
-    }
-
-    private static string? GetIDFPath(DbModuleFirmware firmware)
-    {
-        return firmware.Idf?.NormalizedPath;
     }
 
     private void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
