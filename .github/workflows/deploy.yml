@@ -18,7 +18,7 @@ jobs:
       #    version-bump push below (step 1.3) authenticates as a real user, which
       #    can be added to the branch ruleset's bypass list.
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_PUSH_TOKEN }}
 
@@ -57,7 +57,7 @@ jobs:
       # 2. Install .NET SDK
       - name: Setup .NET SDK
         if: steps.version_check.outputs.already_set == 'true'
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '9.0.x'
 
